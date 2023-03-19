@@ -1,9 +1,15 @@
 [package]
-name = "my-cooking-codex-frontend"
+name = "mcc-frontend"
 version = "0.1.0"
 edition = "2021"
 
+[workspace]
+members = [
+    "crates/*",
+]
+
 [dependencies]
+mcc-frontend-core = { path = "./crates/core" }
 leptos = { version = "0.2.3", features = ["stable"] }
 log = "0.4"
 console_log = { version = "1", features = ["color"], optional = true }

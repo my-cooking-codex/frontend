@@ -1,0 +1,11 @@
+[package]
+name = "mcc-frontend-core"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+mcc-frontend-types = { path = "../types" }
+gloo = "0.8"
+serde = { version = "1.0" }
+web-sys = { version = "0.3", features = ["console", "File"] }
+serde_url_params = "^0.2.1"
