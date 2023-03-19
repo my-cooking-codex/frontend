@@ -8,7 +8,7 @@ pub mod user;
 
 use std::str::FromStr;
 
-#[derive(Serialize, Deserialize, Debug)]
+#[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
 pub struct Login {
     pub username: String,
     pub password: String,

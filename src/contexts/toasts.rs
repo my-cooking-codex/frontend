@@ -2,7 +2,7 @@ use std::collections::VecDeque;
 
 use leptos::*;
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct Toast {
     /// Message to display to user
     pub message: String,
@@ -22,7 +22,8 @@ impl Toasts {
 
     /// Method to push a "push toast" change
     pub fn push(&self, toast: Toast) {
-        self.set_toasts.update(|v| v.push_back(toast))
+        self.set_toasts.update(|v| v.push_back(toast.clone()));
+        log::debug!("pushed toast: {:?}", toast);
     }
 
     /// Method to push a "remove toast" change
