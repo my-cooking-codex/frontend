@@ -6,7 +6,8 @@ pub(crate) mod contexts;
 pub(crate) mod helpers;
 pub(crate) mod pages;
 
-use contexts::{api::CurrentApi, login::CurrentLogin, toasts::Toasts};
+use components::toasts::{Toasts, ToastsProps};
+use contexts::{api::CurrentApi, login::CurrentLogin, toasts::Toasts as ToastsContext};
 use pages::*;
 
 fn main() {
@@ -19,9 +20,10 @@ fn main() {
 pub fn App(cx: Scope) -> impl IntoView {
     provide_context(cx, CurrentLogin::new(cx));
     provide_context(cx, CurrentApi::new(cx));
-    provide_context(cx, Toasts::new(cx));
+    provide_context(cx, ToastsContext::new(cx));
 
     view! { cx,
+        <Toasts/>
         <Router>
             <Routes>
                 <Route path="/" view=move |cx| view! {cx, <Home/>} />
