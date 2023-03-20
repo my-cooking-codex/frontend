@@ -3,7 +3,7 @@ use crate::{
         login::CurrentLogin,
         prelude::{use_api, use_login, use_toasts, CurrentApi, Toast},
     },
-    helpers::{login_redirect_effect, LoginState},
+    helpers::{api_error_to_toast, login_redirect_effect, LoginState},
 };
 use leptos::{ev::SubmitEvent, *};
 use leptos_router::{AProps, A};
@@ -37,10 +37,8 @@ pub fn Login(cx: Scope) -> impl IntoView {
                 // request oauth token, with given details
                 let token = match api.post_login(&details).await {
                     Ok(v) => Some(v),
-                    Err(_) => {
-                        toasts.push(Toast {
-                            message: "Error logging in".to_owned(),
-                        });
+                    Err(err) => {
+                        toasts.push(api_error_to_toast(&err, "authenticating login"));
                         None
                     }
                 };
