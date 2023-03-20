@@ -2,6 +2,7 @@ use leptos::*;
 use leptos_router::*;
 
 pub(crate) mod contexts;
+pub(crate) mod helpers;
 pub(crate) mod pages;
 
 use contexts::{api::CurrentApi, login::CurrentLogin, toasts::Toasts};

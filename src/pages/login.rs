@@ -1,16 +1,21 @@
-use crate::contexts::{
-    login::CurrentLogin,
-    prelude::{use_api, use_login, use_toasts, CurrentApi, Toast},
+use crate::{
+    contexts::{
+        login::CurrentLogin,
+        prelude::{use_api, use_login, use_toasts, CurrentApi, Toast},
+    },
+    helpers::login_redirect_effect,
 };
 use leptos::{ev::SubmitEvent, *};
-use leptos_router::{use_navigate, AProps, A};
-use mcc_frontend_core::{api::{Api, sanitise_base_url}, APP_TITLE};
+use leptos_router::{AProps, A};
+use mcc_frontend_core::{
+    api::{sanitise_base_url, Api},
+    APP_TITLE,
+};
 use mcc_frontend_types::{Login, StoredLogin};
 
 #[component]
 pub fn Login(cx: Scope) -> impl IntoView {
-    let navigator = use_navigate(cx);
-    let CurrentLogin { login, set_login } = use_login(cx);
+    let CurrentLogin { set_login, .. } = use_login(cx);
     let CurrentApi { set_api, .. } = use_api(cx);
     let toasts = use_toasts(cx);
 
@@ -18,6 +23,12 @@ pub fn Login(cx: Scope) -> impl IntoView {
     let (username, set_username) = create_signal(cx, String::default());
     let (password, set_password) = create_signal(cx, String::default());
     let (login_details, set_login_details) = create_signal::<Option<Login>>(cx, Option::default());
+
+    login_redirect_effect(
+        cx,
+        crate::helpers::LoginState::Unauthenticated,
+        "/".to_owned(),
+    );
 
     let token = create_resource(
         cx,
@@ -52,13 +63,6 @@ pub fn Login(cx: Scope) -> impl IntoView {
             None
         },
     );
-
-    // redirect to home if logged in
-    create_signal(cx, move || {
-        if login.get().is_some() {
-            navigator("/", Default::default()).unwrap();
-        }
-    });
 
     let on_submit = move |event: SubmitEvent| {
         event.prevent_default();
