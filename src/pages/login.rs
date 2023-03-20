@@ -48,7 +48,7 @@ pub fn Login(cx: Scope) -> impl IntoView {
                         media_url: format!("{}/media", base_url),
                         token: token.clone(),
                     }));
-                    log::debug!("login successful");
+                    log::debug!("login successful, token will expire at: {:?}", token.expiry);
                 }
                 return token;
             }
