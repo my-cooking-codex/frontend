@@ -20,49 +20,44 @@ pub fn Login(cx: Scope) -> impl IntoView {
     let (base_url, set_base_url) = create_signal::<Option<String>>(cx, location().origin().ok());
     let (username, set_username) = create_signal(cx, String::default());
     let (password, set_password) = create_signal(cx, String::default());
-    let (login_details, set_login_details) = create_signal::<Option<Login>>(cx, Option::default());
 
     login_redirect_effect(cx, LoginState::Unauthenticated, "/");
 
-    let token = create_resource(
-        cx,
-        move || {},
-        move |_| async move {
-            if let Some(details) = login_details.get() {
-                let base_url = base_url.get().unwrap();
-                let api_url = format!("{}/api", base_url);
-                let api = Api::new(api_url.clone(), None);
-                // request oauth token, with given details
-                let token = match api.post_login(&details).await {
-                    Ok(v) => Some(v),
-                    Err(err) => {
-                        toasts.push(api_error_to_toast(&err, "authenticating login"));
-                        None
-                    }
-                };
-                // if successful, set api and login
-                if let Some(token) = &token {
+    let fetch_token = create_action(cx, move |args: &(String, Login)| {
+        let (base_url, details) = args.to_owned();
+        async move {
+            let api_url = format!("{}/api", base_url);
+            let media_url = format!("{}/media", base_url);
+            let api = Api::new(api_url.clone(), None);
+            // request oauth token, with given details
+            match api.post_login(&details).await {
+                Ok(token) => {
+                    log::debug!("login successful, token will expire at: {:?}", token.expiry);
                     set_api.set(Some(Api::new(api_url.clone(), Some(token.clone()))));
                     set_login.set(Some(StoredLogin {
                         api_url,
-                        media_url: format!("{}/media", base_url),
-                        token: token.clone(),
+                        media_url,
+                        token,
                     }));
-                    log::debug!("login successful, token will expire at: {:?}", token.expiry);
                 }
-                return token;
-            }
-            None
-        },
-    );
+                Err(err) => {
+                    toasts.push(api_error_to_toast(&err, "authenticating login"));
+                }
+            };
+        }
+    });
 
     let on_submit = move |event: SubmitEvent| {
         event.prevent_default();
-        set_login_details.set(Some(Login {
-            username: username.get(),
-            password: password.get(),
-        }));
-        token.refetch();
+        if let Some(base_url) = base_url.get() {
+            fetch_token.dispatch((
+                base_url,
+                Login {
+                    username: username.get(),
+                    password: password.get(),
+                },
+            ));
+        }
     };
 
     view! {cx,
@@ -102,14 +97,12 @@ pub fn Login(cx: Scope) -> impl IntoView {
                             </div>
                             <div class="form-control btn-group btn-group-vertical">
                                 {move || {
-                                    if token.loading().get() {
+                                    if fetch_token.pending().get() {
                                         view!(cx, <button type="submit" class="btn loading" disabled=true>"Login"</button>)
+                                    } else if base_url.get().is_some() {
+                                        view!(cx, <button type="submit" class="btn btn-primary">"Login"</button>)
                                     } else {
-                                        if base_url.get().is_some() {
-                                            view!(cx, <button type="submit" class="btn btn-primary">"Login"</button>)
-                                        } else {
-                                            view!(cx, <button type="submit" class="btn btn-disabled" disabled=true>"Login"</button>)
-                                        }
+                                        view!(cx, <button type="submit" class="btn btn-disabled" disabled=true>"Login"</button>)
                                     }
                                 }}
                                 <A href="/signup" class="btn">{"Signup Instead?"}</A>
