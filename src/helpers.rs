@@ -9,7 +9,9 @@ pub enum LoginState {
 }
 
 /// Redirects to a given path if the user is in an unexpected authentication state.
-pub fn login_redirect_effect(cx: Scope, required_state: LoginState, to: String) {
+pub fn login_redirect_effect(cx: Scope, required_state: LoginState, to: &str) {
+    let to = to.to_owned();
+
     let navigator = use_navigate(cx);
     let CurrentLogin { login, .. } = use_login(cx);
 
