@@ -1,16 +1,14 @@
 use crate::{
+    components::input::{BaseUrlInput, BaseUrlInputProps},
     contexts::{
         login::CurrentLogin,
-        prelude::{use_api, use_login, use_toasts, CurrentApi, Toast},
+        prelude::{use_api, use_login, use_toasts, CurrentApi},
     },
     helpers::{api_error_to_toast, login_redirect_effect, LoginState},
 };
-use leptos::{ev::SubmitEvent, *};
+use leptos::{ev::SubmitEvent, leptos_dom::helpers::location, *};
 use leptos_router::{AProps, A};
-use mcc_frontend_core::{
-    api::{sanitise_base_url, Api},
-    APP_TITLE,
-};
+use mcc_frontend_core::{api::Api, APP_TITLE};
 use mcc_frontend_types::{Login, StoredLogin};
 
 #[component]
@@ -19,7 +17,7 @@ pub fn Login(cx: Scope) -> impl IntoView {
     let CurrentApi { set_api, .. } = use_api(cx);
     let toasts = use_toasts(cx);
 
-    let (base_url, set_base_url) = create_signal(cx, String::default());
+    let (base_url, set_base_url) = create_signal::<Option<String>>(cx, location().origin().ok());
     let (username, set_username) = create_signal(cx, String::default());
     let (password, set_password) = create_signal(cx, String::default());
     let (login_details, set_login_details) = create_signal::<Option<Login>>(cx, Option::default());
@@ -31,7 +29,7 @@ pub fn Login(cx: Scope) -> impl IntoView {
         move || {},
         move |_| async move {
             if let Some(details) = login_details.get() {
-                let base_url = sanitise_base_url(base_url.get());
+                let base_url = base_url.get().unwrap();
                 let api_url = format!("{}/api", base_url);
                 let api = Api::new(api_url.clone(), None);
                 // request oauth token, with given details
@@ -77,17 +75,7 @@ pub fn Login(cx: Scope) -> impl IntoView {
                             <h2 class="text-4xl font-bold">"Please Login"</h2>
                         </div>
                         <form on:submit=on_submit>
-                            <div class="form-control mb-2">
-                                <label class="label"><span class="label-text">"URL"</span></label>
-                                <input
-                                    prop:value={move || base_url.get()}
-                                    on:input=move |ev| {set_base_url.set(event_target_value(&ev))}
-                                    type="url"
-                                    class="input input-bordered"
-                                    placeholder="e.g. https://..."
-                                    required=true
-                                />
-                            </div>
+                            <BaseUrlInput value=base_url.get() new_base_url=set_base_url />
                             <div class="form-control mb-2">
                                 <label class="label"><span class="label-text">"Username"</span></label>
                                 <input
@@ -117,7 +105,11 @@ pub fn Login(cx: Scope) -> impl IntoView {
                                     if token.loading().get() {
                                         view!(cx, <button type="submit" class="btn loading" disabled=true>"Login"</button>)
                                     } else {
-                                        view!(cx, <button type="submit" class="btn btn-primary">"Login"</button>)
+                                        if base_url.get().is_some() {
+                                            view!(cx, <button type="submit" class="btn btn-primary">"Login"</button>)
+                                        } else {
+                                            view!(cx, <button type="submit" class="btn btn-disabled" disabled=true>"Login"</button>)
+                                        }
                                     }
                                 }}
                                 <A href="/signup" class="btn">{"Signup Instead?"}</A>

@@ -1,6 +1,7 @@
 use leptos::*;
 use leptos_router::*;
 
+pub(crate) mod components;
 pub(crate) mod contexts;
 pub(crate) mod helpers;
 pub(crate) mod pages;
