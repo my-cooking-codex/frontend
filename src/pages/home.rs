@@ -1,7 +1,10 @@
 use crate::{
     components::{drawer::*, stats::*},
-    contexts::prelude::{use_api, use_toasts, CurrentApi},
-    helpers::{api_error_to_toast, login_redirect_effect, LoginState},
+    contexts::{
+        login::{use_login, CurrentLogin},
+        prelude::{use_api, use_toasts, CurrentApi},
+    },
+    helpers::{api_error_to_toast, login_redirect_effect, logout_on_401, LoginState},
 };
 use leptos::*;
 use mcc_frontend_types::stats::AccountStats;
@@ -15,6 +18,7 @@ pub fn Home(cx: Scope) -> impl IntoView {
     ];
 
     let CurrentApi { api, .. } = use_api(cx);
+    let CurrentLogin { set_login, .. } = use_login(cx);
     let toasts = use_toasts(cx);
 
     let account_stats = create_resource(
@@ -25,6 +29,7 @@ pub fn Home(cx: Scope) -> impl IntoView {
                 Ok(stats) => Some(stats),
                 Err(err) => {
                     toasts.push(api_error_to_toast(&err, "loading stats"));
+                    logout_on_401(&set_login, &err);
                     None
                 }
             }
