@@ -2,18 +2,15 @@ use leptos::*;
 
 pub mod login;
 pub mod logout;
+pub mod signup;
 
-pub use login::{Login, LoginProps};
-pub use logout::{Logout, LogoutProps};
+pub use login::*;
+pub use logout::*;
+pub use signup::*;
 
 #[component]
 pub fn Home(cx: Scope) -> impl IntoView {
     view! {cx, <h1>"Home"</h1>}
-}
-
-#[component]
-pub fn Signup(cx: Scope) -> impl IntoView {
-    view! {cx, <></>}
 }
 
 #[component]
