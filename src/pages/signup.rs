@@ -113,7 +113,7 @@ pub fn Signup(cx: Scope) -> impl IntoView {
                             <div class="form-control btn-group btn-group-vertical">
                                 {move || {
                                     if create_account.pending().get() {
-                                        view!{cx, <><button type="submit" class="btn btn-primary btn-disabled" disabled=true>"Loading"</button></>}
+                                        view!{cx, <><button type="submit" class="btn loading" disabled=true>"Signup"</button></>}
                                     } else if error_tooltip.get().is_empty() {
                                         view!{cx, <><button type="submit" class="btn btn-primary">"Signup"</button></>}
                                     } else {
