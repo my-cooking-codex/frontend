@@ -1,17 +1,14 @@
 use leptos::*;
 
+pub mod home;
 pub mod login;
 pub mod logout;
 pub mod signup;
 
+pub use home::*;
 pub use login::*;
 pub use logout::*;
 pub use signup::*;
-
-#[component]
-pub fn Home(cx: Scope) -> impl IntoView {
-    view! {cx, <h1>"Home"</h1>}
-}
 
 #[component]
 pub fn Recipes(cx: Scope) -> impl IntoView {
