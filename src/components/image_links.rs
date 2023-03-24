@@ -3,6 +3,7 @@ use leptos_router::{AProps, A};
 
 #[derive(Clone)]
 pub struct ImageLinkItem {
+    pub key: String,
     pub href: String,
     pub title: String,
     pub image_src: Option<String>,
@@ -39,12 +40,15 @@ fn ImageLinkGridItem(cx: Scope, item: ImageLinkItem) -> impl IntoView {
 
 #[component]
 pub fn ImageLinksBox(cx: Scope, items: ReadSignal<Vec<ImageLinkItem>>) -> impl IntoView {
-    let a = items.get();
     view! {cx,
         <div class="grid gap-4 grid-cols-1 md:grid-cols-3 lg:grid-cols-5 rounded p-3 bg-base-200">
-            {move || {items.get().iter().map(|item| {
-                view!{cx, <ImageLinkGridItem item={item.clone()}/>}
-            })}.collect::<Vec<_>>()}
+            <For
+                each=move || items.get()
+                key=move |item| item.key.to_owned()
+                view=move |cx, item: ImageLinkItem| view!{cx,
+                    <ImageLinkGridItem item={item.clone()}/>
+                }
+            />
         </div>
     }
 }
