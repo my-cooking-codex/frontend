@@ -10,10 +10,37 @@ use mcc_frontend_types::{recipe::Recipe, Fraction};
 
 #[component]
 fn RecipeContent(cx: Scope, recipe: Recipe) -> impl IntoView {
-    let navigator = use_navigate(cx);
-    let CurrentLogin { login, .. } = use_login(cx);
+    let toasts = use_toasts(cx);
+    let CurrentApi { api, .. } = use_api(cx);
+    let CurrentLogin { login, set_login } = use_login(cx);
     let media_url = move || login.get().expect("expected login to exist").media_url;
     let recipe = create_rw_signal(cx, recipe);
+
+    let delete_action = create_action(cx, move |_: &()| async move {
+        let navigator = use_navigate(cx);
+        let api = api.get().expect("expected api to exist");
+        match api.delete_recipe(&recipe.get().id).await {
+            Ok(_) => {
+                navigator("/recipes", Default::default()).unwrap();
+                true
+            }
+            Err(err) => {
+                toasts.push(api_error_to_toast(&err, "deleting recipe"));
+                logout_on_401(&set_login, &err);
+                false
+            }
+        }
+    });
+
+    let on_print_click = move |_| {
+        let id = recipe.get().id;
+        let print_window = window()
+            .open_with_url_and_target(&format!("/recipes/{id}/print"), "_blank")
+            .unwrap();
+        if let Some(print_window) = print_window {
+            print_window.open().unwrap();
+        }
+    };
 
     view! {cx,
         <>
@@ -43,13 +70,14 @@ fn RecipeContent(cx: Scope, recipe: Recipe) -> impl IntoView {
             </div>
             // toolbar
             <div class="mb-4 p-4 rounded bg-base-200">
-                <button class="btn">"Print"</button>
+                <button on:click=on_print_click class="btn">"Print"</button>
                 <div class="dropdown dropdown-bottom">
                     <label tabindex="0" class="btn m-1">"Remove"</label>
                     <div class="dropdown-content menu bg-base-200 rounded">
                         <button
-                            tabindex="0"
+                            on:click=move |_| delete_action.dispatch(())
                             class="btn btn-outline btn-error"
+                            tabindex="0"
                             aria-label="Confirm Deletion">
                             "Confirm"
                         </button>
