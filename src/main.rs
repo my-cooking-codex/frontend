@@ -7,7 +7,10 @@ pub(crate) mod helpers;
 pub(crate) mod pages;
 
 use components::toasts::{Toasts, ToastsProps};
-use contexts::{api::CurrentApi, login::CurrentLogin, toasts::Toasts as ToastsContext};
+use contexts::prelude::{
+    CurrentApi, CurrentLogin, ModalController, ModalViewer, ModalViewerProps,
+    Toasts as ToastsContext,
+};
 use pages::*;
 
 fn main() {
@@ -21,9 +24,11 @@ pub fn App(cx: Scope) -> impl IntoView {
     provide_context(cx, CurrentLogin::new(cx));
     provide_context(cx, CurrentApi::new(cx));
     provide_context(cx, ToastsContext::new(cx));
+    provide_context(cx, ModalController::new(cx));
 
     view! { cx,
         <Toasts/>
+        <ModalViewer/>
         <Router>
             <Routes>
                 <Route path="/" view=move |cx| view! {cx, <Home/>} />
