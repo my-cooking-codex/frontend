@@ -37,7 +37,7 @@ pub fn App(cx: Scope) -> impl IntoView {
                 <Route path="/logout" view=move |cx| view! {cx, <Logout/>} />
                 <Route path="/recipes" view=move |cx| view! {cx, <Recipes/>} />
                 <Route path="/recipes/new" view=move |cx| view! {cx, <NewRecipe/>} />
-                <Route path="/recipes/:id" view=move |cx| view! {cx, <Recipe/>} />
+                <Route path="/recipes/:id" view=move |cx| view! {cx, <RecipePage/>} />
                 <Route path="/recipes/:id/print" view=move |cx| view! {cx, <RecipePrint/>} />
             </Routes>
         </Router>
