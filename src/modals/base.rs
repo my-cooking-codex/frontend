@@ -1,18 +1,19 @@
 use leptos::*;
 
 #[component]
-pub fn ModalBase<F>(
+pub fn ModalBase<P, N>(
     cx: Scope,
     title: String,
     positive_text: String,
     negative_text: String,
     loading: ReadSignal<bool>,
-    on_positive: F,
-    on_negative: F,
+    on_positive: P,
+    on_negative: N,
     children: Children,
 ) -> impl IntoView
 where
-    F: Fn() + 'static,
+    P: Fn() + 'static,
+    N: Fn() + 'static,
 {
     view! {cx,
         <div class="modal modal-open">
@@ -44,16 +45,17 @@ where
 }
 
 #[component]
-pub fn ModalSaveCancel<F>(
+pub fn ModalSaveCancel<S, C>(
     cx: Scope,
     title: String,
     loading: ReadSignal<bool>,
-    on_save: F,
-    on_cancel: F,
+    on_save: S,
+    on_cancel: C,
     children: Children,
 ) -> impl IntoView
 where
-    F: Fn() + 'static,
+    S: Fn() + 'static,
+    C: Fn() + 'static,
 {
     ModalBase(
         cx,

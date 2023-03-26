@@ -3,14 +3,18 @@ use leptos_router::{use_navigate, use_params_map};
 
 use crate::{
     components::drawer::*,
-    contexts::prelude::{use_api, use_login, use_toasts, CurrentApi, CurrentLogin},
+    contexts::prelude::{
+        use_api, use_login, use_modal_controller, use_toasts, CurrentApi, CurrentLogin,
+    },
     helpers::{api_error_to_toast, login_redirect_effect, logout_on_401, LoginState},
+    modals::recipe::*,
 };
 use mcc_frontend_types::{recipe::Recipe, Fraction};
 
 #[component]
 fn RecipeContent(cx: Scope, recipe: Recipe) -> impl IntoView {
     let toasts = use_toasts(cx);
+    let modal_controller = use_modal_controller(cx);
     let CurrentApi { api, .. } = use_api(cx);
     let CurrentLogin { login, set_login } = use_login(cx);
     let media_url = move || login.get().expect("expected login to exist").media_url;
@@ -32,6 +36,13 @@ fn RecipeContent(cx: Scope, recipe: Recipe) -> impl IntoView {
         }
     });
 
+    let on_title_edit_action = move |new_title: Option<String>| {
+        if let Some(new_title) = new_title {
+            recipe.update(|r| r.title = new_title);
+        }
+        modal_controller.close();
+    };
+
     let on_print_click = move |_| {
         let id = recipe.get().id;
         let print_window = window()
@@ -40,6 +51,19 @@ fn RecipeContent(cx: Scope, recipe: Recipe) -> impl IntoView {
         if let Some(print_window) = print_window {
             print_window.open().unwrap();
         }
+    };
+
+    let on_edit_title_click = move |_| {
+        modal_controller.open(
+            view! {cx,
+                    <EditTitleModal
+                        id=recipe.get().id
+                        title=recipe.get().title
+                        on_action=on_title_edit_action
+                    />
+            }
+            .into_view(cx),
+        );
     };
 
     view! {cx,
@@ -64,7 +88,7 @@ fn RecipeContent(cx: Scope, recipe: Recipe) -> impl IntoView {
                             whitespace-nowrap overflow-hidden text-ellipsis">
                         {move || recipe.get().title}
                     </h1>
-                    <button class="btn">"Edit"</button>
+                    <button on:click=on_edit_title_click class="btn">"Edit"</button>
                     <button class="btn">"Edit Image"</button>
                 </div>
             </div>
