@@ -4,6 +4,7 @@ use leptos_router::*;
 pub(crate) mod components;
 pub(crate) mod contexts;
 pub(crate) mod helpers;
+pub(crate) mod modals;
 pub(crate) mod pages;
 
 use components::toasts::{Toasts, ToastsProps};
