@@ -1,2 +1,2 @@
 pub mod base;
-pub mod recipe;
+pub mod edit_recipe;

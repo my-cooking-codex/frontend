@@ -7,7 +7,7 @@ use crate::{
         use_api, use_login, use_modal_controller, use_toasts, CurrentApi, CurrentLogin,
     },
     helpers::{api_error_to_toast, login_redirect_effect, logout_on_401, LoginState},
-    modals::recipe::*,
+    modals::edit_recipe::*,
 };
 use mcc_frontend_types::{recipe::Recipe, Fraction};
 
