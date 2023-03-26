@@ -45,13 +45,20 @@ where
             on_save=move || update_title.dispatch(())
             on_cancel=move || on_action(None)
         >
-            <input
-                prop:value=move || title.get()
-                on:input=move |ev| {title.set(event_target_value(&ev))}
-                type="text"
-                class="my-4 input input-bordered w-full"
-                required=true
-            />
+            <div class="form-control">
+                <span class="label">"Update Title"</span>
+                <label class="input-group">
+                    <span>"Title"</span>
+                    <input
+                        prop:value=move || title.get()
+                        on:input=move |ev| {title.set(event_target_value(&ev))}
+                        type="text"
+                        class="input input-bordered w-full"
+                        placeholder="e.g. Pizza"
+                        required=true
+                    />
+                </label>
+            </div>
         </ModalSaveCancel>
     }
 }
