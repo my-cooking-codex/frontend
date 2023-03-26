@@ -43,6 +43,13 @@ fn RecipeContent(cx: Scope, recipe: Recipe) -> impl IntoView {
         modal_controller.close();
     };
 
+    let on_image_edit_action = move |new_image_id: Option<Option<String>>| {
+        if let Some(new_image_id) = new_image_id {
+            recipe.update(|r| r.image_id = new_image_id);
+        }
+        modal_controller.close();
+    };
+
     let on_print_click = move |_| {
         let id = recipe.get().id;
         let print_window = window()
@@ -60,6 +67,19 @@ fn RecipeContent(cx: Scope, recipe: Recipe) -> impl IntoView {
                         id=recipe.get().id
                         title=recipe.get().title
                         on_action=on_title_edit_action
+                    />
+            }
+            .into_view(cx),
+        );
+    };
+
+    let on_edit_image_click = move |_| {
+        modal_controller.open(
+            view! {cx,
+                    <EditImageModal
+                        id=recipe.get().id
+                        image_id=recipe.get().image_id
+                        on_action=on_image_edit_action
                     />
             }
             .into_view(cx),
@@ -89,7 +109,7 @@ fn RecipeContent(cx: Scope, recipe: Recipe) -> impl IntoView {
                         {move || recipe.get().title}
                     </h1>
                     <button on:click=on_edit_title_click class="btn">"Edit"</button>
-                    <button class="btn">"Edit Image"</button>
+                    <button on:click=on_edit_image_click class="btn">"Edit Image"</button>
                 </div>
             </div>
             // toolbar
