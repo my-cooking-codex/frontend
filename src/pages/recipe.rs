@@ -50,6 +50,20 @@ fn RecipeContent(cx: Scope, recipe: Recipe) -> impl IntoView {
         modal_controller.close();
     };
 
+    let on_description_edit_action = move |new_description: Option<String>| {
+        if let Some(new_description) = new_description {
+            recipe.update(|r| r.short_description = Some(new_description));
+        }
+        modal_controller.close();
+    };
+
+    let on_long_description_edit_action = move |new_description: Option<String>| {
+        if let Some(new_description) = new_description {
+            recipe.update(|r| r.long_description = Some(new_description));
+        }
+        modal_controller.close();
+    };
+
     let on_print_click = move |_| {
         let id = recipe.get().id;
         let print_window = window()
@@ -80,6 +94,32 @@ fn RecipeContent(cx: Scope, recipe: Recipe) -> impl IntoView {
                         id=recipe.get().id
                         image_id=recipe.get().image_id
                         on_action=on_image_edit_action
+                    />
+            }
+            .into_view(cx),
+        );
+    };
+
+    let on_edit_description_click = move |_| {
+        modal_controller.open(
+            view! {cx,
+                    <EditDescriptionModal
+                        id=recipe.get().id
+                        description=recipe.get().short_description.unwrap_or_default()
+                        on_action=on_description_edit_action
+                    />
+            }
+            .into_view(cx),
+        );
+    };
+
+    let on_edit_long_description_click = move |_| {
+        modal_controller.open(
+            view! {cx,
+                    <EditLongDescriptionModal
+                        id=recipe.get().id
+                        description=recipe.get().long_description.unwrap_or_default()
+                        on_action=on_long_description_edit_action
                     />
             }
             .into_view(cx),
@@ -160,7 +200,7 @@ fn RecipeContent(cx: Scope, recipe: Recipe) -> impl IntoView {
             <div class="mb-4 p-4 rounded bg-base-200">
                 <div class="flex mb-2">
                     <h2 class="text-xl font-bold mr-auto">"Description"</h2>
-                    <button class="btn">"Edit"</button>
+                    <button on:click=on_edit_description_click class="btn">"Edit"</button>
                 </div>
                 <p>{move || recipe.get().short_description}</p>
             </div>
@@ -168,7 +208,7 @@ fn RecipeContent(cx: Scope, recipe: Recipe) -> impl IntoView {
             <div class="mb-4 p-4 rounded bg-base-200">
                 <div class="flex mb-2">
                     <h2 class="text-xl font-bold mr-auto">"Notes"</h2>
-                    <button class="btn">"Edit"</button>
+                    <button on:click=on_edit_long_description_click class="btn">"Edit"</button>
                 </div>
                 <pre class="whitespace-normal text-base font-sans">{move || recipe.get().long_description}</pre>
             </div>
