@@ -8,8 +8,8 @@
     "dev": "trunk serve"
   },
   "devDependencies": {
-    "autoprefixer": "^10.4.13",
-    "daisyui": "^2.51.0",
+    "autoprefixer": "^10.4.14",
+    "daisyui": "^2.51.5",
     "postcss": "^8.4.21",
     "tailwindcss": "^3.2.7"
   }
