@@ -9,7 +9,10 @@ use crate::{
     helpers::{api_error_to_toast, login_redirect_effect, logout_on_401, LoginState},
     modals::edit_recipe::*,
 };
-use mcc_frontend_types::{recipe::Recipe, Fraction};
+use mcc_frontend_types::{
+    recipe::{Recipe, Step},
+    Fraction,
+};
 
 #[component]
 fn RecipeContent(cx: Scope, recipe: Recipe) -> impl IntoView {
@@ -60,6 +63,13 @@ fn RecipeContent(cx: Scope, recipe: Recipe) -> impl IntoView {
     let on_long_description_edit_action = move |new_description: Option<String>| {
         if let Some(new_description) = new_description {
             recipe.update(|r| r.long_description = Some(new_description));
+        }
+        modal_controller.close();
+    };
+
+    let on_steps_edit_action = move |new_steps: Option<Vec<Step>>| {
+        if let Some(new_steps) = new_steps {
+            recipe.update(|r| r.steps = new_steps);
         }
         modal_controller.close();
     };
@@ -120,6 +130,19 @@ fn RecipeContent(cx: Scope, recipe: Recipe) -> impl IntoView {
                         id=recipe.get().id
                         description=recipe.get().long_description.unwrap_or_default()
                         on_action=on_long_description_edit_action
+                    />
+            }
+            .into_view(cx),
+        );
+    };
+
+    let on_edit_steps_click = move |_| {
+        modal_controller.open(
+            view! {cx,
+                    <EditStepsModal
+                        id=recipe.get().id
+                        steps=recipe.get().steps
+                        on_action=on_steps_edit_action
                     />
             }
             .into_view(cx),
@@ -249,7 +272,7 @@ fn RecipeContent(cx: Scope, recipe: Recipe) -> impl IntoView {
                 <div class="w-full p-4 rounded bg-base-200">
                     <div class="flex mb-2">
                         <h2 class="text-xl font-bold mr-auto">"Steps"</h2>
-                        <button class="btn">"Edit"</button>
+                        <button on:click=on_edit_steps_click class="btn">"Edit"</button>
                     </div>
                     <ul>
                         {move || {
