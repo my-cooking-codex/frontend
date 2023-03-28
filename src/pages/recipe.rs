@@ -188,8 +188,10 @@ fn RecipeContent(cx: Scope, recipe: Recipe) -> impl IntoView {
                             whitespace-nowrap overflow-hidden text-ellipsis">
                         {move || recipe.get().title}
                     </h1>
-                    <button on:click=on_edit_title_click class="btn">"Edit"</button>
-                    <button on:click=on_edit_image_click class="btn">"Edit Image"</button>
+                    <div class="btn-group">
+                        <button on:click=on_edit_title_click class="btn">"Edit"</button>
+                        <button on:click=on_edit_image_click class="btn">"Edit Image"</button>
+                    </div>
                 </div>
             </div>
             // toolbar
