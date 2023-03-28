@@ -1,6 +1,11 @@
 use leptos::*;
 use mcc_frontend_core::api::sanitise_base_url;
+use mcc_frontend_types::Fraction;
+use regex::Regex;
 use url::Url;
+
+const VALID_FRACTIONAL_INPUT_REGEX: &str = r#"^(?:(?:\d+)|(?:\d+/\d+)|(?:\d+\.\d+))$"#;
+const VALID_FRACTION_REGEX: &str = r#"^(?:\d+/\d+)$"#;
 
 fn make_preview_url(base_url: &str) -> Option<String> {
     let url = Url::parse(base_url).ok()?;
@@ -70,5 +75,63 @@ pub fn BaseUrlInput(
                 }}
             </div>
         </div>
+    }
+}
+
+#[component]
+pub fn FractionalInput<F>(
+    cx: Scope,
+    class: String,
+    value: f32,
+    on_input: F,
+    required: bool,
+    placeholder: String,
+) -> impl IntoView
+where
+    F: Fn(f32) + 'static + Copy,
+{
+    let invalid = create_rw_signal(cx, false);
+    let input_value = create_rw_signal(cx, value.to_string());
+
+    let on_value_input = move |ev| {
+        let input = event_target_value(&ev);
+        if Regex::new(VALID_FRACTIONAL_INPUT_REGEX)
+            .unwrap()
+            .is_match(&input)
+        {
+            let parsed: f32;
+            // if the input is a valid fractional number, update the state
+            if Regex::new(VALID_FRACTION_REGEX).unwrap().is_match(&input) {
+                // parse input is a valid fraction, convert it to a float
+                let raw_float: f32 = input
+                    .parse::<Fraction>()
+                    .expect("Failed to parse fraction")
+                    .into();
+                // 'round' float to 2 decimal places.
+                parsed = (raw_float * 100.0).round() / 100.0;
+                on_input(parsed);
+            } else {
+                // parse input as a float, with or without decimal place
+                parsed = input.parse::<f32>().expect("Failed to parse float");
+                on_input(parsed);
+            }
+            invalid.set(false);
+        } else {
+            invalid.set(true);
+        }
+    };
+
+    view! {cx,
+        <input
+            prop:value=move || input_value.get()
+            on:input=on_value_input
+            type="text"
+            class=class
+            // class="input-error" // ! needed for tailwind to include the css !
+            class:input-error=move || invalid.get()
+            pattern={VALID_FRACTIONAL_INPUT_REGEX}
+            required=required
+            placeholder=placeholder
+        />
     }
 }

@@ -9,10 +9,7 @@ use crate::{
     helpers::{api_error_to_toast, login_redirect_effect, logout_on_401, LoginState},
     modals::edit_recipe::*,
 };
-use mcc_frontend_types::{
-    recipe::{Recipe, Step},
-    Fraction,
-};
+use mcc_frontend_types::{recipe::Recipe, Fraction};
 
 #[component]
 fn RecipeContent(cx: Scope, recipe: Recipe) -> impl IntoView {
@@ -39,35 +36,42 @@ fn RecipeContent(cx: Scope, recipe: Recipe) -> impl IntoView {
         }
     });
 
-    let on_title_edit_action = move |new_title: Option<String>| {
+    let on_title_edit_action = move |new_title| {
         if let Some(new_title) = new_title {
             recipe.update(|r| r.title = new_title);
         }
         modal_controller.close();
     };
 
-    let on_image_edit_action = move |new_image_id: Option<Option<String>>| {
+    let on_image_edit_action = move |new_image_id| {
         if let Some(new_image_id) = new_image_id {
             recipe.update(|r| r.image_id = new_image_id);
         }
         modal_controller.close();
     };
 
-    let on_description_edit_action = move |new_description: Option<String>| {
+    let on_description_edit_action = move |new_description| {
         if let Some(new_description) = new_description {
             recipe.update(|r| r.short_description = Some(new_description));
         }
         modal_controller.close();
     };
 
-    let on_long_description_edit_action = move |new_description: Option<String>| {
+    let on_long_description_edit_action = move |new_description| {
         if let Some(new_description) = new_description {
             recipe.update(|r| r.long_description = Some(new_description));
         }
         modal_controller.close();
     };
 
-    let on_steps_edit_action = move |new_steps: Option<Vec<Step>>| {
+    let on_ingredients_edit_action = move |new_ingredients| {
+        if let Some(new_ingredients) = new_ingredients {
+            recipe.update(|r| r.ingredients = new_ingredients);
+        }
+        modal_controller.close();
+    };
+
+    let on_steps_edit_action = move |new_steps| {
         if let Some(new_steps) = new_steps {
             recipe.update(|r| r.steps = new_steps);
         }
@@ -130,6 +134,19 @@ fn RecipeContent(cx: Scope, recipe: Recipe) -> impl IntoView {
                         id=recipe.get().id
                         description=recipe.get().long_description.unwrap_or_default()
                         on_action=on_long_description_edit_action
+                    />
+            }
+            .into_view(cx),
+        );
+    };
+
+    let on_edit_ingredients_click = move |_| {
+        modal_controller.open(
+            view! {cx,
+                    <EditIngredientsModal
+                        id=recipe.get().id
+                        ingredients=recipe.get().ingredients
+                        on_action=on_ingredients_edit_action
                     />
             }
             .into_view(cx),
@@ -241,7 +258,7 @@ fn RecipeContent(cx: Scope, recipe: Recipe) -> impl IntoView {
                 <div class="basis-full md:basis-3/4 lg:basis-11/12 p-4 rounded bg-base-200">
                     <div class="flex mb-2">
                         <h2 class="text-xl font-bold mr-auto">"Ingredients"</h2>
-                        <button class="btn">"Edit"</button>
+                        <button on:click=on_edit_ingredients_click class="btn">"Edit"</button>
                     </div>
                     <table class="table table-compact table-zebra w-full">
                         <thead>
