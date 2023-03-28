@@ -46,7 +46,7 @@ pub fn ImageLinksBox(cx: Scope, items: ReadSignal<Vec<ImageLinkItem>>) -> impl I
                 each=move || items.get()
                 key=move |item| item.key.to_owned()
                 view=move |cx, item: ImageLinkItem| view!{cx,
-                    <ImageLinkGridItem item={item.clone()}/>
+                    <ImageLinkGridItem item={item}/>
                 }
             />
         </div>

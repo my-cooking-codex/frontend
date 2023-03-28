@@ -55,10 +55,8 @@ pub fn NewRecipe(cx: Scope) -> impl IntoView {
 
     // Navigate to the new recipe page after it's created successfully
     create_effect(cx, move |_| {
-        if let Some(recipe) = create_new_recipe.value().get() {
-            if let Some(recipe) = recipe {
-                navigator(&format!("/recipes/{}", recipe.id), Default::default()).unwrap();
-            }
+        if let Some(Some(recipe)) = create_new_recipe.value().get() {
+            navigator(&format!("/recipes/{}", recipe.id), Default::default()).unwrap();
         }
     });
 

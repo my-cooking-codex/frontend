@@ -47,21 +47,19 @@ pub fn Recipes(cx: Scope) -> impl IntoView {
     // update the items when recipes are fetched
     create_effect(cx, move |_| {
         let media_url = login.get().expect("expected login to exist").media_url;
-        if let Some(recipes) = fetch_recipes.read(cx) {
-            recipes.map(|recipes| {
-                set_items.update(|v| {
-                    v.extend(recipes.iter().map(|recipe| {
-                        ImageLinkItem {
-                            key: recipe.id.clone(),
-                            href: format!("/recipes/{}", recipe.id),
-                            title: recipe.title.clone(),
-                            image_src: recipe
-                                .image_id
-                                .as_ref()
-                                .map(|v| format!("{}/recipe-image/{}", media_url, v)),
-                        }
-                    }));
-                });
+        if let Some(Some(recipes)) = fetch_recipes.read(cx) {
+            set_items.update(|v| {
+                v.extend(recipes.iter().map(|recipe| {
+                    ImageLinkItem {
+                        key: recipe.id.clone(),
+                        href: format!("/recipes/{}", recipe.id),
+                        title: recipe.title.clone(),
+                        image_src: recipe
+                            .image_id
+                            .as_ref()
+                            .map(|v| format!("{}/recipe-image/{}", media_url, v)),
+                    }
+                }));
             });
         }
     });
