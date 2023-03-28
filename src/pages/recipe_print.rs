@@ -121,6 +121,15 @@ pub fn RecipePrint(cx: Scope) -> impl IntoView {
 
     view! {cx,
         <div class="p-2" data-theme="light">
+            <button
+                on:click=move |_| window().print().unwrap()
+                class="btn btn-primary my-4 mx-auto block print:hidden"
+            >
+                "Click Here To Print Or: "
+                <kbd data-theme="light" class="kbd">"ctrl"</kbd>
+                "+"
+                <kbd data-theme="light" class="kbd">"p"</kbd>
+            </button>
             {move || {
                 if let Some(recipe) = recipe.read(cx) {
                     if let Some(recipe) = recipe {
