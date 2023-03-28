@@ -272,7 +272,7 @@ fn RecipeContent(cx: Scope, recipe: Recipe) -> impl IntoView {
                     <h2 class="text-xl font-bold mr-auto">"Notes"</h2>
                     <button on:click=on_edit_long_description_click class="btn">"Edit"</button>
                 </div>
-                <pre class="whitespace-normal text-base font-sans">{move || recipe.get().long_description}</pre>
+                <pre class="whitespace-pre-line text-base font-sans">{move || recipe.get().long_description}</pre>
             </div>
             // ingredients and steps
             <div class="flex flex-col md:flex-row gap-4">
@@ -321,7 +321,7 @@ fn RecipeContent(cx: Scope, recipe: Recipe) -> impl IntoView {
                                         <h2 class="text-l font-bold mb-2">
                                             {&step.title.to_owned().unwrap_or_else(|| format!("Step {}", i+1))}
                                         </h2>
-                                        <pre class="whitespace-normal text-base font-sans">{&step.description}</pre>
+                                        <pre class="whitespace-pre-line text-base font-sans">{&step.description}</pre>
                                     </li>
                                 }
                             }).collect::<Vec<_>>()

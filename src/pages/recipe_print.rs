@@ -54,7 +54,7 @@ fn RecipePrintContent(cx: Scope, recipe: Recipe) -> impl IntoView {
             </div>
             <div class="mb-4">
                 <h2 class="text-xl font-bold mb-1">"Notes"</h2>
-                <pre class="whitespace-normal text-base font-sans">{recipe.long_description}</pre>
+                <pre class="whitespace-pre-line text-base font-sans">{recipe.long_description}</pre>
             </div>
             <div class="mb-4">
                 <h2 class="text-xl font-bold mb-1">{"Ingredients"}</h2>
@@ -89,7 +89,7 @@ fn RecipePrintContent(cx: Scope, recipe: Recipe) -> impl IntoView {
                         view!{cx,
                             <li class="mb-2">
                                 <h2 class="text-l font-bold mb-2">{&step.title.clone().unwrap_or_else(|| format!("Step {}", i+1))}</h2>
-                                <pre class="whitespace-normal text-base font-sans">{&step.description}</pre>
+                                <pre class="whitespace-pre-line text-base font-sans">{&step.description}</pre>
                             </li>
                         }
                     }).collect::<Vec<_>>()
