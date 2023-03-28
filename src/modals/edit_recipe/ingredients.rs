@@ -16,7 +16,6 @@ enum EditIngredientEvent {
 fn EditIngredient<F>(
     cx: Scope,
     index: usize,
-    len: usize,
     ingredient: Ingredient,
     on_event: F,
 ) -> impl IntoView
@@ -172,7 +171,6 @@ where
                     view! {cx,
                         <EditIngredient
                             index=i
-                            len=ingredients.len()
                             ingredient=ingredient.clone()
                             on_event=on_event
                         />}

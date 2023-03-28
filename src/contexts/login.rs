@@ -22,11 +22,6 @@ impl CurrentLogin {
 
         Self { login, set_login }
     }
-
-    /// get the current `StoredLogin`, will panic if value is none.
-    pub fn must_get(&self) -> StoredLogin {
-        self.login.get().expect("unable to get current login, it is none")
-    }
 }
 
 pub fn use_login(cx: Scope) -> CurrentLogin {

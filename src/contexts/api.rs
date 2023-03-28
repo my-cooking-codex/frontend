@@ -24,11 +24,6 @@ impl CurrentApi {
 
         Self { api, set_api }
     }
-
-    /// get the current `Api`, will panic if value is none.
-    pub fn must_get(&self) -> Api {
-        self.api.get().expect("unable to get current api, it is none")
-    }
 }
 
 pub fn use_api(cx: Scope) -> CurrentApi {
