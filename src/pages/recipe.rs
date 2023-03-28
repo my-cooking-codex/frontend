@@ -50,6 +50,13 @@ fn RecipeContent(cx: Scope, recipe: Recipe) -> impl IntoView {
         modal_controller.close();
     };
 
+    let on_info_edit_action = move |new_info| {
+        if let Some(new_info) = new_info {
+            recipe.update(|r| r.info = new_info);
+        }
+        modal_controller.close();
+    };
+
     let on_description_edit_action = move |new_description| {
         if let Some(new_description) = new_description {
             recipe.update(|r| r.short_description = Some(new_description));
@@ -108,6 +115,19 @@ fn RecipeContent(cx: Scope, recipe: Recipe) -> impl IntoView {
                         id=recipe.get().id
                         image_id=recipe.get().image_id
                         on_action=on_image_edit_action
+                    />
+            }
+            .into_view(cx),
+        );
+    };
+
+    let on_edit_info_click = move |_| {
+        modal_controller.open(
+            view! {cx,
+                    <EditInfoModal
+                        id=recipe.get().id
+                        info=recipe.get().info
+                        on_action=on_info_edit_action
                     />
             }
             .into_view(cx),
@@ -214,7 +234,7 @@ fn RecipeContent(cx: Scope, recipe: Recipe) -> impl IntoView {
             <div class="mb-4 p-4 rounded bg-base-200">
                 <div class="flex mb-2">
                     <h2 class="text-xl font-bold mr-auto">"Info"</h2>
-                    <button class="btn">"Edit"</button>
+                    <button on:click=on_edit_info_click class="btn">"Edit"</button>
                 </div>
                 <table class="table">
                     <tbody>
