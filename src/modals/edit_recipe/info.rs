@@ -53,12 +53,12 @@ where
                 <label class="input-group w-auto">
                     <span>"Amount"</span>
                     <input
-                        prop:value=move || info.get().yields.unwrap_or_else(|| InfoYields { value: 0, unit_type: "".to_owned() }).value
+                        prop:value=move || info.get().yields.unwrap_or_else(|| InfoYields::default()).value
                         on:input=move |ev| {
                             info.update(|info| {
                                 info.yields = Some(InfoYields {
                                     value: event_target_value(&ev).parse().unwrap_or(0),
-                                    unit_type: info.yields.clone().unwrap_or_else(|| InfoYields { value: 0, unit_type: "".to_owned() }).unit_type,
+                                    unit_type: info.yields.clone().unwrap_or_else(|| InfoYields::default()).unit_type,
                                 });
                             })
                         }
@@ -70,11 +70,11 @@ where
                 <label class="input-group">
                     <span>"Type"</span>
                     <input
-                        prop:value=move || info.get().yields.unwrap_or_else(|| InfoYields { value: 0, unit_type: "".to_owned() }).unit_type
+                        prop:value=move || info.get().yields.unwrap_or_else(|| InfoYields::default()).unit_type
                         on:input=move |ev| {
                             info.update(|info| {
                                 info.yields = Some(InfoYields {
-                                    value: info.yields.clone().unwrap_or_else(|| InfoYields { value: 0, unit_type: "".to_owned() }).value,
+                                    value: info.yields.clone().unwrap_or_else(|| InfoYields::default()).value,
                                     unit_type: event_target_value(&ev),
                                 });
                             })
