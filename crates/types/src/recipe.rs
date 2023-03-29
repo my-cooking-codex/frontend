@@ -36,6 +36,7 @@ pub struct CreateRecipe {
     pub ingredients: Vec<CreateIngredient>,
     #[serde(default)]
     pub steps: Vec<CreateStep>,
+    pub source: Option<String>,
 }
 
 #[derive(Serialize, Deserialize, Debug, Default)]
@@ -79,6 +80,8 @@ pub struct UpdateRecipe {
     pub ingredients: Option<Vec<UpdateIngredient>>,
     #[serde(default)]
     pub steps: Option<Vec<UpdateStep>>,
+    #[serde(default)]
+    pub source: Option<String>,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq, Default)]
@@ -110,6 +113,10 @@ pub struct InfoYields {
 #[serde(rename_all = "camelCase")]
 pub struct Info {
     pub yields: Option<InfoYields>,
+    pub cook_time: usize,
+    pub prep_time: usize,
+    pub freezable: bool,
+    pub microwave_only: bool,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
@@ -132,4 +139,6 @@ pub struct Recipe {
     pub steps: Vec<Step>,
     #[serde(default)]
     pub image_id: Option<String>,
+    #[serde(default)]
+    pub source: Option<String>,
 }

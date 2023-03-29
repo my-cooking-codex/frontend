@@ -26,6 +26,7 @@ where
                     &UpdateRecipe {
                         info: UpdateInfo {
                             yields: info.yields.clone(),
+                            ..Default::default()
                         },
                         ..Default::default()
                     },
