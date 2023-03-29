@@ -89,9 +89,13 @@ pub struct InfoYields {
 #[serde(rename_all = "camelCase")]
 pub struct Info {
     pub yields: Option<InfoYields>,
+    #[serde(default)]
     pub cook_time: usize,
+    #[serde(default)]
     pub prep_time: usize,
+    #[serde(default)]
     pub freezable: bool,
+    #[serde(default)]
     pub microwave_only: bool,
 }
 
