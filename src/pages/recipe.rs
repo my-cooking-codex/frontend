@@ -236,47 +236,42 @@ fn RecipeContent(cx: Scope, recipe: Recipe) -> impl IntoView {
                     <h2 class="text-xl font-bold mr-auto">"Info"</h2>
                     <button on:click=on_edit_info_click class="btn">"Edit"</button>
                 </div>
-                <table class="table">
+                <table class="table table-zebra w-full max-w-5xl">
                     <tbody>
-                        {move || {
-                            if let Some(v) = &recipe.get().info.yields {
-                                view!{cx,
-                                    <tr>
-                                        <th>{&v.unit_type}</th>
-                                        <td>{v.value}</td>
-                                    </tr>
-                                }
-                            } else {
-                                view!{cx,
-                                    <tr>
-                                        <th>"Servings"</th>
-                                        <td>"-"</td>
-                                    </tr>
-                                }
-                            }
-                        }}
                         {move || {
                             let info = &recipe.get().info;
                             view!{cx,
-                                <tr>
-                                    <th>"Total Time"</th>
-                                    <td>{HourMinuteSecond::from_secs(info.prep_time + info.cook_time).as_hms()}</td>
-                                </tr>
-                                <tr>
-                                    <th>"Prep Time"</th>
-                                    <td>{HourMinuteSecond::from_secs(info.prep_time).as_hms()}</td>
-                                </tr>
-                                <tr>
-                                    <th>"Cook Time"</th>
-                                    <td>{HourMinuteSecond::from_secs(info.cook_time).as_hms()}</td>
-                                </tr>
-                                <tr>
-                                    <th>"Freezable"</th>
+                                {if let Some(v) = &info.yields {
+                                    view!{cx,
+                                        <tr class="text-center">
+                                            <th>{&v.unit_type}</th>
+                                            <th>"Freezable"</th>
+                                            <th>"Microwave Only"</th>
+                                        </tr>
+                                    }
+                                } else {
+                                    view!{cx,
+                                        <tr class="text-center">
+                                            <th>"Servings"</th>
+                                            <th>"Freezable"</th>
+                                            <th>"Microwave Only"</th>
+                                        </tr>
+                                    }
+                                }}
+                                <tr class="text-center">
+                                    <td>{info.yields.clone().unwrap_or_default().value}</td>
                                     <td><input prop:checked=info.freezable type="checkbox" class="checkbox" disabled=true/></td>
-                                </tr>
-                                <tr>
-                                    <th>"Microwave Only"</th>
                                     <td><input prop:checked=info.microwave_only type="checkbox" class="checkbox" disabled=true/></td>
+                                </tr>
+                                <tr class="text-center">
+                                    <th>"Total Time"</th>
+                                    <th>"Prep Time"</th>
+                                    <th>"Cook Time"</th>
+                                </tr>
+                                <tr class="text-center">
+                                    <td>{HourMinuteSecond::from_secs(info.prep_time + info.cook_time).as_hms()}</td>
+                                    <td>{HourMinuteSecond::from_secs(info.prep_time).as_hms()}</td>
+                                    <td>{HourMinuteSecond::from_secs(info.cook_time).as_hms()}</td>
                                 </tr>
                             }
                         }}
