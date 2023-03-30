@@ -9,7 +9,7 @@ use crate::{
     helpers::{api_error_to_toast, login_redirect_effect, logout_on_401, LoginState},
     modals::edit_recipe::*,
 };
-use mcc_frontend_types::{recipe::Recipe, Fraction};
+use mcc_frontend_types::{recipe::Recipe, Fraction, HourMinuteSecond};
 
 #[component]
 fn RecipeContent(cx: Scope, recipe: Recipe) -> impl IntoView {
@@ -253,6 +253,31 @@ fn RecipeContent(cx: Scope, recipe: Recipe) -> impl IntoView {
                                         <td>"-"</td>
                                     </tr>
                                 }
+                            }
+                        }}
+                        {move || {
+                            let info = &recipe.get().info;
+                            view!{cx,
+                                <tr>
+                                    <th>"Total Time"</th>
+                                    <td>{HourMinuteSecond::from_secs(info.prep_time + info.cook_time).as_hms()}</td>
+                                </tr>
+                                <tr>
+                                    <th>"Prep Time"</th>
+                                    <td>{HourMinuteSecond::from_secs(info.prep_time).as_hms()}</td>
+                                </tr>
+                                <tr>
+                                    <th>"Cook Time"</th>
+                                    <td>{HourMinuteSecond::from_secs(info.cook_time).as_hms()}</td>
+                                </tr>
+                                <tr>
+                                    <th>"Freezable"</th>
+                                    <td>{info.freezable}</td>
+                                </tr>
+                                <tr>
+                                    <th>"Microwave Only"</th>
+                                    <td>{info.microwave_only}</td>
+                                </tr>
                             }
                         }}
                     </tbody>

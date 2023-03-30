@@ -130,7 +130,7 @@ impl HourMinuteSecond {
     }
 
     pub fn as_hms(&self) -> String {
-        format!("{}:{}:{}", self.hours, self.minutes, self.seconds)
+        format!("{}h {}m {}s", self.hours, self.minutes, self.seconds)
     }
 
     /// Simplify the current values to smallest possible.
