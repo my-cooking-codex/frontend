@@ -272,11 +272,11 @@ fn RecipeContent(cx: Scope, recipe: Recipe) -> impl IntoView {
                                 </tr>
                                 <tr>
                                     <th>"Freezable"</th>
-                                    <td>{info.freezable}</td>
+                                    <td><input prop:checked=info.freezable type="checkbox" class="checkbox" disabled=true/></td>
                                 </tr>
                                 <tr>
                                     <th>"Microwave Only"</th>
-                                    <td>{info.microwave_only}</td>
+                                    <td><input prop:checked=info.microwave_only type="checkbox" class="checkbox" disabled=true/></td>
                                 </tr>
                             }
                         }}
