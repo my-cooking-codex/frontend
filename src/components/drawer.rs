@@ -72,6 +72,15 @@ pub fn Drawer(
                             view!{cx, <A href={link.href} class="btn bg-base-100">{link.text}</A>}
                         }
                     }).collect::<Vec<_>>()}
+                    <li class="mt-auto">
+                        <a href="https://github.com/my-cooking-codex" target="_blank" rel="noopener noreferrer" class="text-sm block leading-relaxed">
+                            "Powered By "
+                            <span class="font-bold">"My Cooking Codex"</span>
+                            <span class="text-error">" (BETA)"</span>
+                            <br/>
+                            "Licenced Under AGPL-3.0"
+                        </a>
+                    </li>
                 </ul>
             </div>
         </div>
