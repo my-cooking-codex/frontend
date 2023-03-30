@@ -162,7 +162,7 @@ where
                         }
                     }
                     type="number"
-                    class="input input-bordered w-full"
+                    class="input input-bordered w-full text-right"
                     min=0 required=required
                 />
                 <span>"H"</span>
@@ -178,7 +178,7 @@ where
                         }
                     }
                     type="number"
-                    class="input input-bordered w-full"
+                    class="input input-bordered w-full text-right"
                     min=0 required=required
                 />
                 <span>"M"</span>
@@ -194,7 +194,7 @@ where
                         }
                     }
                     type="number"
-                    class="input input-bordered w-full"
+                    class="input input-bordered w-full text-right"
                     min=0 required=required
                 />
                 <span>"S"</span>
