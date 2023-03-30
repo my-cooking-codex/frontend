@@ -1,6 +1,6 @@
 use leptos::*;
 use mcc_frontend_core::api::sanitise_base_url;
-use mcc_frontend_types::Fraction;
+use mcc_frontend_types::{Fraction, HourMinuteSecond};
 use regex::Regex;
 use url::Url;
 
@@ -133,5 +133,72 @@ where
             required=required
             placeholder=placeholder
         />
+    }
+}
+
+#[component]
+pub fn HmsInput<S, F>(cx: Scope, value: S, on_input: F, required: bool) -> impl IntoView
+where
+    S: Fn() -> HourMinuteSecond + 'static + Copy,
+    F: Fn(HourMinuteSecond) + 'static + Copy,
+{
+    let hms = create_rw_signal(cx, value().simplify());
+
+    create_effect(cx, move |_| {
+        let hms = hms.get();
+        on_input(hms);
+    });
+
+    view! {cx,
+        <div class="flex">
+            <label class="input-group">
+                <input
+                    prop:value=move || hms.get().hours.to_string()
+                    on:input=move |ev| {
+                        let input = event_target_value(&ev);
+                        if !input.is_empty() {
+                            let parsed = input.parse::<usize>().expect("Failed to parse usize");
+                            hms.update(|hms| hms.hours = parsed);
+                        }
+                    }
+                    type="number"
+                    class="input input-bordered w-full"
+                    min=0 required=required
+                />
+                <span>"H"</span>
+            </label>
+            <label class="input-group">
+                <input
+                    prop:value=move || hms.get().minutes.to_string()
+                    on:input=move |ev| {
+                        let input = event_target_value(&ev);
+                        if !input.is_empty() {
+                            let parsed = input.parse::<usize>().expect("Failed to parse usize");
+                            hms.update(|hms| hms.minutes = parsed);
+                        }
+                    }
+                    type="number"
+                    class="input input-bordered w-full"
+                    min=0 required=required
+                />
+                <span>"M"</span>
+            </label>
+            <label class="input-group">
+                <input
+                    prop:value=move || hms.get().seconds.to_string()
+                    on:input=move |ev| {
+                        let input = event_target_value(&ev);
+                        if !input.is_empty() {
+                            let parsed = input.parse::<usize>().expect("Failed to parse usize");
+                            hms.update(|hms| hms.seconds = parsed);
+                        }
+                    }
+                    type="number"
+                    class="input input-bordered w-full"
+                    min=0 required=required
+                />
+                <span>"S"</span>
+            </label>
+        </div>
     }
 }
