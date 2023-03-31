@@ -28,7 +28,6 @@ pub struct CreateRecipe {
     pub tags: Vec<String>,
     pub ingredients: Vec<CreateIngredient>,
     pub steps: Vec<CreateStep>,
-    pub source: Option<String>,
 }
 
 #[derive(Serialize, Deserialize, Debug, Default)]
@@ -79,7 +78,7 @@ pub struct UpdateRecipe {
     pub tags: Option<Vec<String>>,
     pub ingredients: Option<Vec<UpdateIngredient>>,
     pub steps: Option<Vec<UpdateStep>>,
-    pub source: Option<String>,
+
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq, Default)]
@@ -117,6 +116,7 @@ pub struct Info {
     pub freezable: bool,
     #[serde(default)]
     pub microwave_only: bool,
+    pub source: Option<String>,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
@@ -139,6 +139,4 @@ pub struct Recipe {
     pub steps: Vec<Step>,
     #[serde(default)]
     pub image_id: Option<String>,
-    #[serde(default)]
-    pub source: Option<String>,
 }
