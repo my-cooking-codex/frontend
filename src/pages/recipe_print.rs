@@ -71,7 +71,11 @@ fn RecipePrintContent(cx: Scope, recipe: Recipe) -> impl IntoView {
                 </table>
                 {
                     if let Some(source) = recipe.info.source {
-                        view!{cx, <><p class="text-sm my-2">"Source: " {source}</p></>}
+                        if source.is_empty() {
+                            view!{cx, <></>}
+                        } else {
+                            view!{cx, <><p class="text-sm my-2">"Source: " {source}</p></>}
+                        }
                     } else {
                         view!{cx, <></>}
                     }

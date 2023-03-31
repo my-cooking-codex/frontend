@@ -279,7 +279,11 @@ fn RecipeContent(cx: Scope, recipe: Recipe) -> impl IntoView {
                 </table>
                 {move || {
                     if let Some(source) = recipe.get().info.source {
-                        view!{cx, <><p class="text-sm my-2">"Source: " {source}</p></>}
+                        if source.is_empty() {
+                            view!{cx, <></>}
+                        } else {
+                            view!{cx, <><p class="text-sm my-2">"Source: " {source}</p></>}
+                        }
                     } else {
                         view!{cx, <></>}
                     }
