@@ -104,7 +104,7 @@ impl Api {
     }
 
     pub async fn post_login(&self, login: &Login) -> Result<LoginToken, ApiError> {
-        let req_url = self.base_url.clone() + "/login/";
+        let req_url = format!("{}/login/", self.base_url);
         let response = ApiError::from_response_result(
             Request::post(&req_url).json(login).unwrap().send().await,
         )?;
@@ -115,7 +115,7 @@ impl Api {
         &self,
         details: &user::CreateUser,
     ) -> Result<user::User, ApiError> {
-        let req_url = self.base_url.clone() + "/users/";
+        let req_url = format!("{}/users/", self.base_url);
         let response = ApiError::from_response_result(
             Request::post(&req_url).json(details).unwrap().send().await,
         )?;
@@ -128,7 +128,7 @@ impl Api {
     ) -> Result<Vec<recipe::Recipe>, ApiError> {
         let req_url = format!(
             "{}/recipes/?{}",
-            self.base_url.clone(),
+            self.base_url,
             serde_url_params::to_string(&filters).unwrap(),
         );
         let response = ApiError::from_response_result(
@@ -141,7 +141,7 @@ impl Api {
     }
 
     pub async fn get_recipe_by_id(&self, id: String) -> Result<recipe::Recipe, ApiError> {
-        let req_url = format!("{}/recipes/{}/", self.base_url.clone(), &id);
+        let req_url = format!("{}/recipes/{}/", self.base_url, &id);
         let response = ApiError::from_response_result(
             Request::get(&req_url)
                 .header("Authorization", &self.get_authorization_value().unwrap())
@@ -152,7 +152,7 @@ impl Api {
     }
 
     pub async fn get_stats(&self) -> Result<stats::AccountStats, ApiError> {
-        let req_url = self.base_url.clone() + "/stats/me/";
+        let req_url = format!("{}/stats/me/", self.base_url);
         let response = ApiError::from_response_result(
             Request::get(&req_url)
                 .header("Authorization", &self.get_authorization_value().unwrap())
@@ -166,7 +166,7 @@ impl Api {
         &self,
         new_recipe: &recipe::CreateRecipe,
     ) -> Result<recipe::Recipe, ApiError> {
-        let req_url = self.base_url.clone() + "/recipes/";
+        let req_url = format!("{}/recipes/", self.base_url);
         let response = ApiError::from_response_result(
             Request::post(&req_url)
                 .header("Authorization", &self.get_authorization_value().unwrap())
@@ -183,7 +183,7 @@ impl Api {
         id: String,
         updated_recipe: &recipe::UpdateRecipe,
     ) -> Result<(), ApiError> {
-        let req_url = format!("{}/recipes/{}/", self.base_url.clone(), id);
+        let req_url = format!("{}/recipes/{}/", self.base_url, id);
         ApiError::from_response_result(
             Request::patch(&req_url)
                 .header("Authorization", &self.get_authorization_value().unwrap())
@@ -196,7 +196,7 @@ impl Api {
     }
 
     pub async fn delete_recipe(&self, id: &str) -> Result<(), ApiError> {
-        let req_url = format!("{}/recipes/{}/", self.base_url.clone(), id);
+        let req_url = format!("{}/recipes/{}/", self.base_url, id);
         ApiError::from_response_result(
             Request::delete(&req_url)
                 .header("Authorization", &self.get_authorization_value().unwrap())
@@ -211,7 +211,7 @@ impl Api {
         id: String,
         file: web_sys::File,
     ) -> Result<String, ApiError> {
-        let req_url = format!("{}/recipes/{}/image/", self.base_url.clone(), id);
+        let req_url = format!("{}/recipes/{}/image/", self.base_url, id);
         let response = ApiError::from_response_result(
             Request::post(&req_url)
                 .header("Authorization", &self.get_authorization_value().unwrap())
@@ -223,7 +223,7 @@ impl Api {
     }
 
     pub async fn delete_recipe_image(&self, id: String) -> Result<(), ApiError> {
-        let req_url = format!("{}/recipes/{}/image/", self.base_url.clone(), id);
+        let req_url = format!("{}/recipes/{}/image/", self.base_url, id);
         ApiError::from_response_result(
             Request::delete(&req_url)
                 .header("Authorization", &self.get_authorization_value().unwrap())
