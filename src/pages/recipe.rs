@@ -2,7 +2,7 @@ use leptos::*;
 use leptos_router::{use_navigate, use_params_map};
 
 use crate::{
-    components::drawer::*,
+    components::{collapse::*, drawer::*},
     contexts::prelude::{
         use_api, use_login, use_modal_controller, use_toasts, CurrentApi, CurrentLogin,
     },
@@ -340,20 +340,21 @@ fn RecipeContent(cx: Scope, recipe: Recipe) -> impl IntoView {
                         <h2 class="text-xl font-bold mr-auto">"Steps"</h2>
                         <button on:click=on_edit_steps_click class="btn">"Edit"</button>
                     </div>
-                    <ul>
+                    <div class="flex flex-col gap-2">
                         {move || {
-                            recipe.get().steps.iter().enumerate().map(|(i, step)| {
+                            recipe.get().steps.into_iter().enumerate().map(|(i, step)| {
                                 view!{cx,
-                                    <li class="mb-2">
-                                        <h2 class="text-l font-bold mb-2">
-                                            {&step.title.to_owned().unwrap_or_else(|| format!("Step {}", i+1))}
-                                        </h2>
-                                        <pre class="whitespace-pre-line text-base font-sans">{&step.description}</pre>
-                                    </li>
+                                    <CollapsableBox
+                                        title={step.title.unwrap_or_else(|| format!("Step {}", i+1))}
+                                        open=true
+                                        class="border border-base-300 bg-base-100"
+                                    >
+                                        <pre class="whitespace-pre-line text-base font-sans">{step.description}</pre>
+                                    </CollapsableBox>
                                 }
                             }).collect::<Vec<_>>()
                         }}
-                    </ul>
+                    </div>
                 </div>
             </div>
         </>
