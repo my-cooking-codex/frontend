@@ -107,15 +107,7 @@ where
                 .patch_update_recipe(
                     id,
                     &UpdateRecipe {
-                        steps: Some(
-                            steps
-                                .iter()
-                                .map(|step| UpdateStep {
-                                    title: step.title.clone(),
-                                    description: Some(step.description.clone()),
-                                })
-                                .collect(),
-                        ),
+                        steps: Some(steps.iter().map(|s| s.clone().into()).collect()),
                         ..Default::default()
                     },
                 )

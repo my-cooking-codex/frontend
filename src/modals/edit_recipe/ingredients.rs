@@ -13,12 +13,7 @@ enum EditIngredientEvent {
 }
 
 #[component]
-fn EditIngredient<F>(
-    cx: Scope,
-    index: usize,
-    ingredient: Ingredient,
-    on_event: F,
-) -> impl IntoView
+fn EditIngredient<F>(cx: Scope, index: usize, ingredient: Ingredient, on_event: F) -> impl IntoView
 where
     F: Fn(usize, EditIngredientEvent) + 'static + Copy,
 {
@@ -119,17 +114,7 @@ where
                 .patch_update_recipe(
                     id,
                     &UpdateRecipe {
-                        ingredients: Some(
-                            ingredients
-                                .iter()
-                                .map(|ingredient| UpdateIngredient {
-                                    name: Some(ingredient.name.clone()),
-                                    amount: Some(ingredient.amount),
-                                    unit_type: Some(ingredient.unit_type.clone()),
-                                    description: ingredient.description.clone(),
-                                })
-                                .collect(),
-                        ),
+                        ingredients: Some(ingredients.iter().map(|i| i.clone().into()).collect()),
                         ..Default::default()
                     },
                 )

@@ -6,7 +6,7 @@ use crate::{
 };
 use leptos::*;
 use mcc_frontend_types::{
-    recipe::{Info, InfoYields, UpdateInfo, UpdateRecipe},
+    recipe::{Info, InfoYields, UpdateRecipe},
     HourMinuteSecond,
 };
 
@@ -28,13 +28,7 @@ where
                 .patch_update_recipe(
                     id,
                     &UpdateRecipe {
-                        info: UpdateInfo {
-                            yields: info.yields.clone(),
-                            cook_time: info.cook_time,
-                            prep_time: info.prep_time,
-                            freezable: info.freezable,
-                            microwave_only: info.microwave_only,
-                        },
+                        info: info.clone().into(),
                         ..Default::default()
                     },
                 )

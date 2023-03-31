@@ -40,11 +40,31 @@ pub struct UpdateIngredient {
     pub description: Option<String>,
 }
 
+impl From<Ingredient> for UpdateIngredient {
+    fn from(ingredient: Ingredient) -> Self {
+        Self {
+            name: Some(ingredient.name),
+            amount: Some(ingredient.amount),
+            unit_type: Some(ingredient.unit_type),
+            description: ingredient.description,
+        }
+    }
+}
+
 #[derive(Serialize, Deserialize, Debug, Default)]
 #[serde(rename_all = "camelCase")]
 pub struct UpdateStep {
     pub title: Option<String>,
     pub description: Option<String>,
+}
+
+impl From<Step> for UpdateStep {
+    fn from(step: Step) -> Self {
+        Self {
+            title: step.title,
+            description: Some(step.description),
+        }
+    }
 }
 
 pub type UpdateInfo = Info;
