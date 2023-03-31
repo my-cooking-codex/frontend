@@ -28,7 +28,7 @@ where
                 .patch_update_recipe(
                     id,
                     &UpdateRecipe {
-                        info: info.clone().into(),
+                        info: info.clone(),
                         ..Default::default()
                     },
                 )

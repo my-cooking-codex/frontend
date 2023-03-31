@@ -5,7 +5,7 @@ use crate::{
     modals::base::*,
 };
 use leptos::*;
-use mcc_frontend_types::recipe::{Ingredient, UpdateIngredient, UpdateRecipe};
+use mcc_frontend_types::recipe::{Ingredient, UpdateRecipe};
 
 enum EditIngredientEvent {
     Update(Ingredient),

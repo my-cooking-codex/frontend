@@ -4,7 +4,7 @@ use crate::{
     modals::base::{ModalSaveCancel, ModalSaveCancelProps},
 };
 use leptos::*;
-use mcc_frontend_types::recipe::{Step, UpdateRecipe, UpdateStep};
+use mcc_frontend_types::recipe::{Step, UpdateRecipe};
 
 enum EditStepEvent {
     Update(Step),
