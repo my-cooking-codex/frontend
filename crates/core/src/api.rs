@@ -1,5 +1,7 @@
-use mcc_frontend_types::{query::RecipesFilter, recipe, stats, user, Login, LoginToken, StoredLogin};
 use gloo::net::http::Request;
+use mcc_frontend_types::{
+    query::RecipesFilter, recipe, stats, user, Login, LoginToken, StoredLogin, ApiInfo,
+};
 use serde::de::DeserializeOwned;
 use std::convert::From;
 
@@ -93,6 +95,14 @@ impl Api {
             .map(|token| format!("{} {}", token.r#type, token.token))
     }
 
+    pub async fn get_api_info(&self) -> Result<ApiInfo, ApiError> {
+        let req_url = format!("{}/api/info/", self.base_url);
+        let response = ApiError::from_response_result(
+            Request::get(&req_url).send().await,
+        )?;
+        ApiError::check_json_response_ok::<ApiInfo>(response).await
+    }
+
     pub async fn post_login(&self, login: &Login) -> Result<LoginToken, ApiError> {
         let req_url = self.base_url.clone() + "/login/";
         let response = ApiError::from_response_result(
@@ -112,7 +122,10 @@ impl Api {
         ApiError::check_json_response_ok::<user::User>(response).await
     }
 
-    pub async fn get_recipes(&self, filters: &RecipesFilter) -> Result<Vec<recipe::Recipe>, ApiError> {
+    pub async fn get_recipes(
+        &self,
+        filters: &RecipesFilter,
+    ) -> Result<Vec<recipe::Recipe>, ApiError> {
         let req_url = format!(
             "{}/recipes/?{}",
             self.base_url.clone(),

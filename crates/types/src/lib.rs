@@ -28,6 +28,14 @@ pub struct StoredLogin {
     pub token: LoginToken,
 }
 
+#[derive(Serialize, Deserialize, Debug, Clone, Copy, PartialEq)]
+#[serde(rename_all = "camelCase")]
+pub struct ApiInfo {
+    pub api_version_major: usize,
+    pub api_version_minor: usize,
+    pub registration_allowed: bool,
+}
+
 /// A fraction type that can be converted to f32 and f64.
 pub struct Fraction {
     pub numerator: i32,
