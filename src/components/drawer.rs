@@ -69,7 +69,7 @@ pub fn Drawer(
                         if link.active {
                             view!{cx, <A href={link.href} class="btn btn-primary">{link.text}</A>}
                         } else {
-                            view!{cx, <A href={link.href} class="btn bg-base-100">{link.text}</A>}
+                            view!{cx, <A href={link.href} class="btn dark:bg-base-100">{link.text}</A>}
                         }
                     }).collect::<Vec<_>>()}
                     <li class="mt-auto">
