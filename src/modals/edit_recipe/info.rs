@@ -84,7 +84,9 @@ where
                             }
                             type="text"
                             class="input input-bordered w-full"
-                            list="units" required=true
+                            list="units"
+                            placeholder="e.g. servings"
+                            required=true
                         />
                         <datalist id="units">
                             <option value="servings" />
@@ -155,6 +157,24 @@ where
                         />
                     </label>
                 </div>
+            </div>
+            // source
+            <div class="my-4">
+                <h2 class="text-lg mb-2">"Recipe Source"</h2>
+                <label class="input-group">
+                    <span>"Source"</span>
+                    <input
+                        prop:value=move || info.get().source
+                        on:input=move |ev| {
+                            info.update(|info| {
+                                info.source = Some(event_target_value(&ev));
+                            })
+                        }
+                        type="text"
+                        class="input input-bordered w-full"
+                        placeholder="e.g. Mom's Recipe Book"
+                    />
+                </label>
             </div>
         </ModalSaveCancel>
     }

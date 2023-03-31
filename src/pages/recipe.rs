@@ -277,6 +277,13 @@ fn RecipeContent(cx: Scope, recipe: Recipe) -> impl IntoView {
                         }}
                     </tbody>
                 </table>
+                {move || {
+                    if let Some(source) = recipe.get().info.source {
+                        view!{cx, <><p class="text-sm my-2">"Source: " {source}</p></>}
+                    } else {
+                        view!{cx, <></>}
+                    }
+                }}
             </div>
             // description (short_description)
             <div class="mb-4 p-4 rounded bg-base-200">
