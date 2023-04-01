@@ -23,4 +23,8 @@ FROM rust:1-buster as builder
 
 FROM nginxinc/nginx-unprivileged:stable-alpine
 
+    EXPOSE 8000
+
     COPY --from=builder --link /app/dist/ /usr/share/nginx/html/
+
+    COPY ./nginx.conf /etc/nginx/conf.d/default.conf
