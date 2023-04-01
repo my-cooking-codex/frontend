@@ -70,8 +70,13 @@ pub fn BaseUrlInput(
                         )
                     } else {
                         view!(cx,
-                            <span>"Using Server At: "</span>
-                            <span>{move || preview_base_url.get()}</span>
+                            <span class="min-w-fit">"Using Server At: "</span>
+                            <span
+                                class="overflow-hidden"
+                                prop:title={move || preview_base_url.get()}
+                            >
+                                {move || preview_base_url.get()}
+                            </span>
                             <button on:click=on_mode_click type="button" class="btn">"Change"</button>
                         )
                     }
