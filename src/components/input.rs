@@ -4,8 +4,11 @@ use mcc_frontend_types::{Fraction, HourMinuteSecond};
 use regex::Regex;
 use url::Url;
 
-const VALID_FRACTIONAL_INPUT_REGEX: &str = r#"^(?:(?:\d+)|(?:\d+/\d+)|(?:\d+\.\d+))$"#;
-const VALID_FRACTION_REGEX: &str = r#"^(?:\d+/\d+)$"#;
+// matches whole numbers or fractions with or without a mixed number
+const VALID_FRACTIONAL_INPUT_REGEX: &str =
+    r#"^(?:(?:\d+)|(?:(?:[1-9]\d* )?\d+/\d+)|(?:\d+\.\d+))$"#;
+// fractions with or without a mixed number
+const VALID_FRACTION_REGEX: &str = r#"^(?:(?:[1-9]\d* )?\d+/\d+)$"#;
 
 fn make_preview_url(base_url: &str) -> Option<String> {
     let url = Url::parse(base_url).ok()?;
@@ -107,9 +110,11 @@ where
                     .parse::<Fraction>()
                     .expect("Failed to parse fraction")
                     .into();
-                // 'round' float to 2 decimal places.
-                parsed = (raw_float * 100.0).round() / 100.0;
+                // 'round' float to 4 decimal places. (4 is needed for 1/3)
+                const DECIMAL_PLACES: f32 = 1000.0;
+                parsed = (raw_float * DECIMAL_PLACES).round() / DECIMAL_PLACES;
                 on_input(parsed);
+                // on_input(raw_float);
             } else {
                 // parse input as a float, with or without decimal place
                 parsed = input.parse::<f32>().expect("Failed to parse float");

@@ -36,7 +36,9 @@ pub struct ApiInfo {
     pub registration_allowed: bool,
 }
 
-/// A fraction type that can be converted to f32 and f64.
+/// A fraction type that can be converted to f32.
+///
+/// Handles fractions with a whole number part, e.g. `1 1/2`.
 pub struct Fraction {
     pub numerator: i32,
     pub denominator: i32,
@@ -73,16 +75,30 @@ impl FromStr for Fraction {
     type Err = ();
 
     /// Parse a fraction from a string.
-    /// The string must be in the format of `numerator/denominator`.
-    /// FIXME make this more robust (remove unwrap usage and return actual errors)
+    /// The string must be in the format of:
+    /// - (fraction) `numerator/denominator`
+    /// - (mixed number fraction) `whole numerator/denominator`
     fn from_str(s: &str) -> Result<Self, Self::Err> {
-        let parts: Vec<&str> = s.trim().split('/').collect();
-        if parts.len() != 2 {
-            return Err(());
+        fn parse_parts(parts: &str) -> Result<(i32, i32), ()> {
+            let (numerator, denominator) = match parts.split_once('/') {
+                Some((numerator, denominator)) => (numerator, denominator),
+                None => return Err(()),
+            };
+            let numerator = numerator.parse().map_err(|_| ())?;
+            let denominator = denominator.parse().map_err(|_| ())?;
+            Ok((numerator, denominator))
         }
-        let numerator = parts[0].parse().unwrap();
-        let denominator = parts[1].parse().unwrap();
-        Ok(Fraction {
+        let (whole, (mut numerator, denominator)): (Option<i32>, (i32, i32)) =
+            match s.split_once(' ') {
+                Some((whole, parts)) => (Some(whole.parse().map_err(|_| ())?), parse_parts(parts)?),
+                None => (None, parse_parts(s)?),
+            };
+
+        if let Some(whole) = whole {
+            numerator = whole * denominator + numerator;
+        }
+
+        Ok(Self {
             numerator,
             denominator,
         })
@@ -102,7 +118,15 @@ impl std::fmt::Display for Fraction {
             return write!(f, "{}", self.numerator);
         }
         // otherwise, return the fraction
-        write!(f, "{}/{}", self.numerator, self.denominator)
+        if self.numerator > self.denominator {
+            // mixed number fraction
+            let whole = self.numerator / self.denominator;
+            let remainder = self.numerator % self.denominator;
+            write!(f, "{} {}/{}", whole, remainder, self.denominator)
+        } else {
+            // fraction, just return it
+            write!(f, "{}/{}", self.numerator, self.denominator)
+        }
     }
 }
 
@@ -214,5 +238,52 @@ mod tests_hour_minute_second {
         assert_eq!(hms.hours, 4);
         assert_eq!(hms.minutes, 20);
         assert_eq!(hms.seconds, 0);
+    }
+}
+
+#[cfg(test)]
+mod tests_fraction {
+    use super::*;
+
+    #[test]
+    fn test_from_str() {
+        let fraction = Fraction::from_str("1/2").unwrap();
+        assert_eq!(fraction.numerator, 1);
+        assert_eq!(fraction.denominator, 2);
+
+        let fraction = Fraction::from_str("1 1/2").unwrap();
+        assert_eq!(fraction.numerator, 3);
+        assert_eq!(fraction.denominator, 2);
+
+        let fraction = Fraction::from_str("1 1/4").unwrap();
+        assert_eq!(fraction.numerator, 5);
+        assert_eq!(fraction.denominator, 4);
+    }
+
+    #[test]
+    fn test_to_str() {
+        let fraction = Fraction::new(1, 2);
+        assert_eq!(fraction.to_string(), "1/2");
+
+        let fraction = Fraction::new(1, 3);
+        assert_eq!(fraction.to_string(), "1/3");
+
+        let fraction = Fraction::new(7, 3);
+        assert_eq!(fraction.to_string(), "2 1/3");
+    }
+
+    #[test]
+    fn from_f32() {
+        let fraction = Fraction::from(0.5f32);
+        assert_eq!(fraction.numerator, 1);
+        assert_eq!(fraction.denominator, 2);
+
+        let fraction = Fraction::from(0.3333f32);
+        assert_eq!(fraction.numerator, 1);
+        assert_eq!(fraction.denominator, 3);
+
+        let fraction = Fraction::from(2.3333f32);
+        assert_eq!(fraction.numerator, 7);
+        assert_eq!(fraction.denominator, 3);
     }
 }
