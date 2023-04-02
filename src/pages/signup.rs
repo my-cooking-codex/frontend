@@ -16,7 +16,6 @@ pub fn Signup(cx: Scope) -> impl IntoView {
     let (username, set_username) = create_signal(cx, String::default());
     let (password, set_password) = create_signal(cx, String::default());
     let (password_confirm, set_password_confirm) = create_signal(cx, String::default());
-    let (error_tooltip, set_error_tooltip) = create_signal(cx, String::default());
 
     login_redirect_effect(cx, LoginState::Unauthenticated, "/");
 
@@ -37,14 +36,6 @@ pub fn Signup(cx: Scope) -> impl IntoView {
                     toasts.push(api_error_to_toast(&err, "creating account"));
                 }
             };
-        }
-    });
-
-    create_effect(cx, move |_| {
-        if password.get() != password_confirm.get() {
-            set_error_tooltip.set("Passwords do not match".to_owned());
-        } else {
-            set_error_tooltip.set(String::default());
         }
     });
 
@@ -110,24 +101,26 @@ pub fn Signup(cx: Scope) -> impl IntoView {
                                     prop:value=move || password_confirm.get()
                                     on:input=move |ev| {set_password_confirm.set(event_target_value(&ev))}
                                     type="password"
+                                    class="input input-bordered"
+                                    // class="input-error"
+                                    class:input-error=move || password.get() != password_confirm.get()
                                     placeholder="e.g. ••••••••"
                                     autocomplete="new-password"
-                                    class="input input-bordered"
                                     required=true
                                 />
                             </div>
                             <div class="form-control btn-group btn-group-vertical">
                                 {move || {
-                                    if create_account.pending().get() {
-                                        view!{cx, <><button type="submit" class="btn loading" disabled=true>"Signup"</button></>}
-                                    } else if error_tooltip.get().is_empty() {
-                                        view!{cx, <><button type="submit" class="btn btn-primary">"Signup"</button></>}
-                                    } else {
-                                        view!{cx,
-                                            <><div class="tooltip tooltip-open tooltip-error" data-tip=move || error_tooltip.get()>
-                                                <button type="submit" class="btn btn-disabled btn-block" disabled=true>"Signup"</button>
-                                            </div></>
-                                        }
+                                    view!{cx,
+                                        <button
+                                            class="btn btn-primary"
+                                            // class="loading"
+                                            class:loading=create_account.pending().get()
+                                            type="submit"
+                                            disabled=move || base_url.get().is_none() || password.get() != password_confirm.get()
+                                        >
+                                            "Signup"
+                                        </button>
                                     }
                                 }}
                                 <A href="/login" class="btn">"Login Instead?"</A>
