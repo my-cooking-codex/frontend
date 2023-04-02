@@ -88,6 +88,7 @@ pub fn BaseUrlInput(
                         type="button"
                         class="btn"
                         class:btn-sm=move || !is_edit_mode.get()
+                        class:btn-primary=move || is_edit_mode.get()
                     >
                         {move || {
                             if is_edit_mode.get() {
