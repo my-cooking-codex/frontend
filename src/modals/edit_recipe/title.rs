@@ -55,6 +55,7 @@ where
                         type="text"
                         class="input input-bordered w-full"
                         placeholder="e.g. Pizza"
+                        maxlength=60
                         required=true
                     />
                 </label>

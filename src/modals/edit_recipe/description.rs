@@ -60,6 +60,7 @@ where
                         type="text"
                         class="input input-bordered w-full"
                         placeholder="e.g. Very tasty Pizza, make lots of it..."
+                        maxlength=256
                     />
                 </label>
             </div>

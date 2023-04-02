@@ -83,6 +83,7 @@ pub fn Signup(cx: Scope) -> impl IntoView {
                                     class="input input-bordered"
                                     placeholder="e.g. leo"
                                     autocomplete="username"
+                                    maxlength=30
                                     required=true
                                 />
                             </div>
