@@ -13,3 +13,4 @@ build-in-docker:
 
 gh-build-docker:
 	@docker run --user root --rm -v $(shell pwd):/app $(BUILDER_IMG)
+	@bash ./scripts/gzip_static.sh ./dist
