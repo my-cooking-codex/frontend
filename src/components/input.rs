@@ -27,32 +27,38 @@ pub fn BaseUrlInput(
         make_preview_url(base_url.get().as_deref().unwrap_or_default())
             .unwrap_or_else(|| "(unset)".to_owned()),
     );
-    let edit_mode = create_rw_signal(cx, bool::default());
+    let is_edit_mode = create_rw_signal(cx, bool::default());
 
-    let on_mode_click = move |_| {
-        if edit_mode.get() {
-            if let Some(url) = base_url.get() {
-                let sanitised = sanitise_base_url(url);
-                let preview = match make_preview_url(&sanitised) {
-                    Some(v) => {
-                        new_base_url.set(Some(sanitised.clone()));
-                        set_base_url.set(Some(sanitised.clone()));
-                        v
-                    }
-                    None => {
-                        new_base_url.set(None);
-                        set_base_url.set(None);
-                        "(unset)".to_owned()
-                    }
-                };
-                set_preview_base_url.set(preview);
-            }
-        } else {
-            // in edit mode, so it's unsaved
-            new_base_url.set(None);
+    let view_mode = move || {
+        if let Some(url) = base_url.get() {
+            let sanitised = sanitise_base_url(url);
+            let preview = match make_preview_url(&sanitised) {
+                Some(v) => {
+                    new_base_url.set(Some(sanitised.clone()));
+                    set_base_url.set(Some(sanitised.clone()));
+                    v
+                }
+                None => {
+                    new_base_url.set(None);
+                    set_base_url.set(None);
+                    "(unset)".to_owned()
+                }
+            };
+            set_preview_base_url.set(preview);
         }
+    };
+
+    let edit_mode = move || {
+        new_base_url.set(None);
+    };
+
+    let on_switch_mode_click = move |_| {
         // reverse state
-        edit_mode.update(|edit_mode| *edit_mode = !*edit_mode);
+        is_edit_mode.update(|is_edit_mode| *is_edit_mode = !*is_edit_mode);
+        match is_edit_mode.get() {
+            true => edit_mode(),
+            false => view_mode(),
+        };
     };
 
     view! {cx,
@@ -61,7 +67,7 @@ pub fn BaseUrlInput(
                 view!(cx,
                     <input
                         prop:value={move || {
-                            if edit_mode.get() {
+                            if is_edit_mode.get() {
                                 base_url.get().unwrap_or_else(|| "".to_owned())
                             } else {
                                 preview_base_url.get()
@@ -71,20 +77,20 @@ pub fn BaseUrlInput(
                         on:input={move |ev| { set_base_url.set(Some(event_target_value(&ev))) }}
                         type="url"
                         class="input w-full"
-                        class:input-bordered=move || edit_mode.get()
-                        class:input-sm=move || !edit_mode.get()
+                        class:input-bordered=move || is_edit_mode.get()
+                        class:input-sm=move || !is_edit_mode.get()
                         placeholder="https://"
                         required=true
-                        readonly=move || !edit_mode.get()
+                        readonly=move || !is_edit_mode.get()
                     />
                     <button
-                        on:click=on_mode_click
+                        on:click=on_switch_mode_click
                         type="button"
                         class="btn"
-                        class:btn-sm=move || !edit_mode.get()
+                        class:btn-sm=move || !is_edit_mode.get()
                     >
                         {move || {
-                            if edit_mode.get() {
+                            if is_edit_mode.get() {
                                 "Save"
                             } else {
                                 "Change"
