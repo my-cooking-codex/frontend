@@ -83,6 +83,7 @@ pub fn Login(cx: Scope) -> impl IntoView {
                                     class="input input-bordered"
                                     placeholder="e.g. leo"
                                     autocomplete="username"
+                                    spellcheck=false
                                     required=true
                                 />
                             </div>
