@@ -27,11 +27,10 @@ pub fn BaseUrlInput(
         make_preview_url(base_url.get().as_deref().unwrap_or_default())
             .unwrap_or_else(|| "(unset)".to_owned()),
     );
-    let (edit_mode, set_edit_mode) = create_signal(cx, bool::default());
+    let edit_mode = create_rw_signal(cx, bool::default());
 
     let on_mode_click = move |_| {
-        let edit_mode = edit_mode.get();
-        if edit_mode {
+        if edit_mode.get() {
             if let Some(url) = base_url.get() {
                 let sanitised = sanitise_base_url(url);
                 let preview = match make_preview_url(&sanitised) {
@@ -52,7 +51,8 @@ pub fn BaseUrlInput(
             // in edit mode, so it's unsaved
             new_base_url.set(None);
         }
-        set_edit_mode.set(!edit_mode);
+        // reverse state
+        edit_mode.update(|edit_mode| *edit_mode = !*edit_mode);
     };
 
     view! {cx,
