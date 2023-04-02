@@ -93,7 +93,7 @@ pub fn BaseUrlInput(
                             if is_edit_mode.get() {
                                 "Save"
                             } else {
-                                "Change"
+                                "Edit"
                             }
                         }}
                     </button>
