@@ -84,6 +84,7 @@ pub fn Signup(cx: Scope) -> impl IntoView {
                                     placeholder="e.g. leo"
                                     autocomplete="username"
                                     maxlength=30
+                                    pattern="[a-zA-Z0-9]+"
                                     required=true
                                 />
                             </div>
