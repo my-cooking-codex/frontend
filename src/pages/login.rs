@@ -70,7 +70,10 @@ pub fn Login(cx: Scope) -> impl IntoView {
                             <h2 class="text-4xl font-bold">"Please Login"</h2>
                         </div>
                         <form on:submit=on_submit>
-                            <BaseUrlInput value=base_url.get() new_base_url=set_base_url />
+                            <div class="form-control mb-2">
+                                <label class="label"><span class="label-text">"API Server"</span></label>
+                                <BaseUrlInput value=base_url.get() new_base_url=set_base_url />
+                            </div>
                             <div class="form-control mb-2">
                                 <label class="label"><span class="label-text">"Username"</span></label>
                                 <input
@@ -97,12 +100,16 @@ pub fn Login(cx: Scope) -> impl IntoView {
                             </div>
                             <div class="form-control btn-group btn-group-vertical">
                                 {move || {
-                                    if fetch_token.pending().get() {
-                                        view!(cx, <button type="submit" class="btn loading" disabled=true>"Login"</button>)
-                                    } else if base_url.get().is_some() {
-                                        view!(cx, <button type="submit" class="btn btn-primary">"Login"</button>)
-                                    } else {
-                                        view!(cx, <button type="submit" class="btn btn-disabled" disabled=true>"Login"</button>)
+                                    view!{cx,
+                                        <button
+                                            class="btn btn-primary"
+                                            // class="loading"
+                                            class:loading=fetch_token.pending().get()
+                                            type="submit"
+                                            disabled=move || base_url.get().is_none()
+                                        >
+                                            "Login"
+                                        </button>
                                     }
                                 }}
                                 <A href="/signup" class="btn">{"Signup Instead?"}</A>

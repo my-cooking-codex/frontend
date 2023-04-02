@@ -73,7 +73,10 @@ pub fn Signup(cx: Scope) -> impl IntoView {
                             <h2 class="text-4xl font-bold">"Create Account"</h2>
                         </div>
                         <form on:submit=on_submit>
-                            <BaseUrlInput value=base_url.get() new_base_url=set_base_url />
+                            <div class="form-control mb-2">
+                                <label class="label"><span class="label-text">"API Server"</span></label>
+                                <BaseUrlInput value=base_url.get() new_base_url=set_base_url />
+                            </div>
                             <div class="form-control mb-2">
                                 <label class="label"><span class="label-text">"Username"</span></label>
                                 <input

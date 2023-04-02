@@ -18,8 +18,8 @@ fn make_preview_url(base_url: &str) -> Option<String> {
 #[component]
 pub fn BaseUrlInput(
     cx: Scope,
-    #[prop(into)] value: Option<String>,
-    #[prop(into)] new_base_url: WriteSignal<Option<String>>,
+    value: Option<String>,
+    new_base_url: WriteSignal<Option<String>>,
 ) -> impl IntoView {
     let (base_url, set_base_url) = create_signal(cx, value);
     let (preview_base_url, set_preview_base_url) = create_signal(
@@ -30,8 +30,8 @@ pub fn BaseUrlInput(
     let (edit_mode, set_edit_mode) = create_signal(cx, bool::default());
 
     let on_mode_click = move |_| {
-        let current_mode = edit_mode.get();
-        if current_mode {
+        let edit_mode = edit_mode.get();
+        if edit_mode {
             if let Some(url) = base_url.get() {
                 let sanitised = sanitise_base_url(url);
                 let preview = match make_preview_url(&sanitised) {
@@ -48,40 +48,51 @@ pub fn BaseUrlInput(
                 };
                 set_preview_base_url.set(preview);
             }
+        } else {
+            // in edit mode, so it's unsaved
+            new_base_url.set(None);
         }
-        set_edit_mode.set(!current_mode);
+        set_edit_mode.set(!edit_mode);
     };
 
     view! {cx,
-        <div class="form-control">
-            <div class="input-group">
-                {move || {
-                    if edit_mode.get() {
-                        view!(cx,
-                            <input
-                                prop:value={move || base_url.get()}
-                                on:input={move |ev| { set_base_url.set(Some(event_target_value(&ev))) }}
-                                type="url"
-                                class="input input-bordered"
-                                placeholder="https://"
-                                required=true
-                            />
-                            <button on:click=on_mode_click type="button" class="btn">"Save"</button>
-                        )
-                    } else {
-                        view!(cx,
-                            <span class="min-w-fit">"Using Server At: "</span>
-                            <span
-                                class="overflow-hidden"
-                                prop:title={move || preview_base_url.get()}
-                            >
-                                {move || preview_base_url.get()}
-                            </span>
-                            <button on:click=on_mode_click type="button" class="btn">"Change"</button>
-                        )
-                    }
-                }}
-            </div>
+        <div class="input-group">
+            {move || {
+                view!(cx,
+                    <input
+                        prop:value={move || {
+                            if edit_mode.get() {
+                                base_url.get().unwrap_or_else(|| "".to_owned())
+                            } else {
+                                preview_base_url.get()
+                            }
+
+                        }}
+                        on:input={move |ev| { set_base_url.set(Some(event_target_value(&ev))) }}
+                        type="url"
+                        class="input w-full"
+                        class:input-bordered=move || edit_mode.get()
+                        class:input-sm=move || !edit_mode.get()
+                        placeholder="https://"
+                        required=true
+                        readonly=move || !edit_mode.get()
+                    />
+                    <button
+                        on:click=on_mode_click
+                        type="button"
+                        class="btn"
+                        class:btn-sm=move || !edit_mode.get()
+                    >
+                        {move || {
+                            if edit_mode.get() {
+                                "Save"
+                            } else {
+                                "Change"
+                            }
+                        }}
+                    </button>
+                )
+            }}
         </div>
     }
 }
