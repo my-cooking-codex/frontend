@@ -81,7 +81,7 @@ where
                 </datalist>
             </div>
             <input
-                prop:value=move || ingredient.get().description
+                prop:value=move || ingredient.get().description.unwrap_or_default()
                 on:input=move |ev| ingredient.update(|i| i.description = Some(event_target_value(&ev)))
                 type="text"
                 class="textarea textarea-bordered w-full"

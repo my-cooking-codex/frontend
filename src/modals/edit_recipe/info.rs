@@ -164,7 +164,7 @@ where
                 <label class="input-group">
                     <span>"Source"</span>
                     <input
-                        prop:value=move || info.get().source
+                        prop:value=move || info.get().source.unwrap_or_default()
                         on:input=move |ev| {
                             info.update(|info| {
                                 info.source = Some(event_target_value(&ev));

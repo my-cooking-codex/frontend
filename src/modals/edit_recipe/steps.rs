@@ -36,7 +36,7 @@ where
                             Some(value)
                         }
                     })
-                    prop:value=move || step.get().title
+                    prop:value=move || step.get().title.unwrap_or_default()
                     type="text"
                     class="input input-bordered w-full mr-2"
                     placeholder={format!("Step {}", index+1)}
