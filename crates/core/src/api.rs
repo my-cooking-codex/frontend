@@ -1,6 +1,6 @@
 use gloo::net::http::Request;
 use mcc_frontend_types::{
-    query::RecipesFilter, recipe, stats, user, Login, LoginToken, StoredLogin, ApiInfo,
+    query::RecipesFilter, recipe, stats, user, ApiInfo, Login, LoginToken, StoredLogin,
 };
 use serde::de::DeserializeOwned;
 use std::convert::From;
@@ -97,9 +97,7 @@ impl Api {
 
     pub async fn get_api_info(&self) -> Result<ApiInfo, ApiError> {
         let req_url = format!("{}/api/info/", self.base_url);
-        let response = ApiError::from_response_result(
-            Request::get(&req_url).send().await,
-        )?;
+        let response = ApiError::from_response_result(Request::get(&req_url).send().await)?;
         ApiError::check_json_response_ok::<ApiInfo>(response).await
     }
 
@@ -120,6 +118,17 @@ impl Api {
             Request::post(&req_url).json(details).unwrap().send().await,
         )?;
         ApiError::check_json_response_ok::<user::User>(response).await
+    }
+
+    pub async fn get_labels(&self) -> Result<Vec<String>, ApiError> {
+        let req_url = format!("{}/labels/", self.base_url);
+        let response = ApiError::from_response_result(
+            Request::get(&req_url)
+                .header("Authorization", &self.get_authorization_value().unwrap())
+                .send()
+                .await,
+        )?;
+        ApiError::check_json_response_ok::<Vec<String>>(response).await
     }
 
     pub async fn get_recipes(
