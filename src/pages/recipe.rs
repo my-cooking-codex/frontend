@@ -1,3 +1,5 @@
+use std::ops::Not;
+
 use leptos::*;
 use leptos_router::{use_navigate, use_params_map};
 
@@ -23,6 +25,7 @@ fn RecipeContent(cx: Scope, recipe: Recipe) -> impl IntoView {
     let CurrentLogin { login, set_login } = use_login(cx);
     let media_url = move || login.get().expect("expected login to exist").media_url;
     let recipe = create_rw_signal(cx, recipe);
+    let edit_mode = create_rw_signal(cx, false);
 
     let delete_action = create_action(cx, move |_: &()| async move {
         let navigator = use_navigate(cx);
@@ -229,31 +232,47 @@ fn RecipeContent(cx: Scope, recipe: Recipe) -> impl IntoView {
                 <div class="flex items-center absolute bottom-0 left-0 p-2 w-full bg-[#000000cc] rounded-b">
                     <h1
                         class="mr-auto text-2xl font-bold text-slate-300 \
-                            whitespace-nowrap overflow-hidden text-ellipsis">
+                            whitespace-nowrap overflow-hidden text-ellipsis py-2">
                         {move || recipe.get().title}
                     </h1>
-                    <div class="btn-group">
-                        <button on:click=on_edit_title_click class="btn">"Edit"</button>
-                        <button on:click=on_edit_image_click class="btn">"Edit Image"</button>
-                    </div>
+                    <Show when=move || edit_mode.get() fallback=|_| ()>
+                        <div class="btn-group">
+                            <button on:click=on_edit_title_click class="btn">"Edit"</button>
+                            <button on:click=on_edit_image_click class="btn">"Edit Image"</button>
+                        </div>
+                    </Show>
                 </div>
             </div>
             // toolbar
             <div class="mb-4 p-4 rounded bg-base-200 flex gap-2">
                 <button on:click=on_print_click class="btn">"Print"</button>
                 <button on:click=on_edit_labels_click class="btn">"Labels"</button>
+                <label
+                    class="swap btn ml-auto"
+                    // class="btn-outline"
+                    class:btn-outline=move || edit_mode.get()
+                    >
+                    <input
+                        prop:checked=move || edit_mode.get()
+                        on:click=move |_| edit_mode.update(|mode| *mode=mode.not())
+                        type="checkbox"
+                    />
+                    <div class="swap-on">"View Mode"</div>
+                    <div class="swap-off">"Edit Mode"</div>
+                </label>
                 <DropdownConfirm
                     title="Remove"
                     confirm_aria=""
                     on_confirm=move || delete_action.dispatch(())
-                    class="ml-auto"
                 />
             </div>
             // info
             <div class="mb-4 p-4 rounded bg-base-200">
                 <div class="flex mb-2">
                     <h2 class="text-xl font-bold mr-auto">"Info"</h2>
-                    <button on:click=on_edit_info_click class="btn">"Edit"</button>
+                    <Show when=move || edit_mode.get() fallback=|_| ()>
+                        <button on:click=on_edit_info_click class="btn">"Edit"</button>
+                    </Show>
                 </div>
                 <table class="table table-zebra w-full max-w-5xl">
                     <tbody>
@@ -312,7 +331,9 @@ fn RecipeContent(cx: Scope, recipe: Recipe) -> impl IntoView {
             <div class="mb-4 p-4 rounded bg-base-200">
                 <div class="flex mb-2">
                     <h2 class="text-xl font-bold mr-auto">"Description"</h2>
-                    <button on:click=on_edit_description_click class="btn">"Edit"</button>
+                    <Show when=move || edit_mode.get() fallback=|_| ()>
+                        <button on:click=on_edit_description_click class="btn">"Edit"</button>
+                    </Show>
                 </div>
                 <p>{move || recipe.get().short_description}</p>
             </div>
@@ -320,7 +341,9 @@ fn RecipeContent(cx: Scope, recipe: Recipe) -> impl IntoView {
             <div class="mb-4 p-4 rounded bg-base-200">
                 <div class="flex mb-2">
                     <h2 class="text-xl font-bold mr-auto">"Notes"</h2>
-                    <button on:click=on_edit_long_description_click class="btn">"Edit"</button>
+                    <Show when=move || edit_mode.get() fallback=|_| ()>
+                        <button on:click=on_edit_long_description_click class="btn">"Edit"</button>
+                    </Show>
                 </div>
                 <pre class="whitespace-pre-line text-base font-sans">{move || recipe.get().long_description}</pre>
             </div>
@@ -330,7 +353,9 @@ fn RecipeContent(cx: Scope, recipe: Recipe) -> impl IntoView {
                 <div class="basis-full md:basis-3/4 lg:basis-11/12 p-4 rounded bg-base-200">
                     <div class="flex mb-2">
                         <h2 class="text-xl font-bold mr-auto">"Ingredients"</h2>
-                        <button on:click=on_edit_ingredients_click class="btn">"Edit"</button>
+                        <Show when=move || edit_mode.get() fallback=|_| ()>
+                            <button on:click=on_edit_ingredients_click class="btn">"Edit"</button>
+                        </Show>
                     </div>
                     <table class="table table-compact table-zebra w-full">
                         <thead>
@@ -361,7 +386,9 @@ fn RecipeContent(cx: Scope, recipe: Recipe) -> impl IntoView {
                 <div class="w-full p-4 rounded bg-base-200">
                     <div class="flex mb-2">
                         <h2 class="text-xl font-bold mr-auto">"Steps"</h2>
-                        <button on:click=on_edit_steps_click class="btn">"Edit"</button>
+                        <Show when=move || edit_mode.get() fallback=|_| ()>
+                            <button on:click=on_edit_steps_click class="btn">"Edit"</button>
+                        </Show>
                     </div>
                     <div class="flex flex-col gap-2">
                         {move || {
