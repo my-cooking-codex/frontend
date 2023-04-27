@@ -16,16 +16,20 @@ where
     let toasts = use_toasts(cx);
     let CurrentApi { api, .. } = use_api(cx);
 
-    let existing_labels = create_resource(cx, || {}, move |_| async move {
-        let api = api.get().expect("api expected to be set");
-        match api.get_labels().await {
-            Ok(labels) => labels,
-            Err(err) => {
-                toasts.push(api_error_to_toast(&err, "loading labels"));
-                vec![]
+    let existing_labels = create_resource(
+        cx,
+        || {},
+        move |_| async move {
+            let api = api.get().expect("api expected to be set");
+            match api.get_labels().await {
+                Ok(labels) => HashSet::from_iter(labels.into_iter()),
+                Err(err) => {
+                    toasts.push(api_error_to_toast(&err, "loading labels"));
+                    HashSet::new()
+                }
             }
-        }
-    });
+        },
+    );
     let labels: leptos::RwSignal<HashSet<std::string::String, RandomState>> =
         create_rw_signal(cx, HashSet::from_iter(labels.into_iter()));
     let new_label_input = create_rw_signal(cx, String::new());
@@ -116,15 +120,9 @@ where
                         {move || {
                             let labels = labels.get();
                             let existing_labels = existing_labels.read(cx).unwrap_or_default();
-                            view! {cx,
-                                {existing_labels.iter().filter_map(|label|
-                                    if labels.contains(&new_label_input.get()) {
-                                        None
-                                    } else {
-                                        Some(view! {cx,<option value=label.clone() />})
-                                    }
-                            ).collect::<Vec<_>>() }
-                            }
+                            existing_labels.difference(&labels).into_iter().map(|label|
+                                view! {cx,<option value=label />}
+                            ).collect::<Vec<_>>()
                         }}
                     </datalist>
                     <button
