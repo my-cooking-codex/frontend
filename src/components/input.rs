@@ -230,3 +230,29 @@ where
         </div>
     }
 }
+
+#[component]
+pub fn DropdownConfirm<F>(
+    cx: Scope,
+    title: String,
+    confirm_aria: String,
+    on_confirm: F,
+) -> impl IntoView
+where
+    F: Fn() -> () + 'static + Copy,
+{
+    view! {cx,
+        <div class="dropdown dropdown-bottom">
+            <label tabindex="0" class="btn">{title}</label>
+            <div class="dropdown-content menu bg-base-200 rounded">
+                <button
+                    on:click=move |_| on_confirm()
+                    class="btn btn-outline btn-error"
+                    tabindex="0"
+                    aria-label={confirm_aria}>
+                    "Confirm"
+                </button>
+            </div>
+        </div>
+    }
+}

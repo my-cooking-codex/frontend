@@ -2,7 +2,11 @@ use leptos::*;
 use leptos_router::{use_navigate, use_params_map};
 
 use crate::{
-    components::{collapse::*, drawer::*},
+    components::{
+        collapse::*,
+        drawer::*,
+        input::{DropdownConfirm, DropdownConfirmProps},
+    },
     contexts::prelude::{
         use_api, use_login, use_modal_controller, use_toasts, CurrentApi, CurrentLogin,
     },
@@ -235,21 +239,14 @@ fn RecipeContent(cx: Scope, recipe: Recipe) -> impl IntoView {
                 </div>
             </div>
             // toolbar
-            <div class="mb-4 p-4 rounded bg-base-200">
-            <button on:click=on_print_click class="btn">"Print"</button>
-            <button on:click=on_edit_labels_click class="btn">"Labels"</button>
-            <div class="dropdown dropdown-bottom">
-                    <label tabindex="0" class="btn m-1">"Remove"</label>
-                    <div class="dropdown-content menu bg-base-200 rounded">
-                        <button
-                            on:click=move |_| delete_action.dispatch(())
-                            class="btn btn-outline btn-error"
-                            tabindex="0"
-                            aria-label="Confirm Deletion">
-                            "Confirm"
-                        </button>
-                    </div>
-                </div>
+            <div class="mb-4 p-4 rounded bg-base-200 flex gap-2">
+                <button on:click=on_print_click class="btn">"Print"</button>
+                <button on:click=on_edit_labels_click class="btn">"Labels"</button>
+                <DropdownConfirm
+                    title="Remove".to_owned()
+                    confirm_aria="".to_owned()
+                    on_confirm=move|| delete_action.dispatch(())
+                />
             </div>
             // info
             <div class="mb-4 p-4 rounded bg-base-200">
