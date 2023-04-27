@@ -243,9 +243,10 @@ fn RecipeContent(cx: Scope, recipe: Recipe) -> impl IntoView {
                 <button on:click=on_print_click class="btn">"Print"</button>
                 <button on:click=on_edit_labels_click class="btn">"Labels"</button>
                 <DropdownConfirm
-                    title="Remove".to_owned()
-                    confirm_aria="".to_owned()
-                    on_confirm=move|| delete_action.dispatch(())
+                    title="Remove"
+                    confirm_aria=""
+                    on_confirm=move || delete_action.dispatch(())
+                    class="ml-auto"
                 />
             </div>
             // info
