@@ -56,7 +56,7 @@ pub fn Drawer(
     view! {cx,
         <div class="drawer drawer-mobile">
             <input id="main-drawer" type="checkbox" class="drawer-toggle" />
-            <div class="drawer-content">
+            <div class="drawer-content pb-8">
                 <DrawerHeader/>
                 <div class="pt-3 px-3">
                     {children(cx)}
