@@ -244,27 +244,33 @@ fn RecipeContent(cx: Scope, recipe: Recipe) -> impl IntoView {
                 </div>
             </div>
             // toolbar
-            <div class="mb-4 p-4 rounded bg-base-200 flex gap-2">
-                <button on:click=on_print_click class="btn">"Print"</button>
-                <button on:click=on_edit_labels_click class="btn">"Labels"</button>
-                <label
-                    class="swap btn ml-auto"
-                    // class="btn-outline"
-                    class:btn-outline=move || edit_mode.get()
-                    >
-                    <input
-                        prop:checked=move || edit_mode.get()
-                        on:click=move |_| edit_mode.update(|mode| *mode=mode.not())
-                        type="checkbox"
+            <div class="mb-4 p-4 rounded bg-base-200 flex flex-wrap gap-2">
+                // general tools
+                <div class="flex flex-wrap gap-2 mr-auto">
+                    <button on:click=on_print_click class="btn">"Print"</button>
+                    <button on:click=on_edit_labels_click class="btn">"Labels"</button>
+                </div>
+                // edit tools
+                <div class="flex flex-wrap gap-2">
+                    <label
+                        class="swap btn"
+                        // class="btn-outline"
+                        class:btn-outline=move || edit_mode.get()
+                        >
+                        <input
+                            prop:checked=move || edit_mode.get()
+                            on:click=move |_| edit_mode.update(|mode| *mode=mode.not())
+                            type="checkbox"
+                        />
+                        <div class="swap-on">"View Mode"</div>
+                        <div class="swap-off">"Edit Mode"</div>
+                    </label>
+                    <DropdownConfirm
+                        title="Remove"
+                        confirm_aria=""
+                        on_confirm=move || delete_action.dispatch(())
                     />
-                    <div class="swap-on">"View Mode"</div>
-                    <div class="swap-off">"Edit Mode"</div>
-                </label>
-                <DropdownConfirm
-                    title="Remove"
-                    confirm_aria=""
-                    on_confirm=move || delete_action.dispatch(())
-                />
+                </div>
             </div>
             // info
             <div class="mb-4 p-4 rounded bg-base-200">
