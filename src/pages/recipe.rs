@@ -36,6 +36,13 @@ fn RecipeContent(cx: Scope, recipe: Recipe) -> impl IntoView {
         }
     });
 
+    let on_labels_edit_action = move |new_labels| {
+        if let Some(new_labels) = new_labels {
+            recipe.update(|r| r.labels = new_labels);
+        }
+        modal_controller.close();
+    };
+
     let on_title_edit_action = move |new_title| {
         if let Some(new_title) = new_title {
             recipe.update(|r| r.title = new_title);
@@ -93,6 +100,19 @@ fn RecipeContent(cx: Scope, recipe: Recipe) -> impl IntoView {
         if let Some(print_window) = print_window {
             print_window.open().unwrap();
         }
+    };
+
+    let on_edit_labels_click = move |_| {
+        modal_controller.open(
+            view! {cx,
+                    <EditLabelsModal
+                        id=recipe.get().id
+                        labels=recipe.get().labels
+                        on_action=on_labels_edit_action
+                    />
+            }
+            .into_view(cx),
+        );
     };
 
     let on_edit_title_click = move |_| {
@@ -216,8 +236,9 @@ fn RecipeContent(cx: Scope, recipe: Recipe) -> impl IntoView {
             </div>
             // toolbar
             <div class="mb-4 p-4 rounded bg-base-200">
-                <button on:click=on_print_click class="btn">"Print"</button>
-                <div class="dropdown dropdown-bottom">
+            <button on:click=on_print_click class="btn">"Print"</button>
+            <button on:click=on_edit_labels_click class="btn">"Labels"</button>
+            <div class="dropdown dropdown-bottom">
                     <label tabindex="0" class="btn m-1">"Remove"</label>
                     <div class="dropdown-content menu bg-base-200 rounded">
                         <button
