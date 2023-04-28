@@ -257,3 +257,47 @@ where
         </div>
     }
 }
+
+#[component]
+pub fn ThreeStateSelect<F>(
+    cx: Scope,
+    value: Option<bool>,
+    on_input: F,
+    #[prop(into, optional)] class: Option<String>,
+) -> impl IntoView
+where
+    F: Fn(Option<bool>) + 'static + Copy,
+{
+    let value = create_rw_signal(cx, value);
+
+    create_effect(cx, move |_| {
+        let value = value.get();
+        on_input(value);
+    });
+
+    view! {cx,
+        <select
+            on:change=move |ev| {
+                match event_target_value(&ev).as_str() {
+                    "1" => value.set(Some(true)),
+                    "0" => value.set(Some(false)),
+                    _ => value.set(None),
+                }
+            }
+            class=class
+        >
+            <option
+                prop:selected=move || value.get().is_none()
+                value=""
+            >"Any"</option>
+            <option
+                prop:selected=move || value.get().unwrap_or(false)
+                value="1"
+            >"Yes"</option>
+            <option
+                prop:selected=move || !value.get().unwrap_or(true)
+                value="0"
+            >"No"</option>
+        </select>
+    }
+}

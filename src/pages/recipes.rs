@@ -1,10 +1,70 @@
 use crate::{
-    components::{drawer::*, image_links::*},
+    components::{
+        drawer::*,
+        image_links::*,
+        input::{ThreeStateSelect, ThreeStateSelectProps},
+    },
     contexts::prelude::{use_api, use_login, use_toasts, CurrentApi, CurrentLogin},
     helpers::{api_error_to_toast, login_redirect_effect, logout_on_401, LoginState},
 };
+use leptos::ev::SubmitEvent;
 use leptos::*;
 use mcc_frontend_types::query::RecipesFilter;
+
+#[component]
+fn RecipesFilterPanel<F>(cx: Scope, filters: RecipesFilter, update_filters: F) -> impl IntoView
+where
+    F: Fn(RecipesFilter) + 'static,
+{
+    let filters = create_rw_signal(cx, filters);
+
+    let on_search_submission = move |ev: SubmitEvent| {
+        ev.prevent_default();
+        update_filters(filters.get());
+    };
+
+    view! {cx,
+        <form on:submit=on_search_submission class="flex flex-col gap-2">
+            <input
+                on:input=move |ev| filters.update(|filters| {
+                    let v = event_target_value(&ev);
+                    filters.title = if v.is_empty() { None } else { Some(v) };
+                })
+                prop:value=move || filters.get().title.unwrap_or_default()
+                type="text"
+                class="input input-bordered input-sm w-full"
+                placeholder="Recipe Title..."
+                aria-label="title filter"
+            />
+            <div class="form-control">
+                <label class="label">
+                    <span class="label-text">"Freezable"</span>
+                    <ThreeStateSelect
+                        value=filters.get().freezable
+                        on_input=move |v| filters.update(|filters| filters.freezable = v)
+                        class="select select-bordered select-sm"
+                    />
+                </label>
+            </div>
+            <div class="form-control">
+                <label class="label">
+                    <span class="label-text">"Microwave Only"</span>
+                    <ThreeStateSelect
+                        value=filters.get().microwave_only
+                        on_input=move |v| filters.update(|filters| filters.microwave_only = v)
+                        class="select select-bordered select-sm"
+                    />
+                </label>
+            </div>
+            <button
+                type="submit"
+                class="btn btn-sm btn-wide mx-auto"
+            >
+                "Search"
+            </button>
+        </form>
+    }
+}
 
 #[component]
 pub fn Recipes(cx: Scope) -> impl IntoView {
@@ -18,7 +78,7 @@ pub fn Recipes(cx: Scope) -> impl IntoView {
     let CurrentApi { api, .. } = use_api(cx);
     let CurrentLogin { login, set_login } = use_login(cx);
 
-    let (filters, set_filters) = create_signal(cx, RecipesFilter::default());
+    let filters = create_rw_signal(cx, RecipesFilter::default());
     let (items, set_items) = create_signal::<Vec<ImageLinkItem>>(cx, Vec::default());
 
     login_redirect_effect(cx, LoginState::Authenticated, "/login");
@@ -49,6 +109,9 @@ pub fn Recipes(cx: Scope) -> impl IntoView {
         let media_url = login.get().expect("expected login to exist").media_url;
         if let Some(Some(recipes)) = fetch_recipes.read(cx) {
             set_items.update(|v| {
+                if filters.get().page == 1 {
+                    v.clear();
+                }
                 v.extend(recipes.iter().map(|recipe| {
                     ImageLinkItem {
                         key: recipe.id.clone(),
@@ -64,8 +127,15 @@ pub fn Recipes(cx: Scope) -> impl IntoView {
         }
     });
 
+    let on_new_filters = move |new_filters: RecipesFilter| {
+        filters.update(|v| {
+            *v = new_filters;
+            v.page = 1;
+        });
+    };
+
     let on_load_more_click = move |_| {
-        set_filters.update(|v| {
+        filters.update(|v| {
             v.page += 1;
         });
     };
@@ -76,8 +146,11 @@ pub fn Recipes(cx: Scope) -> impl IntoView {
 
     view! {cx,
         <Drawer links={drawer_links}>
+            <div class="p-4 mb-2 rounded bg-base-200">
+                <h1 class="text-3xl font-bold mb-4">"Recipes"</h1>
+                <RecipesFilterPanel filters=filters.get() update_filters=on_new_filters />
+            </div>
             <div class="p-4 rounded bg-base-200">
-                <h1 class="text-3xl font-bold mb-2">"Recipes"</h1>
                 <ImageLinksBox items={items} />
                 {move || {
                     match (fetch_recipes.loading().get(), fetch_recipes.read(cx)) {
