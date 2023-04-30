@@ -261,27 +261,20 @@ where
 #[component]
 pub fn ThreeStateSelect<F>(
     cx: Scope,
-    value: Option<bool>,
-    on_input: F,
+    #[prop(into)] value: Signal<Option<bool>>,
+    on_change: F,
     #[prop(into, optional)] class: Option<String>,
 ) -> impl IntoView
 where
     F: Fn(Option<bool>) + 'static + Copy,
 {
-    let value = create_rw_signal(cx, value);
-
-    create_effect(cx, move |_| {
-        let value = value.get();
-        on_input(value);
-    });
-
     view! {cx,
         <select
             on:change=move |ev| {
                 match event_target_value(&ev).as_str() {
-                    "1" => value.set(Some(true)),
-                    "0" => value.set(Some(false)),
-                    _ => value.set(None),
+                    "1" => on_change(Some(true)),
+                    "0" => on_change(Some(false)),
+                    _ => on_change(None),
                 }
             }
             class=class

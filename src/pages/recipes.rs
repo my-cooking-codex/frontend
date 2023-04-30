@@ -15,27 +15,29 @@ use leptos::*;
 use mcc_frontend_types::query::RecipesFilter;
 
 #[component]
-fn LabelsSelector<F>(cx: Scope, labels: HashSet<String>, on_change: F) -> impl IntoView
+fn LabelsSelector<F>(
+    cx: Scope,
+    #[prop(into)] selected_labels: Signal<HashSet<String>>,
+    labels: Vec<String>,
+    on_change: F,
+) -> impl IntoView
 where
     F: Fn(HashSet<String>) + 'static + Copy,
 {
-    let (labels, ..) = create_signal(cx, labels);
-    let selected_labels = create_rw_signal(cx, HashSet::<String>::new());
+    let labels = HashSet::from_iter(labels.into_iter());
     let label_input = create_rw_signal(cx, String::new());
 
     let on_add_label = move |new_label: String| {
-        selected_labels.update(|labels| {
-            labels.insert(new_label);
-        });
-        on_change(selected_labels.get());
+        let mut labels = selected_labels.get_untracked();
+        labels.insert(new_label);
+        on_change(labels);
         label_input.set(String::new());
     };
 
     let on_remove_label = move |label| {
-        selected_labels.update(|labels| {
-            labels.remove(&label);
-        });
-        on_change(selected_labels.get());
+        let mut labels = selected_labels.get_untracked();
+        labels.remove(&label);
+        on_change(labels);
     };
 
     view! {cx,
@@ -60,7 +62,6 @@ where
                     />
                     <datalist id="labels">
                         {move || {
-                            let labels = labels.get();
                             labels.difference(&selected_labels.get()).map(|label| {
                                 view! {cx, <option value=label/>}
                             }).collect::<Vec<_>>()
@@ -130,24 +131,33 @@ where
 
     view! {cx,
         <form on:submit=on_search_submission class="flex flex-col gap-2">
-            <input
-                on:input=move |ev| filters.update(|filters| {
-                    let v = event_target_value(&ev);
-                    filters.title = if v.is_empty() { None } else { Some(v) };
-                })
-                prop:value=move || filters.get().title.unwrap_or_default()
-                type="text"
-                class="input input-bordered input-sm w-full"
-                placeholder="Recipe Title..."
-                aria-label="title filter"
-            />
+            <div class="flex gap-2">
+                <input
+                    on:input=move |ev| filters.update(|filters| {
+                        let v = event_target_value(&ev);
+                        filters.title = if v.is_empty() { None } else { Some(v) };
+                    })
+                    prop:value=move || filters.get().title.unwrap_or_default()
+                    type="text"
+                    class="input input-bordered input-sm w-full"
+                    placeholder="Recipe Title..."
+                    aria-label="title filter"
+                />
+                <button
+                    on:click=move |_| filters.update(|filters| *filters = RecipesFilter::default())
+                    type="button"
+                    class="btn btn-sm"
+                >
+                    "Reset"
+                </button>
+            </div>
             <CollapsableBox title="Advanced" class="bg-base-100">
                 <div class="form-control">
                     <label class="label">
                         <span class="label-text">"Freezable"</span>
                         <ThreeStateSelect
-                            value=filters.get().freezable
-                            on_input=move |v| filters.update(|filters| filters.freezable = v)
+                            value=Signal::derive(cx, move || filters.get().freezable)
+                            on_change=move |v| filters.update(|filters| filters.freezable = v)
                             class="select select-bordered select-sm"
                         />
                     </label>
@@ -156,8 +166,8 @@ where
                     <label class="label">
                         <span class="label-text">"Microwave Only"</span>
                         <ThreeStateSelect
-                            value=filters.get().microwave_only
-                            on_input=move |v| filters.update(|filters| filters.microwave_only = v)
+                            value=Signal::derive(cx, move || filters.get().microwave_only)
+                            on_change=move |v| filters.update(|filters| filters.microwave_only = v)
                             class="select select-bordered select-sm"
                         />
                     </label>
@@ -167,7 +177,8 @@ where
                         <span class="label-text">"Labels"</span>
                         {move || {
                             view!{cx, <LabelsSelector
-                                labels=labels.read(cx).unwrap_or_default().into_iter().collect()
+                                selected_labels=Signal::derive(cx, move || filters.get().labels.unwrap_or_default())
+                                labels=labels.read(cx).unwrap_or_default()
                                 on_change=move |labels| filters.update(|filters| filters.labels = Some(labels))
                             />}
                         }}
