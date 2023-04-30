@@ -1,3 +1,5 @@
+use std::collections::HashSet;
+
 use crate::{
     components::{
         drawer::*,
@@ -12,10 +14,112 @@ use leptos::*;
 use mcc_frontend_types::query::RecipesFilter;
 
 #[component]
+fn LabelsSelector<F>(cx: Scope, labels: HashSet<String>, on_change: F) -> impl IntoView
+where
+    F: Fn(HashSet<String>) + 'static + Copy,
+{
+    let (labels, ..) = create_signal(cx, labels);
+    let selected_labels = create_rw_signal(cx, HashSet::<String>::new());
+    let label_input = create_rw_signal(cx, String::new());
+
+    let on_add_label = move |new_label: String| {
+        selected_labels.update(|labels| {
+            labels.insert(new_label);
+        });
+        on_change(selected_labels.get());
+        label_input.set(String::new());
+    };
+
+    let on_remove_label = move |label| {
+        selected_labels.update(|labels| {
+            labels.remove(&label);
+        });
+        on_change(selected_labels.get());
+    };
+
+    view! {cx,
+            <div class="w-80">
+                <div class="flex column gap-2 mb-2">
+                    <input
+                        on:input=move |ev| label_input.set(event_target_value(&ev))
+                        prop:value=move || label_input.get()
+                        on:keydown=move |ev| {
+                            if ev.key_code() == 13 {
+                                ev.prevent_default();
+                                let label = label_input.get();
+                                if !label.is_empty() {
+                                    on_add_label(label_input.get());
+                                }
+                            }
+                        }
+                        type="text"
+                        class="input input-bordered input-sm w-full"
+                        placeholder="Search Label..."
+                        list="labels"
+                    />
+                    <datalist id="labels">
+                        {move || {
+                            let labels = labels.get();
+                            labels.difference(&selected_labels.get()).map(|label| {
+                                view! {cx, <option value=label/>}
+                            }).collect::<Vec<_>>()
+                        }}
+                    </datalist>
+                    <button
+                        on:click=move |_| {
+                            let label = label_input.get();
+                            if !label.is_empty() {
+                                on_add_label(label);
+                            }
+                        }
+                        type="button"
+                        class="btn btn-sm"
+                    >
+                        "Add"
+                    </button>
+                </div>
+                <div class="flex flex-wrap gap-2 max-h-28 overflow-y-auto">
+                    {move || {
+                        let labels = selected_labels.get();
+                        labels.into_iter().map(|label| view! {cx,
+                            <div
+                                class="inline-flex items-center bg-info text-info-content p-1 gap-2 rounded-lg"
+                            >
+                                {&label}
+                                <button
+                                    on:click=move |_| {on_remove_label(label.clone())}
+                                    type="button"
+                                    class="btn btn-sm"
+                                >
+                                    "X"
+                                </button>
+                            </div>
+                        }).collect::<Vec<_>>()
+                    }}
+                </div>
+            </div>
+    }
+}
+
+#[component]
 fn RecipesFilterPanel<F>(cx: Scope, filters: RecipesFilter, update_filters: F) -> impl IntoView
 where
     F: Fn(RecipesFilter) + 'static,
 {
+    let CurrentApi { api, .. } = use_api(cx);
+    let labels = create_resource(
+        cx,
+        || {},
+        move |()| async move {
+            let api = api.get().expect("api expected to exist");
+            match api.get_labels().await {
+                Ok(v) => v,
+                Err(_) => {
+                    vec![]
+                }
+            }
+        },
+    );
     let filters = create_rw_signal(cx, filters);
 
     let on_search_submission = move |ev: SubmitEvent| {
@@ -54,6 +158,17 @@ where
                         on_input=move |v| filters.update(|filters| filters.microwave_only = v)
                         class="select select-bordered select-sm"
                     />
+                </label>
+            </div>
+            <div class="form-control">
+                <label class="label">
+                    <span class="label-text">"Labels"</span>
+                    {move || {
+                        view!{cx, <LabelsSelector
+                            labels=labels.read(cx).unwrap_or_default().into_iter().collect()
+                            on_change=move |labels| filters.update(|filters| filters.labels = Some(labels))
+                        />}
+                    }}
                 </label>
             </div>
             <button
