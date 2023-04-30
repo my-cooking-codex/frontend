@@ -1,3 +1,5 @@
+use std::collections::HashSet;
+
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
@@ -6,7 +8,8 @@ pub struct RecipesFilter {
     pub page: usize,
     pub per_page: usize,
     pub title: Option<String>,
-    pub labels: Option<Vec<String>>,
+    #[serde(rename="label")]
+    pub labels: Option<HashSet<String>>,
     pub freezable: Option<bool>,
     pub microwave_only: Option<bool>,
 }
