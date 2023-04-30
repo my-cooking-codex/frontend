@@ -2,6 +2,7 @@ use std::collections::HashSet;
 
 use crate::{
     components::{
+        collapse::*,
         drawer::*,
         image_links::*,
         input::{ThreeStateSelect, ThreeStateSelectProps},
@@ -140,37 +141,39 @@ where
                 placeholder="Recipe Title..."
                 aria-label="title filter"
             />
-            <div class="form-control">
-                <label class="label">
-                    <span class="label-text">"Freezable"</span>
-                    <ThreeStateSelect
-                        value=filters.get().freezable
-                        on_input=move |v| filters.update(|filters| filters.freezable = v)
-                        class="select select-bordered select-sm"
-                    />
-                </label>
-            </div>
-            <div class="form-control">
-                <label class="label">
-                    <span class="label-text">"Microwave Only"</span>
-                    <ThreeStateSelect
-                        value=filters.get().microwave_only
-                        on_input=move |v| filters.update(|filters| filters.microwave_only = v)
-                        class="select select-bordered select-sm"
-                    />
-                </label>
-            </div>
-            <div class="form-control">
-                <label class="label">
-                    <span class="label-text">"Labels"</span>
-                    {move || {
-                        view!{cx, <LabelsSelector
-                            labels=labels.read(cx).unwrap_or_default().into_iter().collect()
-                            on_change=move |labels| filters.update(|filters| filters.labels = Some(labels))
-                        />}
-                    }}
-                </label>
-            </div>
+            <CollapsableBox title="Advanced" class="bg-base-100">
+                <div class="form-control">
+                    <label class="label">
+                        <span class="label-text">"Freezable"</span>
+                        <ThreeStateSelect
+                            value=filters.get().freezable
+                            on_input=move |v| filters.update(|filters| filters.freezable = v)
+                            class="select select-bordered select-sm"
+                        />
+                    </label>
+                </div>
+                <div class="form-control">
+                    <label class="label">
+                        <span class="label-text">"Microwave Only"</span>
+                        <ThreeStateSelect
+                            value=filters.get().microwave_only
+                            on_input=move |v| filters.update(|filters| filters.microwave_only = v)
+                            class="select select-bordered select-sm"
+                        />
+                    </label>
+                </div>
+                <div class="form-control">
+                    <label class="label">
+                        <span class="label-text">"Labels"</span>
+                        {move || {
+                            view!{cx, <LabelsSelector
+                                labels=labels.read(cx).unwrap_or_default().into_iter().collect()
+                                on_change=move |labels| filters.update(|filters| filters.labels = Some(labels))
+                            />}
+                        }}
+                    </label>
+                </div>
+            </CollapsableBox>
             <button
                 type="submit"
                 class="btn btn-sm btn-wide mx-auto"

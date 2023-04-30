@@ -3,6 +3,7 @@ use leptos::*;
 #[component]
 pub fn CollapsableBox(
     cx: Scope,
+    #[prop(into)]
     title: String,
     #[prop(optional)] open: bool,
     #[prop(into, optional)] class: Option<String>,
