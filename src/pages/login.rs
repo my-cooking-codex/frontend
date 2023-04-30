@@ -4,7 +4,7 @@ use crate::{
         login::CurrentLogin,
         prelude::{use_api, use_login, use_toasts, CurrentApi},
     },
-    helpers::{api_error_to_toast, login_redirect_effect, LoginState},
+    helpers::api_error_to_toast,
 };
 use leptos::{ev::SubmitEvent, leptos_dom::helpers::location, *};
 use leptos_router::{AProps, A};
@@ -20,8 +20,6 @@ pub fn Login(cx: Scope) -> impl IntoView {
     let (base_url, set_base_url) = create_signal::<Option<String>>(cx, location().origin().ok());
     let (username, set_username) = create_signal(cx, String::default());
     let (password, set_password) = create_signal(cx, String::default());
-
-    login_redirect_effect(cx, LoginState::Unauthenticated, "/");
 
     let fetch_token = create_action(cx, move |args: &(String, Login)| {
         let (base_url, details) = args.to_owned();

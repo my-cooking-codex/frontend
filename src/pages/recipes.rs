@@ -8,7 +8,7 @@ use crate::{
         input::{ThreeStateSelect, ThreeStateSelectProps},
     },
     contexts::prelude::{use_api, use_login, use_toasts, CurrentApi, CurrentLogin},
-    helpers::{api_error_to_toast, login_redirect_effect, logout_on_401, LoginState},
+    helpers::{api_error_to_toast, logout_on_401},
 };
 use leptos::ev::SubmitEvent;
 use leptos::*;
@@ -209,8 +209,6 @@ pub fn Recipes(cx: Scope) -> impl IntoView {
 
     let filters = create_rw_signal(cx, RecipesFilter::default());
     let (items, set_items) = create_signal::<Vec<ImageLinkItem>>(cx, Vec::default());
-
-    login_redirect_effect(cx, LoginState::Authenticated, "/login");
 
     let fetch_recipes = create_resource(
         cx,

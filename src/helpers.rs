@@ -1,37 +1,8 @@
 use leptos::*;
-use leptos_router::use_navigate;
 use mcc_frontend_core::api::{ApiError, ApiInternalError};
 use mcc_frontend_types::StoredLogin;
 
-use crate::contexts::prelude::{use_login, CurrentLogin, Toast};
-
-pub enum LoginState {
-    Unauthenticated,
-    Authenticated,
-}
-
-/// Redirects to a given path if the user is in an unexpected authentication state.
-pub fn login_redirect_effect(cx: Scope, required_state: LoginState, to: &str) {
-    let to = to.to_owned();
-
-    let navigator = use_navigate(cx);
-    let CurrentLogin { login, .. } = use_login(cx);
-
-    create_effect(cx, move |_| {
-        let is_authenticated = login.get().is_some();
-        match (is_authenticated, &required_state) {
-            (true, LoginState::Unauthenticated) => {
-                navigator(&to, Default::default()).unwrap();
-            }
-            (false, LoginState::Authenticated) => {
-                navigator(&to, Default::default()).unwrap();
-            }
-            _ => {
-                // do nothing, we're in the right state
-            }
-        };
-    })
-}
+use crate::contexts::prelude::Toast;
 
 /// Logout the user if the API returns a 401.
 /// Returns true if the user was logged out

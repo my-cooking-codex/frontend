@@ -4,7 +4,7 @@ use crate::{
         login::{use_login, CurrentLogin},
         prelude::{use_api, use_toasts, CurrentApi, Toast},
     },
-    helpers::{api_error_to_toast, login_redirect_effect, logout_on_401, LoginState},
+    helpers::{api_error_to_toast, logout_on_401},
 };
 use leptos::{ev::SubmitEvent, *};
 use leptos_router::use_navigate;
@@ -23,8 +23,6 @@ pub fn NewRecipe(cx: Scope) -> impl IntoView {
     let CurrentApi { api, .. } = use_api(cx);
     let CurrentLogin { set_login, .. } = use_login(cx);
     let (title, set_title) = create_signal(cx, String::default());
-
-    login_redirect_effect(cx, LoginState::Authenticated, "/login");
 
     let create_new_recipe = create_action(cx, move |title: &String| {
         let title = title.to_owned();

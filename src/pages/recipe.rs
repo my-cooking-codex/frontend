@@ -12,7 +12,7 @@ use crate::{
     contexts::prelude::{
         use_api, use_login, use_modal_controller, use_toasts, CurrentApi, CurrentLogin,
     },
-    helpers::{api_error_to_toast, login_redirect_effect, logout_on_401, LoginState},
+    helpers::{api_error_to_toast, logout_on_401},
     modals::edit_recipe::*,
 };
 use mcc_frontend_types::{recipe::Recipe, Fraction, HourMinuteSecond};
@@ -431,8 +431,6 @@ pub fn RecipePage(cx: Scope) -> impl IntoView {
     let toasts = use_toasts(cx);
     let CurrentApi { api, .. } = use_api(cx);
     let CurrentLogin { set_login, .. } = use_login(cx);
-
-    login_redirect_effect(cx, LoginState::Authenticated, "/login");
 
     let recipe = create_resource(
         cx,

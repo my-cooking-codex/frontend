@@ -1,7 +1,7 @@
 use crate::{
     components::input::{BaseUrlInput, BaseUrlInputProps},
     contexts::prelude::{use_toasts, Toast},
-    helpers::{api_error_to_toast, login_redirect_effect, LoginState},
+    helpers::api_error_to_toast,
 };
 use leptos::{ev::SubmitEvent, leptos_dom::helpers::location, *};
 use leptos_router::{use_navigate, AProps, A};
@@ -16,8 +16,6 @@ pub fn Signup(cx: Scope) -> impl IntoView {
     let (username, set_username) = create_signal(cx, String::default());
     let (password, set_password) = create_signal(cx, String::default());
     let (password_confirm, set_password_confirm) = create_signal(cx, String::default());
-
-    login_redirect_effect(cx, LoginState::Unauthenticated, "/");
 
     let create_account = create_action(cx, move |args: &(String, CreateUser)| {
         let navigator = use_navigate(cx);

@@ -4,7 +4,7 @@ use crate::{
         login::{use_login, CurrentLogin},
         prelude::{use_api, use_toasts, CurrentApi},
     },
-    helpers::{api_error_to_toast, login_redirect_effect, logout_on_401, LoginState},
+    helpers::{api_error_to_toast, logout_on_401},
 };
 use leptos::*;
 use mcc_frontend_types::stats::AccountStats;
@@ -39,8 +39,6 @@ pub fn Home(cx: Scope) -> impl IntoView {
             }
         },
     );
-
-    login_redirect_effect(cx, LoginState::Authenticated, "/login");
 
     view! {cx,
         <Drawer links={drawer_links}>

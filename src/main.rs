@@ -9,7 +9,7 @@ pub(crate) mod pages;
 
 use components::toasts::{Toasts, ToastsProps};
 use contexts::prelude::{
-    CurrentApi, CurrentLogin, ModalController, ModalViewer, ModalViewerProps,
+    use_login, CurrentApi, CurrentLogin, ModalController, ModalViewer, ModalViewerProps,
     Toasts as ToastsContext,
 };
 use pages::*;
@@ -27,19 +27,29 @@ pub fn App(cx: Scope) -> impl IntoView {
     provide_context(cx, ToastsContext::new(cx));
     provide_context(cx, ModalController::new(cx));
 
+    let has_auth = move |cx| {
+        let CurrentLogin { login, .. } = use_login(cx);
+        login.get().is_some()
+    };
+
+    let has_no_auth = move |cx| {
+        let CurrentLogin { login, .. } = use_login(cx);
+        login.get().is_none()
+    };
+
     view! { cx,
         <Toasts/>
         <ModalViewer/>
         <Router>
             <Routes>
-                <Route path="/" view=move |cx| view! {cx, <Home/>} />
-                <Route path="/signup" view=move |cx| view! {cx, <Signup/>} />
-                <Route path="/login" view=move |cx| view! {cx, <Login/>} />
-                <Route path="/logout" view=move |cx| view! {cx, <Logout/>} />
-                <Route path="/recipes" view=move |cx| view! {cx, <Recipes/>} />
-                <Route path="/recipes/new" view=move |cx| view! {cx, <NewRecipe/>} />
-                <Route path="/recipes/:id" view=move |cx| view! {cx, <RecipePage/>} />
-                <Route path="/recipes/:id/print" view=move |cx| view! {cx, <RecipePrint/>} />
+                <ProtectedRoute path="/" redirect_path="/login" condition=has_auth view=move |cx| view! {cx, <Home/>}/>
+                <ProtectedRoute path="logout" redirect_path="/login" condition=has_auth view=move |cx| view! {cx, <Logout/>} />
+                <ProtectedRoute path="/recipes" redirect_path="/login" condition=has_auth view=move |cx| view! {cx, <Recipes/>} />
+                <ProtectedRoute path="recipes/new" redirect_path="/login" condition=has_auth view=move |cx| view! {cx, <NewRecipe/>} />
+                <ProtectedRoute path="recipes/:id" redirect_path="/login" condition=has_auth view=move |cx| view! {cx, <RecipePage/>} />
+                <ProtectedRoute path="recipes/:id/print" redirect_path="/login" condition=has_auth view=move |cx| view! {cx, <RecipePrint/>} />
+                <ProtectedRoute path="/signup" redirect_path="/" condition=has_no_auth view=move |cx| view! {cx, <Signup/>} />
+                <ProtectedRoute path="/login" redirect_path="/" condition=has_no_auth view=move |cx| view! {cx, <Login/>} />
             </Routes>
         </Router>
     }
