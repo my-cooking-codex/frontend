@@ -2,7 +2,7 @@ use crate::{
     components::input::{BaseUrlInput, BaseUrlInputProps},
     contexts::{
         login::CurrentLogin,
-        prelude::{use_api, use_login, use_toasts, CurrentApi},
+        prelude::{use_login, use_toasts},
     },
     helpers::api_error_to_toast,
 };
@@ -14,7 +14,6 @@ use mcc_frontend_types::{Login, StoredLogin};
 #[component]
 pub fn Login(cx: Scope) -> impl IntoView {
     let CurrentLogin { set_login, .. } = use_login(cx);
-    let CurrentApi { set_api, .. } = use_api(cx);
     let toasts = use_toasts(cx);
 
     let (base_url, set_base_url) = create_signal::<Option<String>>(cx, location().origin().ok());
@@ -31,7 +30,6 @@ pub fn Login(cx: Scope) -> impl IntoView {
             match api.post_login(&details).await {
                 Ok(token) => {
                     log::debug!("login successful, token will expire at: {:?}", token.expiry);
-                    set_api.set(Some(Api::new(api_url.clone(), Some(token.clone()))));
                     set_login.set(Some(StoredLogin {
                         api_url,
                         media_url,
