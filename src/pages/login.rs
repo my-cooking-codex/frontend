@@ -20,9 +20,11 @@ pub fn Login(cx: Scope) -> impl IntoView {
     let (username, set_username) = create_signal(cx, String::default());
     let (password, set_password) = create_signal(cx, String::default());
 
-    let fetch_token = create_action(cx, move |args: &(String, Login)| {
-        let (base_url, details) = args.to_owned();
+    let is_loading = create_rw_signal(cx, false);
+
+    let fetch_token = move |base_url: String, details: Login| {
         async move {
+            is_loading.set(true);
             let api_url = format!("{}/api", base_url);
             let media_url = format!("{}/media", base_url);
             let api = Api::new(api_url.clone(), None);
@@ -30,23 +32,27 @@ pub fn Login(cx: Scope) -> impl IntoView {
             match api.post_login(&details).await {
                 Ok(token) => {
                     log::debug!("login successful, token will expire at: {:?}", token.expiry);
-                    set_login.set(Some(StoredLogin {
-                        api_url,
-                        media_url,
-                        token,
-                    }));
+                    cx.batch(move || {
+                        set_login.set(Some(StoredLogin {
+                            api_url,
+                            media_url,
+                            token,
+                        }));
+                        is_loading.set(false);
+                    });
                 }
                 Err(err) => {
                     toasts.push(api_error_to_toast(&err, "authenticating login"));
+                    is_loading.set(false);
                 }
             };
         }
-    });
+    };
 
     let on_submit = move |event: SubmitEvent| {
         event.prevent_default();
         if let Some(base_url) = base_url.get() {
-            fetch_token.dispatch((
+            spawn_local(fetch_token(
                 base_url,
                 Login {
                     username: username.get(),
@@ -99,7 +105,7 @@ pub fn Login(cx: Scope) -> impl IntoView {
                                 <button
                                     class="btn btn-primary"
                                     // class="loading"
-                                    class:loading=move || fetch_token.pending().get()
+                                    class:loading=move || is_loading.get()
                                     type="submit"
                                     prop:disabled=move || base_url.get().is_none()
                                 >
