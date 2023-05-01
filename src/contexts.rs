@@ -10,5 +10,5 @@ pub mod prelude {
     pub use super::modal_controller::{
         use_modal_controller, ModalController, ModalViewer, ModalViewerProps,
     };
-    pub use super::toasts::{use_toasts, Toast, Toasts};
+    pub use super::toasts::*;
 }
