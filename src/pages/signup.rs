@@ -108,19 +108,15 @@ pub fn Signup(cx: Scope) -> impl IntoView {
                                 />
                             </div>
                             <div class="form-control btn-group btn-group-vertical">
-                                {move || {
-                                    view!{cx,
-                                        <button
-                                            class="btn btn-primary"
-                                            // class="loading"
-                                            class:loading=create_account.pending().get()
-                                            type="submit"
-                                            disabled=move || base_url.get().is_none() || password.get() != password_confirm.get()
-                                        >
-                                            "Signup"
-                                        </button>
-                                    }
-                                }}
+                                <button
+                                    class="btn btn-primary"
+                                    // class="loading"
+                                    class:loading=move || create_account.pending().get()
+                                    type="submit"
+                                    prop:disabled=move || base_url.get().is_none() || password.get() != password_confirm.get()
+                                >
+                                    "Signup"
+                                </button>
                                 <A href="/login" class="btn">"Login Instead?"</A>
                             </div>
                         </form>

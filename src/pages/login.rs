@@ -73,7 +73,7 @@ pub fn Login(cx: Scope) -> impl IntoView {
                             <div class="form-control mb-2">
                                 <label class="label"><span class="label-text">"Username"</span></label>
                                 <input
-                                    prop:value={move || username.get()}
+                                    prop:value=move || username.get()
                                     on:input=move |ev| {set_username.set(event_target_value(&ev))}
                                     type="text"
                                     class="input input-bordered"
@@ -86,7 +86,7 @@ pub fn Login(cx: Scope) -> impl IntoView {
                             <div class="form-control mb-6">
                                 <label class="label"><span class="label-text">"Password"</span></label>
                                 <input
-                                    prop:value={move || password.get()}
+                                    prop:value=move || password.get()
                                     on:input=move |ev| {set_password.set(event_target_value(&ev))}
                                     type="password"
                                     class="input input-bordered"
@@ -96,19 +96,15 @@ pub fn Login(cx: Scope) -> impl IntoView {
                                 />
                             </div>
                             <div class="form-control btn-group btn-group-vertical">
-                                {move || {
-                                    view!{cx,
-                                        <button
-                                            class="btn btn-primary"
-                                            // class="loading"
-                                            class:loading=fetch_token.pending().get()
-                                            type="submit"
-                                            disabled=move || base_url.get().is_none()
-                                        >
-                                            "Login"
-                                        </button>
-                                    }
-                                }}
+                                <button
+                                    class="btn btn-primary"
+                                    // class="loading"
+                                    class:loading=move || fetch_token.pending().get()
+                                    type="submit"
+                                    prop:disabled=move || base_url.get().is_none()
+                                >
+                                    "Login"
+                                </button>
                                 <A href="/signup" class="btn">{"Signup Instead?"}</A>
                             </div>
                         </form>
