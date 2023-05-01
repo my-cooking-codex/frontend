@@ -16,7 +16,7 @@ pub fn Login(cx: Scope) -> impl IntoView {
     let CurrentLogin { set_login, .. } = use_login(cx);
     let toasts = use_toasts(cx);
 
-    let (base_url, set_base_url) = create_signal::<Option<String>>(cx, location().origin().ok());
+    let base_url = create_rw_signal::<Option<String>>(cx, location().origin().ok());
     let (username, set_username) = create_signal(cx, String::default());
     let (password, set_password) = create_signal(cx, String::default());
 
@@ -74,7 +74,10 @@ pub fn Login(cx: Scope) -> impl IntoView {
                         <form on:submit=on_submit>
                             <div class="form-control mb-2">
                                 <label class="label"><span class="label-text">"API Server"</span></label>
-                                <BaseUrlInput value=base_url.get() new_base_url=set_base_url />
+                                <BaseUrlInput
+                                    value=base_url.get()
+                                    on_change=move |v| base_url.set(v)
+                                />
                             </div>
                             <div class="form-control mb-2">
                                 <label class="label"><span class="label-text">"Username"</span></label>

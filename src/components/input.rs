@@ -10,46 +10,50 @@ const VALID_FRACTIONAL_INPUT_REGEX: &str =
 // fractions with or without a mixed number
 const VALID_FRACTION_REGEX: &str = r#"^(?:(?:[1-9]\d* )?\d+/\d+)$"#;
 
+fn base_url_valid(base_url: &str) -> bool {
+    Url::parse(base_url).is_ok()
+}
+
 fn make_preview_url(base_url: &str) -> Option<String> {
     let url = Url::parse(base_url).ok()?;
     Some(url.host_str().unwrap().to_owned())
 }
 
 #[component]
-pub fn BaseUrlInput(
+pub fn BaseUrlInput<F>(
     cx: Scope,
     value: Option<String>,
-    new_base_url: WriteSignal<Option<String>>,
-) -> impl IntoView {
+    on_change: F,
+) -> impl IntoView
+where
+    F: Fn(Option<String>) + 'static + Copy,
+{
     let (base_url, set_base_url) = create_signal(cx, value);
-    let (preview_base_url, set_preview_base_url) = create_signal(
-        cx,
-        make_preview_url(base_url.get().as_deref().unwrap_or_default())
-            .unwrap_or_else(|| "(unset)".to_owned()),
-    );
+    let preview_base_url = Signal::derive(cx, move || {
+        let base_url = base_url.get().unwrap_or_default();
+        make_preview_url(&base_url).unwrap_or_else(|| "(unset)".to_owned())
+    });
+
     let is_edit_mode = create_rw_signal(cx, bool::default());
 
     let view_mode = move || {
         if let Some(url) = base_url.get() {
             let sanitised = sanitise_base_url(url);
-            let preview = match make_preview_url(&sanitised) {
-                Some(v) => {
-                    new_base_url.set(Some(sanitised.clone()));
+            match base_url_valid(&sanitised) {
+                true => {
+                    on_change(Some(sanitised.clone()));
                     set_base_url.set(Some(sanitised.clone()));
-                    v
                 }
-                None => {
-                    new_base_url.set(None);
+                false => {
+                    on_change(None);
                     set_base_url.set(None);
-                    "(unset)".to_owned()
                 }
             };
-            set_preview_base_url.set(preview);
         }
     };
 
     let edit_mode = move || {
-        new_base_url.set(None);
+        on_change(None);
     };
 
     let on_switch_mode_click = move |_| {
