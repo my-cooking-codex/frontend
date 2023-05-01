@@ -3,12 +3,15 @@ use leptos::*;
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub struct ModalController {
     modal: RwSignal<Option<View>>,
+    pub current_modal: ReadSignal<Option<View>>,
 }
 
 impl ModalController {
     pub fn new(cx: Scope) -> Self {
+        let modal = create_rw_signal(cx, None);
         Self {
-            modal: create_rw_signal(cx, None),
+            modal,
+            current_modal: modal.read_only(),
         }
     }
 
@@ -21,19 +24,14 @@ impl ModalController {
     pub fn close(&self) {
         self.modal.set(None);
     }
-
-    pub fn reader(&self) -> ReadSignal<Option<View>> {
-        self.modal.read_only()
-    }
 }
 
 #[component]
 pub fn ModalViewer(cx: Scope) -> impl IntoView {
     let modal_controller = use_modal_controller(cx);
-    let modal = modal_controller.reader();
     view! { cx,
         {move || {
-            if let Some(modal) = modal.get() {
+            if let Some(modal) = modal_controller.current_modal.get() {
                 view! {cx, <>{modal}</>}
             } else {
                 view! {cx, <></>}
