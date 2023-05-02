@@ -112,13 +112,13 @@ where
                 <div class="form-control">
                     <span class="mb-2">"Prep Time"</span>
                     <HmsInput
-                        value=move || HourMinuteSecond::from_secs(info.get().prep_time)
+                        value=Signal::derive(cx, move || HourMinuteSecond::from_secs(info.get().prep_time))
                         on_input=move |value| info.update(|info| info.prep_time = value.as_secs())
                         required=true
                     />
                     <span class="my-2">"Cook Time"</span>
                     <HmsInput
-                        value=move || HourMinuteSecond::from_secs(info.get().cook_time)
+                        value=Signal::derive(cx, move || HourMinuteSecond::from_secs(info.get().cook_time))
                         on_input=move |value| info.update(|info| info.cook_time = value.as_secs())
                         required=true
                     />

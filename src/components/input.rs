@@ -20,11 +20,7 @@ fn make_preview_url(base_url: &str) -> Option<String> {
 }
 
 #[component]
-pub fn BaseUrlInput<F>(
-    cx: Scope,
-    value: Option<String>,
-    on_change: F,
-) -> impl IntoView
+pub fn BaseUrlInput<F>(cx: Scope, value: Option<String>, on_change: F) -> impl IntoView
 where
     F: Fn(Option<String>) + 'static + Copy,
 {
@@ -169,28 +165,27 @@ where
 }
 
 #[component]
-pub fn HmsInput<S, F>(cx: Scope, value: S, on_input: F, required: bool) -> impl IntoView
+pub fn HmsInput<F>(
+    cx: Scope,
+    #[prop(into)] value: Signal<HourMinuteSecond>,
+    on_input: F,
+    required: bool,
+) -> impl IntoView
 where
-    S: Fn() -> HourMinuteSecond + 'static + Copy,
     F: Fn(HourMinuteSecond) + 'static + Copy,
 {
-    let hms = create_rw_signal(cx, value().simplify());
-
-    create_effect(cx, move |_| {
-        let hms = hms.get();
-        on_input(hms);
-    });
-
     view! {cx,
         <div class="flex">
             <label class="input-group">
                 <input
-                    prop:value=move || hms.get().hours.to_string()
+                    prop:value=move || value.get().hours.to_string()
                     on:input=move |ev| {
                         let input = event_target_value(&ev);
                         if !input.is_empty() {
                             let parsed = input.parse::<usize>().expect("Failed to parse usize");
-                            hms.update(|hms| hms.hours = parsed);
+                            let mut value = value.get();
+                            value.hours = parsed;
+                            on_input(value);
                         }
                     }
                     type="number"
@@ -201,12 +196,14 @@ where
             </label>
             <label class="input-group">
                 <input
-                    prop:value=move || hms.get().minutes.to_string()
+                    prop:value=move || value.get().minutes.to_string()
                     on:input=move |ev| {
                         let input = event_target_value(&ev);
                         if !input.is_empty() {
                             let parsed = input.parse::<usize>().expect("Failed to parse usize");
-                            hms.update(|hms| hms.minutes = parsed);
+                            let mut value = value.get();
+                            value.minutes = parsed;
+                            on_input(value);
                         }
                     }
                     type="number"
@@ -217,12 +214,14 @@ where
             </label>
             <label class="input-group">
                 <input
-                    prop:value=move || hms.get().seconds.to_string()
+                    prop:value=move || value.get().seconds.to_string()
                     on:input=move |ev| {
                         let input = event_target_value(&ev);
                         if !input.is_empty() {
                             let parsed = input.parse::<usize>().expect("Failed to parse usize");
-                            hms.update(|hms| hms.seconds = parsed);
+                            let mut value = value.get();
+                            value.seconds = parsed;
+                            on_input(value);
                         }
                     }
                     type="number"
