@@ -82,7 +82,7 @@ where
                 on:input=move |ev| step.update(|s| s.description = event_target_value(&ev))
                 prop:value=move || step.get().description
                 class="textarea textarea-bordered w-full"
-                placeholder="Description here..."
+                placeholder="e.g. First you will need..."
                 required=true
             />
         </li>

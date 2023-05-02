@@ -31,7 +31,7 @@ where
                     on:input=move |ev| ingredient.update(|i| i.name = event_target_value(&ev))
                     type="text"
                     class="input input-bordered w-full"
-                    placeholder="name..."
+                    placeholder="e.g. Carrots"
                     required=true
                 />
                 <button
@@ -46,7 +46,7 @@ where
                     value=ingredient.get().amount
                     on_input=move |amount| ingredient.update(|i| i.amount = amount)
                     class="input input-bordered w-full".to_owned()
-                    placeholder="amount...".to_owned()
+                    placeholder="e.g. 15".to_owned()
                     required=true
                 />
                 <input
@@ -54,7 +54,7 @@ where
                     on:input=move |ev| ingredient.update(|i| i.unit_type = event_target_value(&ev))
                     type="text"
                     class="input input-bordered w-full"
-                    placeholder="unit..."
+                    placeholder="e.g. g"
                     list="units"
                     required=true
                 />
@@ -85,7 +85,7 @@ where
                 on:input=move |ev| ingredient.update(|i| i.description = Some(event_target_value(&ev)))
                 type="text"
                 class="textarea textarea-bordered w-full"
-                placeholder="notes..."
+                placeholder="e.g. Diced..."
             />
         </div>
     }

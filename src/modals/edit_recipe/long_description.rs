@@ -58,6 +58,7 @@ where
                         prop:value=move || description.get()
                         on:input=move |ev| {description.set(event_target_value(&ev))}
                         class="input input-bordered w-full h-56"
+                        placeholder="e.g. It was a great recipe when paired with..."
                     />
                 </label>
             </div>

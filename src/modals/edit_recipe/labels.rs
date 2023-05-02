@@ -112,7 +112,7 @@ where
                         }
                         class="input input-bordered w-full"
                         type="text"
-                        placeholder="High Protein..."
+                        placeholder="e.g. High Protein..."
                         list="labels"
                         maxlength="60"
                     />
