@@ -225,6 +225,7 @@ impl Api {
             Request::post(&req_url)
                 .header("Authorization", &self.get_authorization_value().unwrap())
                 .body(file)
+                .map_err(|_| ApiError::Internal(ApiInternalError::Generic))?
                 .send()
                 .await,
         )?;
