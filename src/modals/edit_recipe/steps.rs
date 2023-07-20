@@ -41,7 +41,7 @@ where
                     class="input input-bordered w-full mr-2"
                     placeholder={format!("Step {}", index+1)}
                 />
-                <div class="join">
+                <div class="join shadow-lg">
                     {
                         if index == 0 {
                             view!{cx, <button type="button" class="btn btn-disabled join-item">"Up"</button>}
@@ -167,7 +167,7 @@ where
                 <button
                     on:click=move |_| steps.update(|steps| steps.push(Step::default()))
                     type="button"
-                    class="btn w-full">
+                    class="btn shadow-lg w-full">
                     "Add Step"
                 </button>
             </div>

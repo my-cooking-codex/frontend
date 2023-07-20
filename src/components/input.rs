@@ -175,7 +175,7 @@ where
     F: Fn(HourMinuteSecond) + 'static + Copy,
 {
     view! {cx,
-        <div class="flex">
+        <div class="flex gap-1">
             <label class="join">
                 <input
                     prop:value=move || value.get().hours.to_string()

@@ -37,7 +37,7 @@ where
                 <button
                     on:click=move |_| on_event(index, EditIngredientEvent::Delete)
                     type="button"
-                    class="btn">
+                    class="btn shadow-lg">
                     "X"
                 </button>
             </div>
@@ -164,7 +164,7 @@ where
                 <button
                     on:click=move |_| ingredients.update(|ingredients| ingredients.push(Ingredient::default()))
                     type="button"
-                    class="btn w-full">
+                    class="btn shadow-lg w-full">
                     "Add Ingredient"
                 </button>
             </div>

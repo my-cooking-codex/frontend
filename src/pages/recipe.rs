@@ -244,16 +244,16 @@ fn RecipeContent(cx: Scope, recipe: Recipe) -> impl IntoView {
                 </div>
             </div>
             // toolbar
-            <div class="mb-4 p-4 rounded bg-base-200 flex flex-wrap gap-2">
+            <div class="mb-4 flex flex-wrap gap-2">
                 // general tools
                 <div class="flex flex-wrap gap-2 mr-auto">
-                    <button on:click=on_print_click class="btn">"Print"</button>
-                    <button on:click=on_edit_labels_click class="btn">"Labels"</button>
+                    <button on:click=on_print_click class="btn shadow-lg">"Print"</button>
+                    <button on:click=on_edit_labels_click class="btn shadow-lg">"Labels"</button>
                 </div>
                 // edit tools
                 <div class="flex flex-wrap gap-2">
                     <label
-                        class="swap btn"
+                        class="swap btn shadow-lg"
                         // class="btn-outline"
                         class:btn-outline=move || edit_mode.get()
                         >
@@ -269,6 +269,7 @@ fn RecipeContent(cx: Scope, recipe: Recipe) -> impl IntoView {
                         title="Remove"
                         confirm_aria=""
                         on_confirm=move || delete_action.dispatch(())
+                        class="shadow-lg"
                     />
                 </div>
             </div>
@@ -277,7 +278,7 @@ fn RecipeContent(cx: Scope, recipe: Recipe) -> impl IntoView {
                 <div class="flex mb-2">
                     <h2 class="text-xl font-bold mr-auto">"Info"</h2>
                     <Show when=move || edit_mode.get() fallback=|_| ()>
-                        <button on:click=on_edit_info_click class="btn">"Edit"</button>
+                        <button on:click=on_edit_info_click class="btn shadow-lg">"Edit"</button>
                     </Show>
                 </div>
                 <table class="table table-zebra w-full max-w-5xl">
@@ -338,7 +339,7 @@ fn RecipeContent(cx: Scope, recipe: Recipe) -> impl IntoView {
                 <div class="flex mb-2">
                     <h2 class="text-xl font-bold mr-auto">"Description"</h2>
                     <Show when=move || edit_mode.get() fallback=|_| ()>
-                        <button on:click=on_edit_description_click class="btn">"Edit"</button>
+                        <button on:click=on_edit_description_click class="btn shadow-lg">"Edit"</button>
                     </Show>
                 </div>
                 <p>{move || recipe.get().short_description}</p>
@@ -348,7 +349,7 @@ fn RecipeContent(cx: Scope, recipe: Recipe) -> impl IntoView {
                 <div class="flex mb-2">
                     <h2 class="text-xl font-bold mr-auto">"Notes"</h2>
                     <Show when=move || edit_mode.get() fallback=|_| ()>
-                        <button on:click=on_edit_long_description_click class="btn">"Edit"</button>
+                        <button on:click=on_edit_long_description_click class="btn shadow-lg">"Edit"</button>
                     </Show>
                 </div>
                 <pre class="whitespace-pre-line text-base font-sans">{move || recipe.get().long_description}</pre>
@@ -360,7 +361,7 @@ fn RecipeContent(cx: Scope, recipe: Recipe) -> impl IntoView {
                     <div class="flex mb-2">
                         <h2 class="text-xl font-bold mr-auto">"Ingredients"</h2>
                         <Show when=move || edit_mode.get() fallback=|_| ()>
-                            <button on:click=on_edit_ingredients_click class="btn">"Edit"</button>
+                            <button on:click=on_edit_ingredients_click class="btn shadow-lg">"Edit"</button>
                         </Show>
                     </div>
                     <table class="table table-compact table-zebra w-full">
@@ -393,7 +394,7 @@ fn RecipeContent(cx: Scope, recipe: Recipe) -> impl IntoView {
                     <div class="flex mb-2">
                         <h2 class="text-xl font-bold mr-auto">"Steps"</h2>
                         <Show when=move || edit_mode.get() fallback=|_| ()>
-                            <button on:click=on_edit_steps_click class="btn">"Edit"</button>
+                            <button on:click=on_edit_steps_click class="btn shadow-lg">"Edit"</button>
                         </Show>
                     </div>
                     <div class="flex flex-col gap-2">

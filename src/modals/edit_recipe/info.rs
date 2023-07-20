@@ -52,7 +52,7 @@ where
             // yields
             <div class="my-4">
                 <h2 class="text-lg mb-2">"Serving Size"</h2>
-                <div class="flex">
+                <div class="flex gap-1">
                     <label class="join w-auto">
                         <span class="label p-3 bg-base-300 join-item">"Amount"</span>
                         <input
