@@ -9,7 +9,7 @@ fn DrawerHeader(cx: Scope) -> impl IntoView {
     let CurrentLogin { login, .. } = use_login(cx);
 
     view! {cx,
-        <div class="navbar bg-neutral text-neutral-content sticky top-0 z-40">
+        <div class="navbar bg-base-300/[.5] backdrop-blur-md shadow-[0_10px_15px_-3px_rgba(0,0,0,0.4)] sticky top-0 z-40">
             <div class="flex-none">
                 <label class="btn btn-square btn-ghost drawer-button lg:hidden" for="main-drawer">
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="inline-block w-5 h-5 stroke-current"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>

@@ -217,7 +217,7 @@ fn RecipeContent(cx: Scope, recipe: Recipe) -> impl IntoView {
                     if let Some(image_id) = recipe.get().image_id.as_ref() {
                         view!{cx,
                             <><img
-                                class="object-cover w-full h-full rounded"
+                                class="object-cover w-full h-full rounded-md"
                                 src={format!("{}/recipe-image/{}", media_url(), image_id)}
                             /></>
                         }
@@ -225,9 +225,9 @@ fn RecipeContent(cx: Scope, recipe: Recipe) -> impl IntoView {
                         view!{cx, <><div class="w-full h-full bg-neutral rounded"></div></>}
                     }
                 }}
-                <div class="flex items-center absolute bottom-0 left-0 p-2 w-full bg-[#000000cc] rounded-b">
+                <div class="flex items-center absolute bottom-0 left-0 p-2 w-full bg-base-300/[.8] backdrop-blur-sm rounded-b-md">
                     <h1
-                        class="mr-auto text-2xl font-bold text-slate-300 \
+                        class="mr-auto text-2xl font-bold \
                             whitespace-nowrap overflow-hidden text-ellipsis py-2">
                         {move || recipe.get().title}
                     </h1>
