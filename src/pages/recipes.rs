@@ -1,7 +1,7 @@
 use std::collections::HashSet;
 
 use crate::{
-    components::{collapse::*, drawer::*, image_links::*, input::ThreeStateSelect},
+    components::{collapse::*, image_links::*, input::ThreeStateSelect},
     contexts::prelude::{
         use_api, use_login, use_modal_controller, use_toasts, CurrentApi, CurrentLogin,
     },
