@@ -13,7 +13,7 @@ FROM rust:1-buster as builder
 
     RUN cargo install trunk
 
-    COPY package.json ./
+    COPY package.json pnpm-lock.yaml ./
 
     RUN pnpm install
 
