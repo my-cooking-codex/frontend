@@ -12,19 +12,16 @@ fn RecipePrintContent(cx: Scope, recipe: Recipe) -> impl IntoView {
         <>
             {
                 if let Some(image_id) = recipe.image_id.as_ref() {
-                    view!{cx,
-                        <>
+                    Some(view!{cx,
                             <figure class="h-64 w-full mb-4">
                                 <img
                                     class="object-cover w-full h-full rounded"
                                     src={format!("{}/recipe-image/{}", media_url(), image_id)}
                                 />
                             </figure>
-                        </>
-                    }
-                } else {
-                    view!{cx, <></>}
-                }
+                    })
+                } else { None }
+
             }
             <h1 class="text-3xl font-bold mb-4">{recipe.title}</h1>
             <div class=" mb-4">
@@ -71,14 +68,10 @@ fn RecipePrintContent(cx: Scope, recipe: Recipe) -> impl IntoView {
                 </table>
                 {
                     if let Some(source) = recipe.info.source {
-                        if source.is_empty() {
-                            view!{cx, <></>}
-                        } else {
-                            view!{cx, <><p class="text-sm my-2">"Source: " {source}</p></>}
-                        }
-                    } else {
-                        view!{cx, <></>}
-                    }
+                        if !source.is_empty() {
+                            Some(view!{cx, <p class="text-sm my-2">"Source: " {source}</p>})
+                        } else { None }
+                    } else { None }
                 }
             </div>
             <div class="mb-4">

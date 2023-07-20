@@ -1,12 +1,7 @@
 use std::collections::HashSet;
 
 use crate::{
-    components::{
-        collapse::*,
-        drawer::*,
-        image_links::*,
-        input::{ThreeStateSelect, ThreeStateSelectProps},
-    },
+    components::{collapse::*, drawer::*, image_links::*, input::ThreeStateSelect},
     contexts::prelude::{use_api, use_login, use_toasts, CurrentApi, CurrentLogin},
     helpers::{api_error_to_toast, logout_on_401},
 };
@@ -297,7 +292,7 @@ pub fn Recipes(cx: Scope) -> impl IntoView {
                                     <><button
                                         type="button"
                                         class="btn btn-block"
-                                        on:click={on_load_more_click}>
+                                        on:click=on_load_more_click>
                                         "More"
                                     </button></>
                                 }
@@ -312,7 +307,7 @@ pub fn Recipes(cx: Scope) -> impl IntoView {
                                 <><button
                                     type="button"
                                     class="btn btn-block"
-                                    on:click={on_retry_click}>
+                                    on:click=on_retry_click>
                                     "More, (Retry)"
                                 </button></>
                             }
@@ -322,7 +317,7 @@ pub fn Recipes(cx: Scope) -> impl IntoView {
                             <><button
                                 type="button"
                                 class="btn btn-block"
-                                on:click={on_retry_click}>
+                                on:click=on_retry_click>
                                 "More, (Retry)"
                             </button></>
                         },

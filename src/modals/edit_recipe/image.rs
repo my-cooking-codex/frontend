@@ -1,7 +1,7 @@
 use crate::{
     contexts::prelude::{use_api, use_toasts, CurrentApi},
     helpers::api_error_to_toast,
-    modals::base::{ModalSaveCancel, ModalSaveCancelProps},
+    modals::base::ModalSaveCancel,
 };
 use leptos::ev::Event;
 use leptos::*;
@@ -73,8 +73,7 @@ where
             </div>
             {move || {
                 if image_id.get().is_some() {
-                    view!{cx,
-                        <>
+                    return Some(view!{cx,
                         <div class="form-control mb-2">
                             <span class="label">"Remove Existing"</span>
                             <button
@@ -85,11 +84,9 @@ where
                                 "Delete Existing (Permanent)"
                             </button>
                         </div>
-                        </>
-                    }
-                } else {
-                    view!{cx, <></>}
+                    })
                 }
+                None
             }}
         </ModalSaveCancel>
     }

@@ -4,11 +4,7 @@ use leptos::*;
 use leptos_router::{use_navigate, use_params_map};
 
 use crate::{
-    components::{
-        collapse::*,
-        drawer::*,
-        input::{DropdownConfirm, DropdownConfirmProps},
-    },
+    components::{collapse::*, drawer::*, input::DropdownConfirm},
     contexts::prelude::{
         use_api, use_login, use_modal_controller, use_toasts, CurrentApi, CurrentLogin,
     },
@@ -324,14 +320,11 @@ fn RecipeContent(cx: Scope, recipe: Recipe) -> impl IntoView {
                 </table>
                 {move || {
                     if let Some(source) = recipe.get().info.source {
-                        if source.is_empty() {
-                            view!{cx, <></>}
-                        } else {
-                            view!{cx, <><p class="text-sm my-2">"Source: " {source}</p></>}
+                        if !source.is_empty() {
+                            return Some(view!{cx, <p class="text-sm my-2">"Source: " {source}</p>});
                         }
-                    } else {
-                        view!{cx, <></>}
                     }
+                    None
                 }}
             </div>
             // description (short_description)

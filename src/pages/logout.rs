@@ -1,5 +1,5 @@
 use leptos::*;
-use leptos_router::{Redirect, RedirectProps};
+use leptos_router::Redirect;
 
 use crate::contexts::prelude::{use_login, CurrentLogin};
 

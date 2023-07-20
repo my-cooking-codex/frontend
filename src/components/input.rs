@@ -74,7 +74,7 @@ where
                             }
 
                         }}
-                        on:input={move |ev| { set_base_url.set(Some(event_target_value(&ev))) }}
+                        on:input=move |ev| { set_base_url.set(Some(event_target_value(&ev))) }
                         type="url"
                         class="input w-full join-item"
                         class:input-bordered=move || is_edit_mode.get()

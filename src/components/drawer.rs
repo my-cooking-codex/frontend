@@ -1,5 +1,5 @@
 use leptos::*;
-use leptos_router::{AProps, A};
+use leptos_router::A;
 use mcc_frontend_core::APP_TITLE;
 
 use crate::contexts::prelude::{use_login, CurrentLogin};

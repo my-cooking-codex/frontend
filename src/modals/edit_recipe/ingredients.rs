@@ -1,5 +1,5 @@
 use crate::{
-    components::input::{FractionalInput, FractionalInputProps},
+    components::input::FractionalInput,
     contexts::prelude::{use_api, use_toasts, CurrentApi},
     helpers::api_error_to_toast,
     modals::base::*,

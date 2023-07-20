@@ -1,10 +1,10 @@
 use crate::{
-    components::input::{BaseUrlInput, BaseUrlInputProps},
+    components::input::BaseUrlInput,
     contexts::prelude::{use_toasts, Toast},
     helpers::api_error_to_toast,
 };
 use leptos::{ev::SubmitEvent, leptos_dom::helpers::location, *};
-use leptos_router::{use_navigate, AProps, A};
+use leptos_router::{use_navigate, A};
 use mcc_frontend_core::{api::Api, APP_TITLE};
 use mcc_frontend_types::user::CreateUser;
 

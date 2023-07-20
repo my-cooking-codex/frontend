@@ -1,7 +1,7 @@
 use crate::{
     contexts::prelude::{use_api, use_toasts, CurrentApi},
     helpers::api_error_to_toast,
-    modals::base::{ModalSaveCancel, ModalSaveCancelProps},
+    modals::base::ModalSaveCancel,
 };
 use leptos::*;
 use mcc_frontend_types::recipe::UpdateRecipe;

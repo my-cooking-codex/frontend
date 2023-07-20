@@ -1,5 +1,5 @@
 use leptos::*;
-use leptos_router::{AProps, A};
+use leptos_router::A;
 
 #[derive(Clone)]
 pub struct ImageLinkItem {
