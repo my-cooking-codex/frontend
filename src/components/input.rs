@@ -246,7 +246,7 @@ where
     F: Fn() -> () + 'static + Copy,
 {
     view! {cx,
-        <div class="dropdown dropdown-bottom".to_owned() + &class.map_or("".to_owned(),|v| format!(" {v}"))>
+        <div class="dropdown dropdown-bottom dropdown-end".to_owned() + &class.map_or("".to_owned(),|v| format!(" {v}"))>
             <label tabindex="0" class="btn">{title}</label>
             <div class="dropdown-content menu bg-base-200 rounded">
                 <button
