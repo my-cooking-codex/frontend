@@ -52,12 +52,12 @@ where
         >
             <div class="form-control">
                 <span class="label">"Update Notes"</span>
-                <label class="input-group input-group-vertical">
-                    <span class="p-4">"Notes"</span>
+                <label class="join join-vertical">
+                    <span class="label p-3 bg-base-300 join-item">"Notes"</span>
                     <textarea
                         prop:value=move || description.get()
                         on:input=move |ev| {description.set(event_target_value(&ev))}
-                        class="input input-bordered w-full h-56"
+                        class="input input-bordered w-full h-56 p-2 join-item"
                         placeholder="e.g. It was a great recipe when paired with..."
                     />
                 </label>

@@ -52,13 +52,13 @@ where
         >
             <div class="form-control">
                 <span class="label">"Update Description"</span>
-                <label class="input-group">
-                    <span>"Description"</span>
+                <label class="join">
+                    <span class="label p-3 bg-base-300 join-item">"Description"</span>
                     <input
                         prop:value=move || description.get()
                         on:input=move |ev| {description.set(event_target_value(&ev))}
                         type="text"
-                        class="input input-bordered w-full"
+                        class="input input-bordered w-full join-item"
                         placeholder="e.g. Very tasty Pizza, make lots of it..."
                         maxlength=256
                     />

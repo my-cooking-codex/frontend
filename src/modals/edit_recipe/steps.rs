@@ -41,16 +41,16 @@ where
                     class="input input-bordered w-full mr-2"
                     placeholder={format!("Step {}", index+1)}
                 />
-                <div class="btn-group">
+                <div class="join">
                     {
                         if index == 0 {
-                            view!{cx, <button type="button" class="btn btn-disabled">"Up"</button>}
+                            view!{cx, <button type="button" class="btn btn-disabled join-item">"Up"</button>}
                         } else {
                             view!{cx,
                                 <button
                                     on:click=move |_| on_event(index, EditStepEvent::MoveUp)
                                     type="button"
-                                    class="btn">
+                                    class="btn join-item">
                                     "Up"
                                 </button>
                             }
@@ -58,13 +58,13 @@ where
                     }
                     {
                         if len == index+1 {
-                            view!{cx, <button type="button" class="btn btn-disabled">"Down"</button>}
+                            view!{cx, <button type="button" class="btn btn-disabled join-item">"Down"</button>}
                         } else {
                             view!{cx,
                                 <button
                                     on:click=move |_| on_event(index, EditStepEvent::MoveDown)
                                     type="button"
-                                    class="btn">
+                                    class="btn join-item">
                                     "Down"
                                 </button>
                             }
@@ -73,7 +73,7 @@ where
                     <button
                         on:click=move |_| on_event(index, EditStepEvent::Delete)
                         type="button"
-                        class="btn">
+                        class="btn join-item">
                         "X"
                     </button>
                 </div>

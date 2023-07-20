@@ -60,12 +60,12 @@ where
         >
             <div class="form-control mb-2">
                 <span class="label">"Upload New Image"</span>
-                <label class="input-group">
-                    <span>"Upload"</span>
+                <label class="join">
+                    <span class="label p-3 bg-base-300 join-item">"Upload"</span>
                     <input
                         on:change=on_image_change
                         type="file"
-                        class="file-input file-input-bordered w-full"
+                        class="file-input file-input-bordered w-full join-item"
                         accept="image/*"
                         multiple=false
                     />

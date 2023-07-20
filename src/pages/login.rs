@@ -104,9 +104,9 @@ pub fn Login(cx: Scope) -> impl IntoView {
                                     required=true
                                 />
                             </div>
-                            <div class="form-control btn-group btn-group-vertical">
+                            <div class="form-control join join-vertical w-full">
                                 <button
-                                    class="btn btn-primary"
+                                    class="btn btn-primary join-item"
                                     // class="loading"
                                     class:loading=move || is_loading.get()
                                     type="submit"
@@ -114,7 +114,7 @@ pub fn Login(cx: Scope) -> impl IntoView {
                                 >
                                     "Login"
                                 </button>
-                                <A href="/signup" class="btn">{"Signup Instead?"}</A>
+                                <A href="/signup" class="btn join-item">{"Signup Instead?"}</A>
                             </div>
                         </form>
                     </div>

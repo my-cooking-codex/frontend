@@ -110,9 +110,9 @@ pub fn Signup(cx: Scope) -> impl IntoView {
                                     required=true
                                 />
                             </div>
-                            <div class="form-control btn-group btn-group-vertical">
+                            <div class="form-control join join-vertical w-full">
                                 <button
-                                    class="btn btn-primary"
+                                    class="btn btn-primary join-item"
                                     // class="loading"
                                     class:loading=move || create_account.pending().get()
                                     type="submit"
@@ -120,7 +120,7 @@ pub fn Signup(cx: Scope) -> impl IntoView {
                                 >
                                     "Signup"
                                 </button>
-                                <A href="/login" class="btn">"Login Instead?"</A>
+                                <A href="/login" class="btn join-item">"Login Instead?"</A>
                             </div>
                         </form>
                     </div>

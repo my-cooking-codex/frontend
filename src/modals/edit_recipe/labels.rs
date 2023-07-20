@@ -100,7 +100,7 @@ where
                 }}
             </div>
             <div class="form-control">
-                <div class="input-group">
+                <div class="join">
                     <input
                         prop:value=move || new_label_input.get()
                         on:input=move |ev| {new_label_input.set(event_target_value(&ev))}
@@ -110,7 +110,7 @@ where
                                 on_add_click();
                             } else {}
                         }
-                        class="input input-bordered w-full"
+                        class="input input-bordered w-full join-item"
                         type="text"
                         placeholder="e.g. High Protein..."
                         list="labels"
@@ -127,7 +127,7 @@ where
                     </datalist>
                     <button
                         on:click=move |_| on_add_click()
-                        class="btn"
+                        class="btn join-item"
                         type="button"
                     >
                         "Add"

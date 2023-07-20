@@ -236,9 +236,9 @@ fn RecipeContent(cx: Scope, recipe: Recipe) -> impl IntoView {
                         {move || recipe.get().title}
                     </h1>
                     <Show when=move || edit_mode.get() fallback=|_| ()>
-                        <div class="btn-group">
-                            <button on:click=on_edit_title_click class="btn">"Edit"</button>
-                            <button on:click=on_edit_image_click class="btn">"Edit Image"</button>
+                        <div class="join">
+                            <button on:click=on_edit_title_click class="btn join-item">"Edit"</button>
+                            <button on:click=on_edit_image_click class="btn join-item">"Edit Image"</button>
                         </div>
                     </Show>
                 </div>

@@ -62,7 +62,7 @@ where
     };
 
     view! {cx,
-        <div class="input-group">
+        <div class="join">
             {move || {
                 view!(cx,
                     <input
@@ -76,7 +76,7 @@ where
                         }}
                         on:input={move |ev| { set_base_url.set(Some(event_target_value(&ev))) }}
                         type="url"
-                        class="input w-full"
+                        class="input w-full join-item"
                         class:input-bordered=move || is_edit_mode.get()
                         class:input-sm=move || !is_edit_mode.get()
                         placeholder="https://"
@@ -86,7 +86,7 @@ where
                     <button
                         on:click=on_switch_mode_click
                         type="button"
-                        class="btn"
+                        class="btn join-item"
                         class:btn-sm=move || !is_edit_mode.get()
                         class:btn-primary=move || is_edit_mode.get()
                     >
@@ -176,7 +176,7 @@ where
 {
     view! {cx,
         <div class="flex">
-            <label class="input-group">
+            <label class="join">
                 <input
                     prop:value=move || value.get().hours.to_string()
                     on:input=move |ev| {
@@ -189,12 +189,12 @@ where
                         }
                     }
                     type="number"
-                    class="input input-bordered w-full text-right"
+                    class="input input-bordered w-full text-right join-item"
                     min=0 required=required
                 />
-                <span>"H"</span>
+                <span class="label p-3 bg-base-300 join-item">"H"</span>
             </label>
-            <label class="input-group">
+            <label class="join">
                 <input
                     prop:value=move || value.get().minutes.to_string()
                     on:input=move |ev| {
@@ -207,12 +207,12 @@ where
                         }
                     }
                     type="number"
-                    class="input input-bordered w-full text-right"
+                    class="input input-bordered w-full text-right join-item"
                     min=0 required=required
                 />
-                <span>"M"</span>
+                <span class="label p-3 bg-base-300 join-item">"M"</span>
             </label>
-            <label class="input-group">
+            <label class="join">
                 <input
                     prop:value=move || value.get().seconds.to_string()
                     on:input=move |ev| {
@@ -225,10 +225,10 @@ where
                         }
                     }
                     type="number"
-                    class="input input-bordered w-full text-right"
+                    class="input input-bordered w-full text-right join-item"
                     min=0 required=required
                 />
-                <span>"S"</span>
+                <span class="label p-3 bg-base-300 join-item">"S"</span>
             </label>
         </div>
     }

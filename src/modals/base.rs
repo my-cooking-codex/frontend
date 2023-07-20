@@ -21,10 +21,10 @@ where
                 <span class="font-bold text-lg mb-3">{title}</span>
                 {children(cx)}
                 <div class="modal-action">
-                    <div class="btn-group">
+                    <div class="join">
                         <button
                             type="submit"
-                            class="btn btn-primary"
+                            class="btn btn-primary join-item"
                             class:loading=move || loading.get()
                         >
                             {positive_text}
@@ -32,7 +32,7 @@ where
                         <button
                             on:click=move |_| on_negative()
                             type="button"
-                            class="btn"
+                            class="btn join-item"
                             class:loading=move || loading.get()
                         >
                             {negative_text}

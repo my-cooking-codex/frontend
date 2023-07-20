@@ -53,8 +53,8 @@ where
             <div class="my-4">
                 <h2 class="text-lg mb-2">"Serving Size"</h2>
                 <div class="flex">
-                    <label class="input-group w-auto">
-                        <span>"Amount"</span>
+                    <label class="join w-auto">
+                        <span class="label p-3 bg-base-300 join-item">"Amount"</span>
                         <input
                             prop:value=move || info.get().yields.unwrap_or_default().value
                             on:input=move |ev| {
@@ -66,12 +66,12 @@ where
                                 })
                             }
                             type="number"
-                            class="input input-bordered w-24"
+                            class="input input-bordered w-24 join-item"
                             min=1 required=true
                         />
                     </label>
-                    <label class="input-group">
-                        <span>"Type"</span>
+                    <label class="join">
+                        <span class="label p-3 bg-base-300 join-item">"Type"</span>
                         <input
                             prop:value=move || info.get().yields.unwrap_or_default().unit_type
                             on:input=move |ev| {
@@ -83,7 +83,7 @@ where
                                 })
                             }
                             type="text"
-                            class="input input-bordered w-full"
+                            class="input input-bordered join-item w-full"
                             list="units"
                             placeholder="e.g. servings"
                             required=true
@@ -161,8 +161,8 @@ where
             // source
             <div class="my-4">
                 <h2 class="text-lg mb-2">"Recipe Source"</h2>
-                <label class="input-group">
-                    <span>"Source"</span>
+                <label class="join w-full">
+                    <span class="label p-3 bg-base-300 join-item">"Source"</span>
                     <input
                         prop:value=move || info.get().source.unwrap_or_default()
                         on:input=move |ev| {
@@ -171,7 +171,7 @@ where
                             })
                         }
                         type="text"
-                        class="input input-bordered w-full"
+                        class="input input-bordered join-item w-full"
                         placeholder="e.g. Mom's Recipe Book"
                     />
                 </label>

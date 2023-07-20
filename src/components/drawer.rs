@@ -54,7 +54,7 @@ pub fn Drawer(
     children: Children,
 ) -> impl IntoView {
     view! {cx,
-        <div class="drawer drawer-mobile">
+        <div class="drawer lg:drawer-open">
             <input id="main-drawer" type="checkbox" class="drawer-toggle" />
             <div class="drawer-content pb-8">
                 <DrawerHeader/>
@@ -64,7 +64,7 @@ pub fn Drawer(
             </div>
             <div class="drawer-side">
                 <label for="main-drawer" class="drawer-overlay"></label>
-                <ul class="menu gap-2 p-4 w-80 bg-base-200">
+                <ul class="menu gap-2 p-4 w-80 bg-base-200 h-full">
                     {links.into_iter().map(|link|{
                         if link.active {
                             view!{cx, <A href={link.href} class="btn btn-primary">{link.text}</A>}

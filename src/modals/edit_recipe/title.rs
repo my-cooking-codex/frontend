@@ -47,13 +47,13 @@ where
         >
             <div class="form-control">
                 <span class="label">"Update Title"</span>
-                <label class="input-group">
-                    <span>"Title"</span>
+                <label class="join">
+                    <span class="label p-3 bg-base-300 join-item">"Title"</span>
                     <input
                         prop:value=move || title.get()
                         on:input=move |ev| {title.set(event_target_value(&ev))}
                         type="text"
-                        class="input input-bordered w-full"
+                        class="input input-bordered w-full join-item"
                         placeholder="e.g. Pizza"
                         maxlength=60
                         required=true

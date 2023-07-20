@@ -72,13 +72,13 @@ pub fn NewRecipe(cx: Scope) -> impl IntoView {
                         <label class="label">
                             <span class="label-text">"Recipe Title"</span>
                         </label>
-                        <label class="input-group">
-                            <span>"Title"</span>
+                        <label class="join">
+                            <span class="label p-3 bg-base-300 join-item">"Title"</span>
                             <input
                                 prop:value=move || title.get()
                                 on:input=move |ev| {set_title.set(event_target_value(&ev))}
                                 type="text"
-                                class="input input-bordered"
+                                class="input input-bordered join-item"
                                 placeholder="e.g. Pizza"
                                 required=true
                             />
