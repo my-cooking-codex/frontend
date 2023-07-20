@@ -17,8 +17,8 @@ where
 
     let update_title = create_action(cx, move |_: &()| {
         let id = id.clone();
-        let title = title.get();
-        let api = api.get().expect("api expected to be set");
+        let title = title.get_untracked();
+        let api = api.get_untracked().expect("api expected to be set");
         async move {
             match api
                 .patch_update_recipe(

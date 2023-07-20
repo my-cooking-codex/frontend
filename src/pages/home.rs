@@ -19,7 +19,7 @@ pub fn Home(cx: Scope) -> impl IntoView {
         cx,
         || {},
         move |_| async move {
-            if let Some(api) = api.get() {
+            if let Some(api) = api.get_untracked() {
                 match api.get_stats().await {
                     Ok(stats) => Some(stats),
                     Err(err) => {

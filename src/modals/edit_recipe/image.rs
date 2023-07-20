@@ -26,7 +26,7 @@ where
 
     let save_action = create_action(cx, move |_: &()| {
         let id = id.clone();
-        let api = api.get().expect("api expected to be set");
+        let api = api.get_untracked().expect("api expected to be set");
         async move {
             match image_file.get() {
                 Some(image_file) => match api.post_recipe_image(id, image_file).await {

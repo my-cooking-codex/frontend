@@ -107,8 +107,8 @@ where
 
     let update_recipe = create_action(cx, move |_: &()| {
         let id = id.clone();
-        let api = api.get().expect("api expected to be set");
-        let ingredients = ingredients.get();
+        let api = api.get_untracked().expect("api expected to be set");
+        let ingredients = ingredients.get_untracked();
         async move {
             match api
                 .patch_update_recipe(

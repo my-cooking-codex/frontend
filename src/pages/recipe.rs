@@ -414,7 +414,7 @@ fn RecipeContent(cx: Scope, recipe: Recipe) -> impl IntoView {
 #[component]
 pub fn RecipePage(cx: Scope) -> impl IntoView {
     let params = use_params_map(cx);
-    let id = move || params.with(|params| params.get("id").cloned());
+    let id = Signal::derive(cx, move || params.get().get("id").cloned());
 
     let toasts = use_toasts(cx);
     let CurrentApi { api, .. } = use_api(cx);
@@ -424,8 +424,8 @@ pub fn RecipePage(cx: Scope) -> impl IntoView {
         cx,
         || {},
         move |_| async move {
-            let api = api.get().expect("api expected to exist");
-            let id = id().expect("id expected to exist");
+            let api = api.get_untracked().expect("api expected to exist");
+            let id = id.get_untracked().expect("id expected to exist");
             match api.get_recipe_by_id(id).await {
                 Ok(recipe) => Some(recipe),
                 Err(err) => {

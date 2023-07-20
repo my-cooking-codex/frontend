@@ -103,7 +103,11 @@ where
 }
 
 #[component]
-fn RecipesFilterPanel<F>(cx: Scope, filters: RecipesFilter, update_filters: F) -> impl IntoView
+fn RecipesFilterPanel<F>(
+    cx: Scope,
+    #[prop(into)] filters: MaybeSignal<RecipesFilter>,
+    update_filters: F,
+) -> impl IntoView
 where
     F: Fn(RecipesFilter) + 'static,
 {
@@ -112,7 +116,7 @@ where
         cx,
         || {},
         move |()| async move {
-            let api = api.get().expect("api expected to exist");
+            let api = api.get_untracked().expect("api expected to exist");
             match api.get_labels().await {
                 Ok(v) => v,
                 Err(_) => {
@@ -121,7 +125,7 @@ where
             }
         },
     );
-    let filters = create_rw_signal(cx, filters);
+    let filters = create_rw_signal(cx, filters.get_untracked());
 
     let on_search_submission = move |ev: SubmitEvent| {
         ev.prevent_default();
@@ -208,7 +212,7 @@ pub fn Recipes(cx: Scope) -> impl IntoView {
         cx,
         move || filters.get(),
         move |filters| {
-            let api = api.get().expect("api expected to exist");
+            let api = api.get_untracked().expect("api expected to exist");
             async move {
                 match api.get_recipes(&filters).await {
                     Ok(v) => Some(v),
@@ -290,7 +294,7 @@ pub fn Recipes(cx: Scope) -> impl IntoView {
             <button class="btn btn-wide shadow-lg mx-auto" on:click=on_new_recipe_click>"New Recipe"</button>
         </div>
         <div class="p-4 rounded bg-base-200">
-            <RecipesFilterPanel filters=filters.get() update_filters=on_new_filters />
+            <RecipesFilterPanel filters=filters.read_only() update_filters=on_new_filters />
             <div class="divider" />
             <ImageLinksBox items={items} />
             {move || {

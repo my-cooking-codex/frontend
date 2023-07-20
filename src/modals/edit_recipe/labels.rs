@@ -20,7 +20,7 @@ where
         cx,
         || {},
         move |_| async move {
-            let api = api.get().expect("api expected to be set");
+            let api = api.get_untracked().expect("api expected to be set");
             match api.get_labels().await {
                 Ok(labels) => HashSet::from_iter(labels.into_iter()),
                 Err(err) => {
@@ -36,8 +36,8 @@ where
 
     let update_labels = create_action(cx, move |_: &()| {
         let id = id.clone();
-        let api = api.get().expect("api expected to be set");
-        let labels = labels.get().into_iter().collect::<Vec<String>>();
+        let api = api.get_untracked().expect("api expected to be set");
+        let labels = labels.get_untracked().into_iter().collect::<Vec<String>>();
         async move {
             match api
                 .patch_update_recipe(

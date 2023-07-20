@@ -17,8 +17,8 @@ where
     let title = create_rw_signal(cx, String::default());
 
     let new_recipe = create_action(cx, move |_: &()| {
-        let api = api.get().expect("api expected to be set");
-        let title = title.get();
+        let api = api.get_untracked().expect("api expected to be set");
+        let title = title.get_untracked();
         async move {
             match api
                 .post_new_recipe(&CreateRecipe {
