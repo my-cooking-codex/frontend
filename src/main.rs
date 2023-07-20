@@ -41,7 +41,6 @@ pub fn App(cx: Scope) -> impl IntoView {
                 <ProtectedRoute path="/" redirect_path="/login" condition=has_auth view=move |cx| view! {cx, <Home/>}/>
                 <Route path="logout" view=move |cx| view! {cx, <Logout/>} />
                 <ProtectedRoute path="/recipes" redirect_path="/login" condition=has_auth view=move |cx| view! {cx, <Recipes/>} />
-                <ProtectedRoute path="recipes/new" redirect_path="/login" condition=has_auth view=move |cx| view! {cx, <NewRecipe/>} />
                 <ProtectedRoute path="recipes/:id" redirect_path="/login" condition=has_auth view=move |cx| view! {cx, <RecipePage/>} />
                 <ProtectedRoute path="recipes/:id/print" redirect_path="/login" condition=has_auth view=move |cx| view! {cx, <RecipePrint/>} />
                 <ProtectedRoute path="/signup" redirect_path="/" condition=has_no_auth view=move |cx| view! {cx, <Signup/>} />

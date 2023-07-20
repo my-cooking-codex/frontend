@@ -13,7 +13,6 @@ use mcc_frontend_types::stats::AccountStats;
 pub fn Home(cx: Scope) -> impl IntoView {
     let drawer_links = vec![
         DrawerLink::new("/", "Home", true),
-        DrawerLink::new("/recipes/new", "New Recipe", false),
         DrawerLink::new("/recipes", "Recipes", false),
     ];
 

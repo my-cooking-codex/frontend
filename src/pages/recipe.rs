@@ -415,7 +415,6 @@ fn RecipeContent(cx: Scope, recipe: Recipe) -> impl IntoView {
 pub fn RecipePage(cx: Scope) -> impl IntoView {
     let drawer_links = vec![
         DrawerLink::new("/", "Home", false),
-        DrawerLink::new("/recipes/new", "New Recipe", false),
         DrawerLink::new("/recipes", "Recipes", false),
     ];
 

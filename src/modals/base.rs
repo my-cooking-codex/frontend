@@ -3,9 +3,9 @@ use leptos::*;
 #[component]
 pub fn ModalBase<P, N>(
     cx: Scope,
-    title: String,
-    positive_text: String,
-    negative_text: String,
+    #[prop(into)] title: String,
+    #[prop(into)] positive_text: String,
+    #[prop(into)] negative_text: String,
     loading: ReadSignal<bool>,
     on_positive: P,
     on_negative: N,
@@ -69,4 +69,31 @@ where
             children,
         },
     )
+}
+
+#[component]
+pub fn ModalCreateCancel<S, C>(
+    cx: Scope,
+    #[prop(into)] title: String,
+    loading: ReadSignal<bool>,
+    on_creation: S,
+    on_cancel: C,
+    children: Children,
+) -> impl IntoView
+where
+    S: Fn() + 'static,
+    C: Fn() + 'static,
+{
+    view! {cx,
+        <ModalBase
+            title={title}
+            positive_text={"Create"}
+            negative_text={"Cancel"}
+            loading={loading}
+            on_positive={on_creation}
+            on_negative={on_cancel}
+        >
+            {children(cx)}
+        </ModalBase>
+    }
 }

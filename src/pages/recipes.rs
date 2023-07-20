@@ -2,11 +2,15 @@ use std::collections::HashSet;
 
 use crate::{
     components::{collapse::*, drawer::*, image_links::*, input::ThreeStateSelect},
-    contexts::prelude::{use_api, use_login, use_toasts, CurrentApi, CurrentLogin},
+    contexts::prelude::{
+        use_api, use_login, use_modal_controller, use_toasts, CurrentApi, CurrentLogin,
+    },
     helpers::{api_error_to_toast, logout_on_401},
+    modals::edit_recipe::NewRecipeModal,
 };
 use leptos::ev::SubmitEvent;
 use leptos::*;
+use leptos_router::use_navigate;
 use mcc_frontend_types::query::RecipesFilter;
 
 #[component]
@@ -141,7 +145,7 @@ where
                 <button
                     on:click=move |_| filters.update(|filters| *filters = RecipesFilter::default())
                     type="button"
-                    class="btn btn-sm"
+                    class="btn btn-sm shadow-lg"
                 >
                     "Reset"
                 </button>
@@ -182,7 +186,7 @@ where
             </CollapsableBox>
             <button
                 type="submit"
-                class="btn btn-sm btn-wide mx-auto"
+                class="btn btn-sm btn-wide shadow-lg mx-auto"
             >
                 "Search"
             </button>
@@ -194,11 +198,11 @@ where
 pub fn Recipes(cx: Scope) -> impl IntoView {
     let drawer_links = vec![
         DrawerLink::new("/", "Home", false),
-        DrawerLink::new("/recipes/new", "New Recipe", false),
         DrawerLink::new("/recipes", "Recipes", true),
     ];
 
     let toasts = use_toasts(cx);
+    let modal_controller = use_modal_controller(cx);
     let CurrentApi { api, .. } = use_api(cx);
     let CurrentLogin { login, set_login } = use_login(cx);
 
@@ -249,11 +253,30 @@ pub fn Recipes(cx: Scope) -> impl IntoView {
         }
     });
 
+    let on_new_recipe_action = move |recipe_id: Option<String>| {
+        if let Some(recipe_id) = recipe_id {
+            let navigator = use_navigate(cx);
+            navigator(&format!("/recipes/{}", recipe_id), Default::default()).unwrap();
+        }
+        modal_controller.close();
+    };
+
     let on_new_filters = move |new_filters: RecipesFilter| {
         filters.update(|v| {
             *v = new_filters;
             v.page = 1;
         });
+    };
+
+    let on_new_recipe_click = move |_| {
+        modal_controller.open(
+            view! {cx,
+                <NewRecipeModal
+                    on_action=on_new_recipe_action
+                />
+            }
+            .into_view(cx),
+        )
     };
 
     let on_load_more_click = move |_| {
@@ -268,11 +291,13 @@ pub fn Recipes(cx: Scope) -> impl IntoView {
 
     view! {cx,
         <Drawer links={drawer_links}>
-            <div class="p-4 mb-2 rounded bg-base-200">
+            <div class="rounded bg-base-200 p-4 mb-2 flex flex-col">
                 <h1 class="text-3xl font-bold mb-4">"Recipes"</h1>
-                <RecipesFilterPanel filters=filters.get() update_filters=on_new_filters />
+                <button class="btn btn-wide shadow-lg mx-auto" on:click=on_new_recipe_click>"New Recipe"</button>
             </div>
             <div class="p-4 rounded bg-base-200">
+                <RecipesFilterPanel filters=filters.get() update_filters=on_new_filters />
+                <div class="divider" />
                 <ImageLinksBox items={items} />
                 {move || {
                     match (fetch_recipes.loading().get(), fetch_recipes.read(cx)) {
