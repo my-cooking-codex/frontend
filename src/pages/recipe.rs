@@ -4,7 +4,7 @@ use leptos::*;
 use leptos_router::{use_navigate, use_params_map};
 
 use crate::{
-    components::{collapse::*, drawer::*, input::DropdownConfirm},
+    components::{collapse::*, input::DropdownConfirm},
     contexts::prelude::{
         use_api, use_login, use_modal_controller, use_toasts, CurrentApi, CurrentLogin,
     },
@@ -413,11 +413,6 @@ fn RecipeContent(cx: Scope, recipe: Recipe) -> impl IntoView {
 
 #[component]
 pub fn RecipePage(cx: Scope) -> impl IntoView {
-    let drawer_links = vec![
-        DrawerLink::new("/", "Home", false),
-        DrawerLink::new("/recipes", "Recipes", false),
-    ];
-
     let params = use_params_map(cx);
     let id = move || params.with(|params| params.get("id").cloned());
 
@@ -443,18 +438,16 @@ pub fn RecipePage(cx: Scope) -> impl IntoView {
     );
 
     view! { cx,
-        <Drawer links={drawer_links}>
-            {move || {
-                if let Some(recipe) = recipe.read(cx) {
-                    if let Some(recipe) = recipe {
-                        view! {cx, <><RecipeContent recipe={recipe} /></>}
-                    } else {
-                        view! {cx, <><div>"Failed To Load :("</div></>}
-                    }
+        {move || {
+            if let Some(recipe) = recipe.read(cx) {
+                if let Some(recipe) = recipe {
+                    view! {cx, <><RecipeContent recipe={recipe} /></>}
                 } else {
-                    view! {cx, <><div>"Loading..."</div></>}
+                    view! {cx, <><div>"Failed To Load :("</div></>}
                 }
-            }}
-        </Drawer>
+            } else {
+                view! {cx, <><div>"Loading..."</div></>}
+            }
+        }}
     }
 }

@@ -34,15 +34,13 @@ fn DrawerHeader(cx: Scope) -> impl IntoView {
 pub struct DrawerLink {
     pub href: String,
     pub text: String,
-    pub active: bool,
 }
 
 impl DrawerLink {
-    pub fn new(href: &str, text: &str, active: bool) -> Self {
+    pub fn new(href: &str, text: &str) -> Self {
         Self {
             href: href.to_owned(),
             text: text.to_owned(),
-            active,
         }
     }
 }
@@ -66,11 +64,7 @@ pub fn Drawer(
                 <label for="main-drawer" class="drawer-overlay"></label>
                 <ul class="menu gap-2 p-4 w-80 bg-base-300 h-full">
                     {links.into_iter().map(|link|{
-                        if link.active {
-                            view!{cx, <A href={link.href} class="btn btn-primary">{link.text}</A>}
-                        } else {
-                            view!{cx, <A href={link.href} class="btn dark:bg-base-100">{link.text}</A>}
-                        }
+                        view!{cx, <li><A href={link.href} active_class="active" exact=true class="bg-base-200 dark:bg-base-100">{link.text}</A></li>}
                     }).collect::<Vec<_>>()}
                     <li class="mt-auto">
                         <a href="https://github.com/my-cooking-codex" target="_blank" rel="noopener noreferrer" class="text-sm block leading-relaxed">

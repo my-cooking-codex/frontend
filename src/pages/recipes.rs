@@ -196,11 +196,6 @@ where
 
 #[component]
 pub fn Recipes(cx: Scope) -> impl IntoView {
-    let drawer_links = vec![
-        DrawerLink::new("/", "Home", false),
-        DrawerLink::new("/recipes", "Recipes", true),
-    ];
-
     let toasts = use_toasts(cx);
     let modal_controller = use_modal_controller(cx);
     let CurrentApi { api, .. } = use_api(cx);
@@ -290,65 +285,63 @@ pub fn Recipes(cx: Scope) -> impl IntoView {
     };
 
     view! {cx,
-        <Drawer links={drawer_links}>
-            <div class="rounded bg-base-200 p-4 mb-2 flex flex-col">
-                <h1 class="text-3xl font-bold mb-4">"Recipes"</h1>
-                <button class="btn btn-wide shadow-lg mx-auto" on:click=on_new_recipe_click>"New Recipe"</button>
-            </div>
-            <div class="p-4 rounded bg-base-200">
-                <RecipesFilterPanel filters=filters.get() update_filters=on_new_filters />
-                <div class="divider" />
-                <ImageLinksBox items={items} />
-                {move || {
-                    match (fetch_recipes.loading().get(), fetch_recipes.read(cx)) {
-                        // it's loading
-                        (true, _) => view! {cx,
-                            <><button
-                                type="button"
-                                class="btn btn-block loading">
-                                "Loading..."
-                            </button></>
-                        },
-                        (false, Some(recipes)) => recipes.map(|recipes| {
-                            // if we got the max number of recipes,
-                            // we can assume there are more
-                            if recipes.len() == filters.get().per_page {
-                                view! {cx,
-                                    <><button
-                                        type="button"
-                                        class="btn btn-block"
-                                        on:click=on_load_more_click>
-                                        "More"
-                                    </button></>
-                                }
-                            } else {
-                                // we got less than the max number of recipes,
-                                // so we're at the bottom
-                                view! {cx, <><div class="text-center">"Reached Bottom"</div></>}
-                            }
-                        }).unwrap_or_else(|| {
-                            // some error was handled
+        <div class="rounded bg-base-200 p-4 mb-2 flex flex-col">
+            <h1 class="text-3xl font-bold mb-4">"Recipes"</h1>
+            <button class="btn btn-wide shadow-lg mx-auto" on:click=on_new_recipe_click>"New Recipe"</button>
+        </div>
+        <div class="p-4 rounded bg-base-200">
+            <RecipesFilterPanel filters=filters.get() update_filters=on_new_filters />
+            <div class="divider" />
+            <ImageLinksBox items={items} />
+            {move || {
+                match (fetch_recipes.loading().get(), fetch_recipes.read(cx)) {
+                    // it's loading
+                    (true, _) => view! {cx,
+                        <><button
+                            type="button"
+                            class="btn btn-block loading">
+                            "Loading..."
+                        </button></>
+                    },
+                    (false, Some(recipes)) => recipes.map(|recipes| {
+                        // if we got the max number of recipes,
+                        // we can assume there are more
+                        if recipes.len() == filters.get().per_page {
                             view! {cx,
                                 <><button
                                     type="button"
                                     class="btn btn-block"
-                                    on:click=on_retry_click>
-                                    "More, (Retry)"
+                                    on:click=on_load_more_click>
+                                    "More"
                                 </button></>
                             }
-                        }),
+                        } else {
+                            // we got less than the max number of recipes,
+                            // so we're at the bottom
+                            view! {cx, <><div class="text-center">"Reached Bottom"</div></>}
+                        }
+                    }).unwrap_or_else(|| {
                         // some error was handled
-                        (false, None) => view! {cx,
+                        view! {cx,
                             <><button
                                 type="button"
                                 class="btn btn-block"
                                 on:click=on_retry_click>
                                 "More, (Retry)"
                             </button></>
-                        },
-                    }
-                }}
-            </div>
-        </Drawer>
+                        }
+                    }),
+                    // some error was handled
+                    (false, None) => view! {cx,
+                        <><button
+                            type="button"
+                            class="btn btn-block"
+                            on:click=on_retry_click>
+                            "More, (Retry)"
+                        </button></>
+                    },
+                }
+            }}
+        </div>
     }
 }
