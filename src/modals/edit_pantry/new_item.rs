@@ -1,0 +1,103 @@
+use leptos::*;
+
+use mcc_frontend_types::pantry::{CreateItem, Item};
+
+use crate::{
+    contexts::prelude::{use_api, use_toasts, CurrentApi},
+    helpers::api_error_to_toast,
+    modals::base::ModalCreateCancel,
+};
+
+#[component]
+pub fn NewItemModal<F>(cx: Scope, on_action: F) -> impl IntoView
+where
+    F: Fn(Option<Item>) + 'static + Copy,
+{
+    let toasts = use_toasts(cx);
+    let CurrentApi { api, .. } = use_api(cx);
+    let name = create_rw_signal(cx, String::default());
+    let location_id = create_rw_signal(cx, String::default());
+
+    let locations = create_resource(
+        cx,
+        || {},
+        move |_| async move {
+            let api = api.get_untracked().expect("api expected to be set");
+            match api.get_pantry_locations().await {
+                Ok(v) => v,
+                Err(err) => {
+                    toasts.push(api_error_to_toast(&err, "loading locations"));
+                    vec![]
+                }
+            }
+        },
+    );
+
+    let new_item = create_action(cx, move |_: &()| {
+        let api = api.get_untracked().expect("api expected to be set");
+        let name = name.get_untracked();
+        let location_id = location_id.get_untracked();
+        async move {
+            match api
+                .post_pantry_item(
+                    &location_id,
+                    &CreateItem {
+                        name,
+                        ..Default::default()
+                    },
+                )
+                .await
+            {
+                Ok(v) => on_action(Some(v)),
+                Err(err) => {
+                    toasts.push(api_error_to_toast(&err, "creating new item"));
+                }
+            }
+        }
+    });
+
+    let global_loading = Signal::derive(cx, move || {
+        new_item.pending().get() || locations.loading().get()
+    });
+
+    view! {cx,
+        <ModalCreateCancel
+            title="New Item"
+            loading=global_loading
+            on_creation=move || new_item.dispatch(())
+            on_cancel=move || on_action(None)
+        >
+            <div class="form-control">
+                <label>
+                    <span class="label">"Item Name"</span>
+                    <input
+                        prop:value=move || name.get()
+                        on:input=move |ev| name.set(event_target_value(&ev))
+                        type="text"
+                        class="input input-bordered w-full"
+                        placeholder="e.g. Pizza"
+                        required=true
+                        maxlength=60
+                    />
+                </label>
+            </div>
+            <div class="form-control">
+                <label>
+                    <span class="label">"Item Location"</span>
+                    <select
+                        on:change=move |ev| location_id.set(event_target_value(&ev))
+                        class="select select-bordered w-full"
+                        required=true
+                    >
+                        <option value="">"__Pick A Location__"</option>
+                        {move || {
+                            locations.read(cx).unwrap_or_default().into_iter().map(|location| {
+                                view!{cx, <option value=location.id>{location.name}</option>}
+                            }).collect_view(cx)
+                        }}
+                    </select>
+                </label>
+            </div>
+        </ModalCreateCancel>
+    }
+}

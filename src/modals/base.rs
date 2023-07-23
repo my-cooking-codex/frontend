@@ -1,12 +1,44 @@
 use leptos::*;
 
 #[component]
-pub fn ModalBase<P, N>(
+pub fn ModalNeutral<F>(
+    cx: Scope,
+    #[prop(into)] title: String,
+    #[prop(into)] close_text: String,
+    #[prop(into)] loading: Signal<bool>,
+    on_close: F,
+    children: Children,
+) -> impl IntoView
+where
+    F: Fn() + 'static,
+{
+    view! {cx,
+        <div class="modal modal-open">
+            <div class="modal-box">
+                <span class="font-bold text-lg mb-3">{title}</span>
+                {children(cx)}
+                <div class="modal-action">
+                    <button
+                        on:click=move |_| on_close()
+                        type="button"
+                        class="btn"
+                        class:loading=move || loading.get()
+                    >
+                        {close_text}
+                    </button>
+                </div>
+            </div>
+        </div>
+    }
+}
+
+#[component]
+pub fn ModalFormBase<P, N>(
     cx: Scope,
     #[prop(into)] title: String,
     #[prop(into)] positive_text: String,
     #[prop(into)] negative_text: String,
-    loading: ReadSignal<bool>,
+    #[prop(into)] loading: Signal<bool>,
     on_positive: P,
     on_negative: N,
     children: Children,
@@ -47,8 +79,8 @@ where
 #[component]
 pub fn ModalSaveCancel<S, C>(
     cx: Scope,
-    title: String,
-    loading: ReadSignal<bool>,
+    #[prop(into)] title: String,
+    #[prop(into)] loading: Signal<bool>,
     on_save: S,
     on_cancel: C,
     children: Children,
@@ -57,25 +89,25 @@ where
     S: Fn() + 'static,
     C: Fn() + 'static,
 {
-    ModalBase(
-        cx,
-        ModalBaseProps {
-            title,
-            positive_text: "Save".to_owned(),
-            negative_text: "Cancel".to_owned(),
-            loading,
-            on_positive: on_save,
-            on_negative: on_cancel,
-            children,
-        },
-    )
+    view! {cx,
+        <ModalFormBase
+            title={title}
+            positive_text="Save"
+            negative_text="Cancel"
+            loading={loading}
+            on_positive={on_save}
+            on_negative={on_cancel}
+        >
+            {children(cx)}
+        </ModalFormBase>
+    }
 }
 
 #[component]
 pub fn ModalCreateCancel<S, C>(
     cx: Scope,
     #[prop(into)] title: String,
-    loading: ReadSignal<bool>,
+    #[prop(into)] loading: Signal<bool>,
     on_creation: S,
     on_cancel: C,
     children: Children,
@@ -85,15 +117,15 @@ where
     C: Fn() + 'static,
 {
     view! {cx,
-        <ModalBase
+        <ModalFormBase
             title={title}
-            positive_text={"Create"}
-            negative_text={"Cancel"}
+            positive_text="Create"
+            negative_text="Cancel"
             loading={loading}
             on_positive={on_creation}
             on_negative={on_cancel}
         >
             {children(cx)}
-        </ModalBase>
+        </ModalFormBase>
     }
 }

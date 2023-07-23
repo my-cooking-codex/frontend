@@ -53,7 +53,7 @@ where
 
     view! {cx,
         <ModalSaveCancel
-            title="Edit Image".to_owned()
+            title="Edit Image"
             loading=save_action.pending()
             on_save=move || save_action.dispatch(())
             on_cancel=move || on_action(None)

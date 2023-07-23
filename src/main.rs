@@ -22,6 +22,7 @@ pub fn AppMain(cx: Scope) -> impl IntoView {
     let drawer_links = vec![
         DrawerLink::new("/", "Home"),
         DrawerLink::new("/recipes", "Recipes"),
+        DrawerLink::new("/pantry", "Pantry"),
     ];
     view! {cx,
         <Drawer links=drawer_links>
@@ -56,6 +57,7 @@ pub fn App(cx: Scope) -> impl IntoView {
                     <Route path="/" view=move |cx| view! {cx, <Home/>}/>
                     <Route path="/recipes" view=move |cx| view! {cx, <Recipes/>} />
                     <Route path="recipes/:id" view=move |cx| view! {cx, <RecipePage/>} />
+                    <Route path="/pantry" view=move |cx| view! {cx, <Pantry/>} />
                 </ProtectedRoute>
                 <ProtectedRoute path="recipes/:id/print" redirect_path="/login" condition=has_auth view=move |cx| view! {cx, <RecipePrint/>} />
                 <ProtectedRoute path="/signup" redirect_path="/" condition=has_no_auth view=move |cx| view! {cx, <Signup/>} />

@@ -40,7 +40,7 @@ where
 
     view! {cx,
         <ModalSaveCancel
-            title="Edit Title".to_owned()
+            title="Edit Title"
             loading=update_title.pending()
             on_save=move || update_title.dispatch(())
             on_cancel=move || on_action(None)

@@ -1,6 +1,8 @@
 use gloo::net::http::Request;
 use mcc_frontend_types::{
-    query::RecipesFilter, recipe, stats, user, ApiInfo, Login, LoginToken, StoredLogin,
+    pantry,
+    query::{PantryFilter, RecipesFilter},
+    recipe, stats, user, ApiInfo, Login, LoginToken, SelectedUpdate, StoredLogin,
 };
 use serde::de::DeserializeOwned;
 use std::convert::From;
@@ -234,6 +236,146 @@ impl Api {
 
     pub async fn delete_recipe_image(&self, id: String) -> Result<(), ApiError> {
         let req_url = format!("{}/recipes/{}/image/", self.base_url, id);
+        ApiError::from_response_result(
+            Request::delete(&req_url)
+                .header("Authorization", &self.get_authorization_value().unwrap())
+                .send()
+                .await,
+        )?;
+        Ok(())
+    }
+
+    pub async fn get_pantry_locations(&self) -> Result<Vec<pantry::Location>, ApiError> {
+        let req_url = format!("{}/pantry/", self.base_url);
+        let response = ApiError::from_response_result(
+            Request::get(&req_url)
+                .header("Authorization", &self.get_authorization_value().unwrap())
+                .send()
+                .await,
+        )?;
+        ApiError::check_json_response_ok(response).await
+    }
+
+    pub async fn get_pantry_location_by_id(&self, id: &str) -> Result<pantry::Location, ApiError> {
+        let req_url = format!("{}/pantry/{}/", self.base_url, id);
+        let response = ApiError::from_response_result(
+            Request::get(&req_url)
+                .header("Authorization", &self.get_authorization_value().unwrap())
+                .send()
+                .await,
+        )?;
+        ApiError::check_json_response_ok(response).await
+    }
+
+    pub async fn post_pantry_location(
+        &self,
+        location: &pantry::CreateLocation,
+    ) -> Result<pantry::Location, ApiError> {
+        let req_url = format!("{}/pantry/", self.base_url);
+        let response = ApiError::from_response_result(
+            Request::post(&req_url)
+                .header("Authorization", &self.get_authorization_value().unwrap())
+                .json(location)
+                .unwrap()
+                .send()
+                .await,
+        )?;
+        ApiError::check_json_response_ok(response).await
+    }
+
+    pub async fn patch_pantry_location(
+        &self,
+        id: &str,
+        location: &SelectedUpdate<pantry::UpdateLocation>,
+    ) -> Result<(), ApiError> {
+        let req_url = format!("{}/pantry/{}/", self.base_url, id);
+        ApiError::from_response_result(
+            Request::patch(&req_url)
+                .header("Authorization", &self.get_authorization_value().unwrap())
+                .json(location)
+                .unwrap()
+                .send()
+                .await,
+        )?;
+        Ok(())
+    }
+
+    pub async fn delete_pantry_location_by_id(&self, id: &str) -> Result<(), ApiError> {
+        let req_url = format!("{}/pantry/{}/", self.base_url, id);
+        ApiError::from_response_result(
+            Request::delete(&req_url)
+                .header("Authorization", &self.get_authorization_value().unwrap())
+                .send()
+                .await,
+        )?;
+        Ok(())
+    }
+
+    pub async fn get_pantry_items(
+        &self,
+        filters: &PantryFilter,
+    ) -> Result<Vec<pantry::Item>, ApiError> {
+        let req_url = format!(
+            "{}/pantry-items/?{}",
+            self.base_url,
+            serde_url_params::to_string(&filters).unwrap(),
+        );
+        let response = ApiError::from_response_result(
+            Request::get(&req_url)
+                .header("Authorization", &self.get_authorization_value().unwrap())
+                .send()
+                .await,
+        )?;
+        ApiError::check_json_response_ok(response).await
+    }
+
+    pub async fn get_pantry_item_by_id(&self, id: &str) -> Result<pantry::Item, ApiError> {
+        let req_url = format!("{}/pantry-items/{}", self.base_url, id);
+        let response = ApiError::from_response_result(
+            Request::get(&req_url)
+                .header("Authorization", &self.get_authorization_value().unwrap())
+                .send()
+                .await,
+        )?;
+        ApiError::check_json_response_ok(response).await
+    }
+
+    pub async fn post_pantry_item(
+        &self,
+        location_id: &str,
+        item: &pantry::CreateItem,
+    ) -> Result<pantry::Item, ApiError> {
+        let req_url = format!("{}/pantry/{}/items/", self.base_url, location_id);
+        let response = ApiError::from_response_result(
+            Request::post(&req_url)
+                .header("Authorization", &self.get_authorization_value().unwrap())
+                .json(item)
+                .unwrap()
+                .send()
+                .await,
+        )?;
+        ApiError::check_json_response_ok(response).await
+    }
+
+    pub async fn patch_pantry_item(
+        &self,
+        id: &str,
+        item: &SelectedUpdate<pantry::UpdateItem>,
+    ) -> Result<(), ApiError> {
+        let req_url = format!("{}/pantry-items/{}/", self.base_url, id);
+        ApiError::from_response_result(
+            Request::patch(&req_url)
+                .header("Authorization", &self.get_authorization_value().unwrap())
+                .json(item)
+                .unwrap()
+                .send()
+                .await,
+        )?;
+        Ok(())
+    }
+
+    pub async fn delete_pantry_item_by_id(&self, id: &str) -> Result<(), ApiError> {
+        let req_url = format!("{}/pantry-items/{}/", self.base_url, id);
         ApiError::from_response_result(
             Request::delete(&req_url)
                 .header("Authorization", &self.get_authorization_value().unwrap())

@@ -63,7 +63,7 @@ where
 
     view! {cx,
         <ModalSaveCancel
-            title="Edit Labels".to_owned()
+            title="Edit Labels"
             loading=update_labels.pending()
             on_save=move || update_labels.dispatch(())
             on_cancel=move || on_action(None)

@@ -5,5 +5,6 @@ use serde::{Deserialize, Serialize};
 pub struct AccountStats {
     pub user_count: usize,
     pub recipe_count: usize,
+    pub pantry_item_count: usize,
     pub label_count: usize,
 }

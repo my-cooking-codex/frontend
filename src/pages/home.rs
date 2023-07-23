@@ -42,8 +42,8 @@ pub fn Home(cx: Scope) -> impl IntoView {
                 account_stats.read(cx).map(|v| {
                     let stats = v.map_or_else(|| AccountStats{ ..Default::default() }, |v| v);
                     let stats = vec![
-                        Stat::new("Number Of Users", &stats.user_count.to_string(), None),
                         Stat::new("Number Of Recipes", &stats.recipe_count.to_string(), None),
+                        Stat::new("Number Of Pantry Items", &stats.pantry_item_count.to_string(), None),
                         Stat::new("Number Of Labels", &stats.label_count.to_string(), None),
                     ];
                     view!{cx, <Stats stats={stats}/>

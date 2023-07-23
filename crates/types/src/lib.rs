@@ -1,12 +1,23 @@
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 
+pub mod pantry;
 pub mod query;
 pub mod recipe;
 pub mod stats;
 pub mod user;
 
 use std::str::FromStr;
+
+pub(crate) const YEAR_MONTH_DAY_FMT: &str = "%Y-%m-%d";
+pub(crate) const DAY_MONTH_YEAR_FMT: &str = "%d-%m-%Y";
+pub(crate) const MONTH_DAY_YEAR_FMT: &str = "%m-%d-%Y";
+
+pub enum HumanDateFormats {
+    YearMonthDay,
+    DayMonthYear,
+    MonthDayYear,
+}
 
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
 pub struct Login {
@@ -26,6 +37,13 @@ pub struct StoredLogin {
     pub api_url: String,
     pub media_url: String,
     pub token: LoginToken,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
+#[serde(rename_all = "camelCase")]
+pub struct SelectedUpdate<T> {
+    pub fields: Vec<String>,
+    pub model: T,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone, Copy, PartialEq)]

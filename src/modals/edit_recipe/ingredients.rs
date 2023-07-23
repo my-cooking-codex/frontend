@@ -142,7 +142,7 @@ where
 
     view! {cx,
         <ModalSaveCancel
-            title="Edit Ingredients".to_owned()
+            title="Edit Ingredients"
             loading=update_recipe.pending()
             on_save=move || update_recipe.dispatch(())
             on_cancel=move || on_action(None)
