@@ -2,6 +2,7 @@ use leptos::*;
 use mcc_frontend_core::api::sanitise_base_url;
 use mcc_frontend_types::{Fraction, HourMinuteSecond};
 use regex::Regex;
+use std::collections::HashSet;
 use url::Url;
 
 // matches whole numbers or fractions with or without a mixed number
@@ -295,5 +296,105 @@ where
                 value="0"
             >"No"</option>
         </select>
+    }
+}
+
+#[component]
+pub fn LabelSelector<F>(
+    cx: Scope,
+    #[prop(into)] labels: Signal<HashSet<String>>,
+    allow_new: bool,
+    #[prop(optional)] compact: bool,
+    #[prop(into)] selected: Signal<HashSet<String>>,
+    on_change: F,
+) -> impl IntoView
+where
+    F: Fn(HashSet<String>) + 'static + Copy,
+{
+    let label_input = create_rw_signal(cx, String::default());
+    let label_input_invalid = Signal::derive(cx, move || {
+        if !label_input.get().is_empty() && !allow_new && !labels.get().contains(&label_input.get())
+        {
+            return true;
+        }
+        false
+    });
+
+    let on_add = move || {
+        if !label_input_invalid.get() && !label_input.get().is_empty() {
+            let mut new_selected = selected.get();
+            new_selected.insert(label_input.get());
+            on_change(new_selected);
+            label_input.set(String::default());
+        }
+    };
+
+    let on_delete = move |name: &str| {
+        let mut new_selected = selected.get();
+        new_selected.remove(name);
+        on_change(new_selected);
+    };
+
+    view! {cx,
+        <div class="flex flex-col gap-2">
+            <div class="flex flex-wrap gap-2 overflow-y-auto">
+                <For
+                    each=move || selected.get().into_iter()
+                    key=|name| name.to_owned()
+                    view=move |cx, label_name| {
+                        view!{cx,
+                        <div class="inline-flex items-center bg-primary p-1 gap-2 rounded-lg shadow-md">
+                            <span class="text-primary-content">{&label_name}</span>
+                            <button
+                                aria-label=format!("remove label '{}'", &label_name)
+                                on:click=move |_| on_delete(&label_name)
+                                class="btn btn-sm"
+                            >
+                                "X"
+                            </button>
+                        </div>
+                        }
+                    }
+                />
+            </div>
+                <div class="join w-full">
+                    <input
+                        prop:value=move || label_input.get()
+                        on:input=move |ev| {label_input.set(event_target_value(&ev))}
+                        on:keydown=move|ev| {
+                            if ev.key_code() == 13 {
+                                ev.prevent_default();
+                                on_add();
+                            }
+                        }
+                        class="input input-bordered w-full join-item"
+                        // class="input-sm"
+                        class:input-sm=compact
+                        // class="input-error"
+                        class:input-error=move || label_input_invalid.get()
+                        type="text"
+                        placeholder="e.g. High Protein..."
+                        list="labels"
+                        maxlength="60"
+                    />
+                    <datalist id="labels">
+                        {move || {
+                            let selected = selected.get();
+                            labels.get().difference(&selected).into_iter().map(|label|
+                                view! {cx,<option value=label />}
+                            ).collect_view(cx)
+                        }}
+                    </datalist>
+                    <button
+                        on:click=move |_| on_add()
+                        class="btn join-item"
+                        // class="btn-sm"
+                        class:btn-sm=compact
+                        type="button"
+                    >
+                        "Add"
+                    </button>
+                </div>
+        </div>
     }
 }

@@ -1,7 +1,11 @@
 use std::collections::HashSet;
 
 use crate::{
-    components::{collapse::*, image_links::*, input::ThreeStateSelect},
+    components::{
+        collapse::*,
+        image_links::*,
+        input::{LabelSelector, ThreeStateSelect},
+    },
     contexts::prelude::{
         use_api, use_login, use_modal_controller, use_toasts, CurrentApi, CurrentLogin,
     },
@@ -12,95 +16,6 @@ use leptos::ev::SubmitEvent;
 use leptos::*;
 use leptos_router::use_navigate;
 use mcc_frontend_types::query::RecipesFilter;
-
-#[component]
-fn LabelsSelector<F>(
-    cx: Scope,
-    #[prop(into)] selected_labels: Signal<HashSet<String>>,
-    labels: Vec<String>,
-    on_change: F,
-) -> impl IntoView
-where
-    F: Fn(HashSet<String>) + 'static + Copy,
-{
-    let labels = HashSet::from_iter(labels.into_iter());
-    let label_input = create_rw_signal(cx, String::new());
-
-    let on_add_label = move |new_label: String| {
-        let mut labels = selected_labels.get_untracked();
-        labels.insert(new_label);
-        on_change(labels);
-        label_input.set(String::new());
-    };
-
-    let on_remove_label = move |label| {
-        let mut labels = selected_labels.get_untracked();
-        labels.remove(&label);
-        on_change(labels);
-    };
-
-    view! {cx,
-            <div class="w-80">
-                <div class="flex column gap-2 mb-2">
-                    <input
-                        on:input=move |ev| label_input.set(event_target_value(&ev))
-                        prop:value=move || label_input.get()
-                        on:keydown=move |ev| {
-                            if ev.key_code() == 13 {
-                                ev.prevent_default();
-                                let label = label_input.get();
-                                if !label.is_empty() {
-                                    on_add_label(label_input.get());
-                                }
-                            }
-                        }
-                        type="text"
-                        class="input input-bordered input-sm w-full"
-                        placeholder="Search Label..."
-                        list="labels"
-                    />
-                    <datalist id="labels">
-                        {move || {
-                            labels.difference(&selected_labels.get()).map(|label| {
-                                view! {cx, <option value=label/>}
-                            }).collect::<Vec<_>>()
-                        }}
-                    </datalist>
-                    <button
-                        on:click=move |_| {
-                            let label = label_input.get();
-                            if !label.is_empty() {
-                                on_add_label(label);
-                            }
-                        }
-                        type="button"
-                        class="btn btn-sm"
-                    >
-                        "Add"
-                    </button>
-                </div>
-                <div class="flex flex-wrap gap-2 max-h-28 overflow-y-auto">
-                    {move || {
-                        let labels = selected_labels.get();
-                        labels.into_iter().map(|label| view! {cx,
-                            <div
-                                class="inline-flex items-center bg-info text-info-content p-1 gap-2 rounded-lg"
-                            >
-                                {&label}
-                                <button
-                                    on:click=move |_| {on_remove_label(label.clone())}
-                                    type="button"
-                                    class="btn btn-sm"
-                                >
-                                    "X"
-                                </button>
-                            </div>
-                        }).collect::<Vec<_>>()
-                    }}
-                </div>
-            </div>
-    }
-}
 
 #[component]
 fn RecipesFilterPanel<F>(
@@ -178,13 +93,15 @@ where
                 <div class="form-control">
                     <label class="label">
                         <span class="label-text">"Labels"</span>
-                        {move || {
-                            view!{cx, <LabelsSelector
-                                selected_labels=Signal::derive(cx, move || filters.get().labels.unwrap_or_default())
-                                labels=labels.read(cx).unwrap_or_default()
-                                on_change=move |labels| filters.update(|filters| filters.labels = Some(labels))
-                            />}
-                        }}
+                        <div class="w-80 max-h-28">
+                            <LabelSelector
+                                labels=Signal::derive(cx, move || HashSet::from_iter(labels.read(cx).unwrap_or_default().into_iter()))
+                                allow_new=false
+                                compact=true
+                                selected=Signal::derive(cx, move || filters.get().labels.unwrap_or_default())
+                                on_change=move |l| filters.update(|f| f.labels = Some(l))
+                            />
+                        </div>
                     </label>
                 </div>
             </CollapsableBox>

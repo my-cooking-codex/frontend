@@ -1,8 +1,9 @@
 use leptos::*;
 use mcc_frontend_types::recipe::UpdateRecipe;
-use std::collections::{hash_map::RandomState, HashSet};
+use std::collections::HashSet;
 
 use crate::{
+    components::input::LabelSelector,
     contexts::prelude::{use_api, use_toasts, CurrentApi},
     helpers::api_error_to_toast,
     modals::base::ModalSaveCancel,
@@ -30,9 +31,8 @@ where
             }
         },
     );
-    let labels: leptos::RwSignal<HashSet<std::string::String, RandomState>> =
+    let labels: leptos::RwSignal<HashSet<std::string::String>> =
         create_rw_signal(cx, HashSet::from_iter(labels.into_iter()));
-    let new_label_input = create_rw_signal(cx, String::new());
 
     let update_labels = create_action(cx, move |_: &()| {
         let id = id.clone();
@@ -57,20 +57,8 @@ where
         }
     });
 
-    let remove_label = move |label_name: String| {
-        labels.update(|labels| {
-            labels.remove(&label_name);
-        });
-    };
-
-    let on_add_click = move || {
-        let new_label = new_label_input.get();
-        if !new_label.is_empty() {
-            labels.update(|labels| {
-                labels.insert(new_label.clone());
-            });
-            new_label_input.set(String::new());
-        }
+    let on_change = move |selected| {
+        labels.set(selected);
     };
 
     view! {cx,
@@ -80,61 +68,12 @@ where
             on_save=move || update_labels.dispatch(())
             on_cancel=move || on_action(None)
         >
-            <>
-            <div class="my-4 flex flex-wrap gap-2">
-                {move || {
-                    let labels = labels.get();
-                    labels.into_iter().map(|label| view! {cx,
-                        <div
-                            class="inline-flex items-center bg-info text-info-content p-1 gap-2 rounded-lg"
-                        >
-                            {&label}
-                            <button
-                                on:click=move |_| {remove_label(label.clone())}
-                                class="btn btn-sm"
-                            >
-                                "X"
-                            </button>
-                        </div>
-                    }).collect::<Vec<_>>()
-                }}
-            </div>
-            <div class="form-control">
-                <div class="join">
-                    <input
-                        prop:value=move || new_label_input.get()
-                        on:input=move |ev| {new_label_input.set(event_target_value(&ev))}
-                        on:keydown=move|ev| {
-                            if ev.key_code() == 13 {
-                                ev.prevent_default();
-                                on_add_click();
-                            } else {}
-                        }
-                        class="input input-bordered w-full join-item"
-                        type="text"
-                        placeholder="e.g. High Protein..."
-                        list="labels"
-                        maxlength="60"
-                    />
-                    <datalist id="labels">
-                        {move || {
-                            let labels = labels.get();
-                            let existing_labels = existing_labels.read(cx).unwrap_or_default();
-                            existing_labels.difference(&labels).into_iter().map(|label|
-                                view! {cx,<option value=label />}
-                            ).collect::<Vec<_>>()
-                        }}
-                    </datalist>
-                    <button
-                        on:click=move |_| on_add_click()
-                        class="btn join-item"
-                        type="button"
-                    >
-                        "Add"
-                    </button>
-                </div>
-            </div>
-            </>
+            <LabelSelector
+                labels=Signal::derive(cx, move || existing_labels.read(cx).unwrap_or_default())
+                allow_new=true
+                selected=labels
+                on_change=on_change
+            />
         </ModalSaveCancel>
     }
 }
