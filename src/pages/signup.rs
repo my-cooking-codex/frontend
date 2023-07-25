@@ -55,11 +55,12 @@ pub fn Signup(cx: Scope) -> impl IntoView {
     view! {cx,
         <div class="hero min-h-screen bg-base-200">
             <div class="hero-content text-center">
-                <div class="card flex-shrink-0 w-full max-w-sm shadow-2xl bg-base-100">
+                <div class="card flex-shrink-0 w-full max-w-md shadow-2xl bg-base-100">
                     <div class="card-body">
-                        <div class="mb-4">
+                        <img class="mb-2 mx-auto w-36 drop-shadow-lg" src="/public/icon.svg" alt="'My Cooking Codex' Icon" />
+                        <div>
                             <h1 class="text-5xl font-bold mb-4">{APP_TITLE}</h1>
-                            <h2 class="text-4xl font-bold">"Create Account"</h2>
+                            <p class="py-6">"Create your account here."</p>
                         </div>
                         <form on:submit=on_submit>
                             <div class="form-control mb-2">
