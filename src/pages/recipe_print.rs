@@ -10,8 +10,7 @@ fn RecipePrintContent(cx: Scope, recipe: Recipe) -> impl IntoView {
 
     view! {cx,
         {move || {
-                if let Some(image_id) = recipe.image_id.as_ref() {
-                    Some(view!{cx,
+                recipe.image_id.as_ref().map(|image_id| view!{cx,
                             <figure class="h-64 w-full mb-4">
                                 <img
                                     class="object-cover w-full h-full rounded"
@@ -19,7 +18,6 @@ fn RecipePrintContent(cx: Scope, recipe: Recipe) -> impl IntoView {
                                 />
                             </figure>
                     })
-                } else { None }
 
             }}
         <h1 class="text-3xl font-bold mb-4">{recipe.title}</h1>

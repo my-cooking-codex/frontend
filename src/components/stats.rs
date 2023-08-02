@@ -26,9 +26,7 @@ pub fn Stats(cx: Scope, stats: Vec<Stat>) -> impl IntoView {
                             <div class="stat-title">{stat.title}</div>
                             <div class="stat-value">{stat.value}</div>
                             {
-                                if let Some(description) = &stat.description {
-                                    Some(view! {cx, <div class="stat-desc">{description}</div>})
-                                } else { None }
+                                stat.description.as_ref().map(|description| view! {cx, <div class="stat-desc">{description}</div>})
                             }
                         </div>
                     }

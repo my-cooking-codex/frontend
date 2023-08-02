@@ -14,10 +14,7 @@ impl CurrentApi {
 
         let api = move || {
             let login = login.get();
-            match login {
-                Some(v) => Some(Api::from(v.clone())),
-                None => None,
-            }
+            login.map(|v| Api::from(v.clone()))
         };
 
         Self {

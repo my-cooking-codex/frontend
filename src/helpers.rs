@@ -22,9 +22,9 @@ pub fn api_error_to_toast(error: &ApiError, when: &str) -> Toast {
     match error {
         ApiError::Internal(e) => match e {
             ApiInternalError::Connection => {
-                return Toast {
+                Toast {
                     message: format!("Action failed as could not connect to server, when {when}"),
-                };
+                }
             }
             _ => {
                 log::error!("Internal error handled: {e:?}, when {when}");

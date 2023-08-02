@@ -244,7 +244,7 @@ pub fn DropdownConfirm<F>(
     #[prop(optional, into)] class: Option<String>,
 ) -> impl IntoView
 where
-    F: Fn() -> () + 'static + Copy,
+    F: Fn() + 'static + Copy,
 {
     view! {cx,
         <div class="dropdown dropdown-bottom dropdown-end".to_owned() + &class.map_or("".to_owned(),|v| format!(" {v}"))>
@@ -380,7 +380,7 @@ where
                     <datalist id="labels">
                         {move || {
                             let selected = selected.get();
-                            labels.get().difference(&selected).into_iter().map(|label|
+                            labels.get().difference(&selected).map(|label|
                                 view! {cx,<option value=label />}
                             ).collect_view(cx)
                         }}
