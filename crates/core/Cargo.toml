@@ -5,7 +5,7 @@ edition = "2021"
 
 [dependencies]
 mcc-frontend-types = { path = "../types" }
-gloo = "0.8"
+gloo = "0.9"
 serde = { version = "1.0" }
 web-sys = { version = "0.3", features = ["console", "File"] }
 serde_url_params = "^0.2.1"
