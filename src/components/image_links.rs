@@ -18,15 +18,15 @@ fn ImageLinkGridItem(cx: Scope, item: ImageLinkItem) -> impl IntoView {
             {move || {
                 if let Some(image_src) = &item.image_src {
                     view! {cx,
-                        <><img class="object-cover w-full h-full rounded-lg hover:brightness-50 hover:duration-200"
+                        <img class="object-cover w-full h-full rounded-lg hover:brightness-50 hover:duration-200"
                             src={image_src}
-                        /></>
-                    }
+                        />
+                    }.into_any()
                 } else {
-                    view! {cx, <><div
+                    view! {cx, <div
                         class="w-full h-full rounded-md hover:bg-neutral-focus hover:duration-200">
-                        </div></>
-                    }
+                        </div>
+                    }.into_any()
                 }
             }}
             <span

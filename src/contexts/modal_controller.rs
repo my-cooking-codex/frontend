@@ -32,7 +32,7 @@ pub fn ModalViewer(cx: Scope) -> impl IntoView {
     view! { cx,
         {move || {
             if let Some(modal) = modal_controller.current_modal.get() {
-                return Some(view! {cx, {modal}});
+                return Some(view! {cx, modal});
             }
             None
         }}

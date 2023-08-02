@@ -210,204 +210,202 @@ fn RecipeContent(cx: Scope, recipe: Recipe) -> impl IntoView {
     };
 
     view! {cx,
-        <>
-            // image
-            <div class="mb-4 relative h-64">
-                {move || {
-                    if let Some(image_id) = recipe.get().image_id.as_ref() {
-                        view!{cx,
-                            <><img
-                                class="object-cover w-full h-full rounded-md"
-                                src={format!("{}/recipe-image/{}", media_url(), image_id)}
-                            /></>
-                        }
-                    } else {
-                        view!{cx, <><div class="w-full h-full bg-neutral rounded"></div></>}
-                    }
-                }}
-                <div class="flex items-center absolute bottom-0 left-0 p-2 w-full bg-base-300/[.8] backdrop-blur-sm rounded-b-md">
-                    <h1
-                        class="mr-auto text-2xl font-bold \
-                            whitespace-nowrap overflow-hidden text-ellipsis py-2">
-                        {move || recipe.get().title}
-                    </h1>
-                    <Show when=move || edit_mode.get() fallback=|_| ()>
-                        <div class="join">
-                            <button on:click=on_edit_title_click class="btn join-item">"Edit"</button>
-                            <button on:click=on_edit_image_click class="btn join-item">"Edit Image"</button>
-                        </div>
-                    </Show>
-                </div>
-            </div>
-            // toolbar
-            <div class="mb-4 flex flex-wrap gap-2">
-                // general tools
-                <div class="flex flex-wrap gap-2 mr-auto">
-                    <button on:click=on_print_click class="btn shadow-lg">"Print"</button>
-                    <button on:click=on_edit_labels_click class="btn shadow-lg">"Labels"</button>
-                </div>
-                // edit tools
-                <div class="flex flex-wrap gap-2">
-                    <label
-                        class="swap btn shadow-lg"
-                        // class="btn-outline"
-                        class:btn-outline=move || edit_mode.get()
-                        >
-                        <input
-                            prop:checked=move || edit_mode.get()
-                            on:click=move |_| edit_mode.update(|mode| *mode=mode.not())
-                            type="checkbox"
+        // image
+        <div class="mb-4 relative h-64">
+            {move || {
+                if let Some(image_id) = recipe.get().image_id.as_ref() {
+                    view!{cx,
+                        <img
+                            class="object-cover w-full h-full rounded-md"
+                            src={format!("{}/recipe-image/{}", media_url(), image_id)}
                         />
-                        <div class="swap-on">"View Mode"</div>
-                        <div class="swap-off">"Edit Mode"</div>
-                    </label>
-                    <DropdownConfirm
-                        title="Remove"
-                        confirm_aria=""
-                        on_confirm=move || delete_action.dispatch(())
-                        class="shadow-lg"
-                    />
-                </div>
+                    }.into_any()
+                } else {
+                    view!{cx, <div class="w-full h-full bg-neutral rounded"></div>}.into_any()
+                }
+            }}
+            <div class="flex items-center absolute bottom-0 left-0 p-2 w-full bg-base-300/[.8] backdrop-blur-sm rounded-b-md">
+                <h1
+                    class="mr-auto text-2xl font-bold \
+                        whitespace-nowrap overflow-hidden text-ellipsis py-2">
+                    {move || recipe.get().title}
+                </h1>
+                <Show when=move || edit_mode.get() fallback=|_| ()>
+                    <div class="join">
+                        <button on:click=on_edit_title_click class="btn join-item">"Edit"</button>
+                        <button on:click=on_edit_image_click class="btn join-item">"Edit Image"</button>
+                    </div>
+                </Show>
             </div>
-            // info
-            <div class="mb-4 p-4 rounded bg-base-200">
+        </div>
+        // toolbar
+        <div class="mb-4 flex flex-wrap gap-2">
+            // general tools
+            <div class="flex flex-wrap gap-2 mr-auto">
+                <button on:click=on_print_click class="btn shadow-lg">"Print"</button>
+                <button on:click=on_edit_labels_click class="btn shadow-lg">"Labels"</button>
+            </div>
+            // edit tools
+            <div class="flex flex-wrap gap-2">
+                <label
+                    class="swap btn shadow-lg"
+                    // class="btn-outline"
+                    class:btn-outline=move || edit_mode.get()
+                    >
+                    <input
+                        prop:checked=move || edit_mode.get()
+                        on:click=move |_| edit_mode.update(|mode| *mode=mode.not())
+                        type="checkbox"
+                    />
+                    <div class="swap-on">"View Mode"</div>
+                    <div class="swap-off">"Edit Mode"</div>
+                </label>
+                <DropdownConfirm
+                    title="Remove"
+                    confirm_aria=""
+                    on_confirm=move || delete_action.dispatch(())
+                    class="shadow-lg"
+                />
+            </div>
+        </div>
+        // info
+        <div class="mb-4 p-4 rounded bg-base-200">
+            <div class="flex mb-2">
+                <h2 class="text-xl font-bold mr-auto">"Info"</h2>
+                <Show when=move || edit_mode.get() fallback=|_| ()>
+                    <button on:click=on_edit_info_click class="btn shadow-lg">"Edit"</button>
+                </Show>
+            </div>
+            <table class="table table-zebra w-full max-w-5xl">
+                <tbody>
+                    {move || {
+                        let info = &recipe.get().info;
+                        view!{cx,
+                            {if let Some(v) = &info.yields {
+                                view!{cx,
+                                    <tr class="text-center">
+                                        <th>{&v.unit_type}</th>
+                                        <th>"Freezable"</th>
+                                        <th>"Microwave Only"</th>
+                                    </tr>
+                                }
+                            } else {
+                                view!{cx,
+                                    <tr class="text-center">
+                                        <th>"Servings"</th>
+                                        <th>"Freezable"</th>
+                                        <th>"Microwave Only"</th>
+                                    </tr>
+                                }
+                            }}
+                            <tr class="text-center">
+                                <td>{info.yields.clone().unwrap_or_default().value}</td>
+                                <td><input prop:checked=info.freezable type="checkbox" class="checkbox" disabled=true/></td>
+                                <td><input prop:checked=info.microwave_only type="checkbox" class="checkbox" disabled=true/></td>
+                            </tr>
+                            <tr class="text-center">
+                                <th>"Total Time"</th>
+                                <th>"Prep Time"</th>
+                                <th>"Cook Time"</th>
+                            </tr>
+                            <tr class="text-center">
+                                <td>{HourMinuteSecond::from_secs(info.prep_time + info.cook_time).as_hms()}</td>
+                                <td>{HourMinuteSecond::from_secs(info.prep_time).as_hms()}</td>
+                                <td>{HourMinuteSecond::from_secs(info.cook_time).as_hms()}</td>
+                            </tr>
+                        }
+                    }}
+                </tbody>
+            </table>
+            {move || {
+                if let Some(source) = recipe.get().info.source {
+                    if !source.is_empty() {
+                        return Some(view!{cx, <p class="text-sm my-2">"Source: " {source}</p>});
+                    }
+                }
+                None
+            }}
+        </div>
+        // description (short_description)
+        <div class="mb-4 p-4 rounded bg-base-200">
+            <div class="flex mb-2">
+                <h2 class="text-xl font-bold mr-auto">"Description"</h2>
+                <Show when=move || edit_mode.get() fallback=|_| ()>
+                    <button on:click=on_edit_description_click class="btn shadow-lg">"Edit"</button>
+                </Show>
+            </div>
+            <p>{move || recipe.get().short_description}</p>
+        </div>
+        // notes (long_description)
+        <div class="mb-4 p-4 rounded bg-base-200">
+            <div class="flex mb-2">
+                <h2 class="text-xl font-bold mr-auto">"Notes"</h2>
+                <Show when=move || edit_mode.get() fallback=|_| ()>
+                    <button on:click=on_edit_long_description_click class="btn shadow-lg">"Edit"</button>
+                </Show>
+            </div>
+            <pre class="whitespace-pre-line text-base font-sans">{move || recipe.get().long_description}</pre>
+        </div>
+        // ingredients and steps
+        <div class="flex flex-col md:flex-row gap-4">
+            // ingredients
+            <div class="basis-full md:basis-3/4 lg:basis-11/12 p-4 rounded bg-base-200">
                 <div class="flex mb-2">
-                    <h2 class="text-xl font-bold mr-auto">"Info"</h2>
+                    <h2 class="text-xl font-bold mr-auto">"Ingredients"</h2>
                     <Show when=move || edit_mode.get() fallback=|_| ()>
-                        <button on:click=on_edit_info_click class="btn shadow-lg">"Edit"</button>
+                        <button on:click=on_edit_ingredients_click class="btn shadow-lg">"Edit"</button>
                     </Show>
                 </div>
-                <table class="table table-zebra w-full max-w-5xl">
+                <table class="table table-compact table-zebra w-full">
+                    <thead>
+                        <tr>
+                            <th>"Amount"</th>
+                            <th>"Name"</th>
+                            <th>"Notes"</th>
+                        </tr>
+                    </thead>
                     <tbody>
                         {move || {
-                            let info = &recipe.get().info;
-                            view!{cx,
-                                {if let Some(v) = &info.yields {
-                                    view!{cx,
-                                        <tr class="text-center">
-                                            <th>{&v.unit_type}</th>
-                                            <th>"Freezable"</th>
-                                            <th>"Microwave Only"</th>
-                                        </tr>
-                                    }
-                                } else {
-                                    view!{cx,
-                                        <tr class="text-center">
-                                            <th>"Servings"</th>
-                                            <th>"Freezable"</th>
-                                            <th>"Microwave Only"</th>
-                                        </tr>
-                                    }
-                                }}
-                                <tr class="text-center">
-                                    <td>{info.yields.clone().unwrap_or_default().value}</td>
-                                    <td><input prop:checked=info.freezable type="checkbox" class="checkbox" disabled=true/></td>
-                                    <td><input prop:checked=info.microwave_only type="checkbox" class="checkbox" disabled=true/></td>
-                                </tr>
-                                <tr class="text-center">
-                                    <th>"Total Time"</th>
-                                    <th>"Prep Time"</th>
-                                    <th>"Cook Time"</th>
-                                </tr>
-                                <tr class="text-center">
-                                    <td>{HourMinuteSecond::from_secs(info.prep_time + info.cook_time).as_hms()}</td>
-                                    <td>{HourMinuteSecond::from_secs(info.prep_time).as_hms()}</td>
-                                    <td>{HourMinuteSecond::from_secs(info.cook_time).as_hms()}</td>
-                                </tr>
-                            }
-                        }}
-                    </tbody>
-                </table>
-                {move || {
-                    if let Some(source) = recipe.get().info.source {
-                        if !source.is_empty() {
-                            return Some(view!{cx, <p class="text-sm my-2">"Source: " {source}</p>});
-                        }
-                    }
-                    None
-                }}
-            </div>
-            // description (short_description)
-            <div class="mb-4 p-4 rounded bg-base-200">
-                <div class="flex mb-2">
-                    <h2 class="text-xl font-bold mr-auto">"Description"</h2>
-                    <Show when=move || edit_mode.get() fallback=|_| ()>
-                        <button on:click=on_edit_description_click class="btn shadow-lg">"Edit"</button>
-                    </Show>
-                </div>
-                <p>{move || recipe.get().short_description}</p>
-            </div>
-            // notes (long_description)
-            <div class="mb-4 p-4 rounded bg-base-200">
-                <div class="flex mb-2">
-                    <h2 class="text-xl font-bold mr-auto">"Notes"</h2>
-                    <Show when=move || edit_mode.get() fallback=|_| ()>
-                        <button on:click=on_edit_long_description_click class="btn shadow-lg">"Edit"</button>
-                    </Show>
-                </div>
-                <pre class="whitespace-pre-line text-base font-sans">{move || recipe.get().long_description}</pre>
-            </div>
-            // ingredients and steps
-            <div class="flex flex-col md:flex-row gap-4">
-                // ingredients
-                <div class="basis-full md:basis-3/4 lg:basis-11/12 p-4 rounded bg-base-200">
-                    <div class="flex mb-2">
-                        <h2 class="text-xl font-bold mr-auto">"Ingredients"</h2>
-                        <Show when=move || edit_mode.get() fallback=|_| ()>
-                            <button on:click=on_edit_ingredients_click class="btn shadow-lg">"Edit"</button>
-                        </Show>
-                    </div>
-                    <table class="table table-compact table-zebra w-full">
-                        <thead>
-                            <tr>
-                                <th>"Amount"</th>
-                                <th>"Name"</th>
-                                <th>"Notes"</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {move || {
-                                recipe.get().ingredients.iter().map(|ingredient| {
-                                    view!{cx,
-                                        <tr>
-                                            <td class="whitespace-normal">
-                                                {format!("{} {}", Fraction::from(ingredient.amount), {&ingredient.unit_type})}
-                                            </td>
-                                            <td class="whitespace-normal">{&ingredient.name}</td>
-                                            <td class="whitespace-normal">{&ingredient.description.to_owned().unwrap_or_default()}</td>
-                                        </tr>
-                                    }
-                                }).collect::<Vec<_>>()
-                            }}
-                        </tbody>
-                    </table>
-                </div>
-                // steps
-                <div class="w-full p-4 rounded bg-base-200">
-                    <div class="flex mb-2">
-                        <h2 class="text-xl font-bold mr-auto">"Steps"</h2>
-                        <Show when=move || edit_mode.get() fallback=|_| ()>
-                            <button on:click=on_edit_steps_click class="btn shadow-lg">"Edit"</button>
-                        </Show>
-                    </div>
-                    <div class="flex flex-col gap-2">
-                        {move || {
-                            recipe.get().steps.into_iter().enumerate().map(|(i, step)| {
+                            recipe.get().ingredients.iter().map(|ingredient| {
                                 view!{cx,
-                                    <CollapsableBox
-                                        title={step.title.unwrap_or_else(|| format!("Step {}", i+1))}
-                                        open=true
-                                        class="border border-base-300 bg-base-100"
-                                    >
-                                        <pre class="whitespace-pre-line text-base font-sans">{step.description}</pre>
-                                    </CollapsableBox>
+                                    <tr>
+                                        <td class="whitespace-normal">
+                                            {format!("{} {}", Fraction::from(ingredient.amount), {&ingredient.unit_type})}
+                                        </td>
+                                        <td class="whitespace-normal">{&ingredient.name}</td>
+                                        <td class="whitespace-normal">{&ingredient.description.to_owned().unwrap_or_default()}</td>
+                                    </tr>
                                 }
                             }).collect::<Vec<_>>()
                         }}
-                    </div>
+                    </tbody>
+                </table>
+            </div>
+            // steps
+            <div class="w-full p-4 rounded bg-base-200">
+                <div class="flex mb-2">
+                    <h2 class="text-xl font-bold mr-auto">"Steps"</h2>
+                    <Show when=move || edit_mode.get() fallback=|_| ()>
+                        <button on:click=on_edit_steps_click class="btn shadow-lg">"Edit"</button>
+                    </Show>
+                </div>
+                <div class="flex flex-col gap-2">
+                    {move || {
+                        recipe.get().steps.into_iter().enumerate().map(|(i, step)| {
+                            view!{cx,
+                                <CollapsableBox
+                                    title={step.title.unwrap_or_else(|| format!("Step {}", i+1))}
+                                    open=true
+                                    class="border border-base-300 bg-base-100"
+                                >
+                                    <pre class="whitespace-pre-line text-base font-sans">{step.description}</pre>
+                                </CollapsableBox>
+                            }
+                        }).collect::<Vec<_>>()
+                    }}
                 </div>
             </div>
-        </>
+        </div>
     }
 }
 

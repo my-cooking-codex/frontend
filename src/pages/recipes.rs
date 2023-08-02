@@ -218,49 +218,49 @@ pub fn Recipes(cx: Scope) -> impl IntoView {
                 match (fetch_recipes.loading().get(), fetch_recipes.read(cx)) {
                     // it's loading
                     (true, _) => view! {cx,
-                        <><button
+                        <button
                             type="button"
                             class="btn btn-block loading">
                             "Loading..."
-                        </button></>
-                    },
+                        </button>
+                    }.into_any(),
                     (false, Some(recipes)) => recipes.map(|recipes| {
                         // if we got the max number of recipes,
                         // we can assume there are more
                         if recipes.len() == filters.get().per_page {
                             view! {cx,
-                                <><button
+                                <button
                                     type="button"
                                     class="btn btn-block"
                                     on:click=on_load_more_click>
                                     "More"
-                                </button></>
-                            }
+                                </button>
+                            }.into_any()
                         } else {
                             // we got less than the max number of recipes,
                             // so we're at the bottom
-                            view! {cx, <><div class="text-center">"Reached Bottom"</div></>}
+                            view! {cx, <div class="text-center">"Reached Bottom"</div>}.into_any()
                         }
                     }).unwrap_or_else(|| {
                         // some error was handled
                         view! {cx,
-                            <><button
+                            <button
                                 type="button"
                                 class="btn btn-block"
                                 on:click=on_retry_click>
                                 "More, (Retry)"
-                            </button></>
-                        }
+                            </button>
+                        }.into_any()
                     }),
                     // some error was handled
                     (false, None) => view! {cx,
-                        <><button
+                        <button
                             type="button"
                             class="btn btn-block"
                             on:click=on_retry_click>
                             "More, (Retry)"
-                        </button></>
-                    },
+                        </button>
+                    }.into_any(),
                 }
             }}
         </div>
