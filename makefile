@@ -1,4 +1,4 @@
-BUILDER_IMG_TAG:=20230331
+BUILDER_IMG_TAG:=latest
 BUILDER_IMG:=ghcr.io/enchant97/trunk-docker-builder:$(BUILDER_IMG_TAG)
 
 .PHONY: help build-in-docker
