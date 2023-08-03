@@ -230,9 +230,10 @@ pub fn Pantry(cx: Scope) -> impl IntoView {
     );
 
     create_effect(cx, move |_| {
+        // XXX this is not great, but it works (just ensure any reads everything is x.get_untracked()
         if let Some(current_page) = current_page.read(cx).flatten() {
             items.update(|v| {
-                if filters.get().page == 1 {
+                if filters.get_untracked().page == 1 {
                     v.clear()
                 }
                 v.extend(current_page);

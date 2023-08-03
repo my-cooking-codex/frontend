@@ -5,7 +5,7 @@ use crate::{
         collapse::*,
         image_links::*,
         input::{LabelSelector, ThreeStateSelect},
-        loading::{LoadingItemsState, BufferedPageLoader},
+        loading::{BufferedPageLoader, LoadingItemsState},
     },
     contexts::prelude::{
         use_api, use_login, use_modal_controller, use_toasts, CurrentApi, CurrentLogin,
@@ -149,10 +149,14 @@ pub fn Recipes(cx: Scope) -> impl IntoView {
 
     // update the items when recipes are fetched
     create_effect(cx, move |_| {
-        let media_url = login.get().expect("expected login to exist").media_url;
+        // XXX this is not great, but it works (just ensure any reads everything is x.get_untracked()
+        let media_url = login
+            .get_untracked()
+            .expect("expected login to exist")
+            .media_url;
         if let Some(Some(recipes)) = fetch_recipes.read(cx) {
             set_items.update(|v| {
-                if filters.get().page == 1 {
+                if filters.get_untracked().page == 1 {
                     v.clear();
                 }
                 v.extend(recipes.iter().map(|recipe| {
