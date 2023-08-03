@@ -257,25 +257,32 @@ pub fn Pantry(cx: Scope) -> impl IntoView {
         let id = id.clone();
         async move {
             match api.delete_pantry_item_by_id(&id).await {
-                Ok(_) => current_page.refetch(), // TODO there is a better way
+                Ok(_) => items.update(|items| {
+                    if let Some(i) = items.iter().position(|v| v.id == id) {
+                        items.remove(i);
+                    }
+                }),
                 Err(err) => toasts.push(api_error_to_toast(&err, "deleting pantry item")),
             }
         }
     });
 
     let on_edit_item_action = move |item: Option<Item>| {
-        if let Some(_item) = item {
-            // TODO is there a better way
-            // FIXME this does not update the screen?
-            current_page.refetch()
+        if let Some(updated_item) = item {
+            items.update(|items| {
+                for item in items.into_iter() {
+                    if item.id == updated_item.id {
+                        let _ = std::mem::replace(item, updated_item);
+                        break;
+                    }
+                }
+            });
         }
         modal_controller.close();
     };
 
-    let on_new_item_action = move |creation| {
+    let on_new_item_action = move |creation: Option<(CreationMode, Item)>| {
         if let Some((mode, new_item)) = creation {
-            // TODO is there a better way
-            current_page.refetch();
             match mode {
                 CreationMode::CreateAndEdit => modal_controller.open(view! {cx,
                     <EditItemModal
@@ -363,10 +370,9 @@ pub fn Pantry(cx: Scope) -> impl IntoView {
                     </tr>
                 </thead>
                 <tbody>
-                <For
-                    each=move || items.get()
-                    key=move |v| v.id.to_owned()
-                    view=move |cx, item: Item| {
+                {move || {
+                    // NOTE "For" component not used as it will not re-render on item edit
+                    items.get().into_iter().map(|item|{
                         view!{cx,
                             <PantryItemRow
                                 item=item.clone()
@@ -377,8 +383,8 @@ pub fn Pantry(cx: Scope) -> impl IntoView {
                                 delete_action=move || delete_item.dispatch(item.id.clone())
                             />
                         }
-                    }
-                />
+                    }).collect_view(cx)
+                }}
                 </tbody>
             </table>
             <BufferedPageLoader
