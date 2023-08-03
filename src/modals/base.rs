@@ -33,18 +33,21 @@ where
 }
 
 #[component]
-pub fn ModalFormBase<P, N>(
+pub fn ModalFormBase<P, S, N>(
     cx: Scope,
     #[prop(into)] title: String,
     #[prop(into)] positive_text: String,
+    #[prop(into, optional)] positive_secondary_text: Option<String>,
     #[prop(into)] negative_text: String,
     #[prop(into)] loading: Signal<bool>,
     on_positive: P,
+    on_positive_secondary: S,
     on_negative: N,
     children: Children,
 ) -> impl IntoView
 where
     P: Fn() + 'static,
+    S: Fn() + 'static,
     N: Fn() + 'static,
 {
     view! {cx,
@@ -61,6 +64,22 @@ where
                         >
                             {positive_text}
                         </button>
+                        {
+                            if let Some(positive_secondary_text) = positive_secondary_text {
+                                Some(view!{cx,
+                                    <button
+                                        on:click=move |_| on_positive_secondary()
+                                        type="button"
+                                        class="btn btn-secondary join-item"
+                                        class:loading=move || loading.get()
+                                    >
+                                        {positive_secondary_text}
+                                    </button>
+                                })
+                            } else {
+                                None
+                            }
+                        }
                         <button
                             on:click=move |_| on_negative()
                             type="button"
@@ -96,6 +115,7 @@ where
             negative_text="Cancel"
             loading={loading}
             on_positive={on_save}
+            on_positive_secondary=||{}
             on_negative={on_cancel}
         >
             {children(cx)}
@@ -123,6 +143,42 @@ where
             negative_text="Cancel"
             loading={loading}
             on_positive={on_creation}
+            on_positive_secondary=||{}
+            on_negative={on_cancel}
+        >
+            {children(cx)}
+        </ModalFormBase>
+    }
+}
+
+#[derive(Debug, Clone, Copy)]
+pub enum CreationMode {
+    Create,
+    CreateAndEdit,
+}
+
+#[component]
+pub fn ModalCreateWithModeCancel<S, C>(
+    cx: Scope,
+    #[prop(into)] title: String,
+    #[prop(into)] loading: Signal<bool>,
+    on_creation: S,
+    on_cancel: C,
+    children: Children,
+) -> impl IntoView
+where
+    S: Fn(CreationMode) + 'static + Copy,
+    C: Fn() + 'static,
+{
+    view! {cx,
+        <ModalFormBase
+            title={title}
+            positive_text="Create"
+            positive_secondary_text="Create & Edit"
+            negative_text="Cancel"
+            loading={loading}
+            on_positive=move || on_creation(CreationMode::Create)
+            on_positive_secondary=move || on_creation(CreationMode::CreateAndEdit)
             on_negative={on_cancel}
         >
             {children(cx)}

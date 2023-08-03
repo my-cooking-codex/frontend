@@ -5,13 +5,13 @@ use mcc_frontend_types::pantry::{CreateItem, Item};
 use crate::{
     contexts::prelude::{use_api, use_toasts, CurrentApi},
     helpers::api_error_to_toast,
-    modals::base::ModalCreateCancel,
+    modals::base::{CreationMode, ModalCreateWithModeCancel},
 };
 
 #[component]
 pub fn NewItemModal<F>(cx: Scope, on_action: F) -> impl IntoView
 where
-    F: Fn(Option<Item>) + 'static + Copy,
+    F: Fn(Option<(CreationMode, Item)>) + 'static + Copy,
 {
     let toasts = use_toasts(cx);
     let CurrentApi { api, .. } = use_api(cx);
@@ -33,7 +33,8 @@ where
         },
     );
 
-    let new_item = create_action(cx, move |_: &()| {
+    let new_item = create_action(cx, move |mode: &CreationMode| {
+        let mode = mode.clone();
         let api = api.get_untracked().expect("api expected to be set");
         let name = name.get_untracked();
         let location_id = location_id.get_untracked();
@@ -48,7 +49,7 @@ where
                 )
                 .await
             {
-                Ok(v) => on_action(Some(v)),
+                Ok(v) => on_action(Some((mode, v))),
                 Err(err) => {
                     toasts.push(api_error_to_toast(&err, "creating new item"));
                 }
@@ -61,10 +62,10 @@ where
     });
 
     view! {cx,
-        <ModalCreateCancel
+        <ModalCreateWithModeCancel
             title="New Item"
             loading=global_loading
-            on_creation=move || new_item.dispatch(())
+            on_creation=move |mode| new_item.dispatch(mode)
             on_cancel=move || on_action(None)
         >
             <div class="form-control">
@@ -98,6 +99,6 @@ where
                     </select>
                 </label>
             </div>
-        </ModalCreateCancel>
+        </ModalCreateWithModeCancel>
     }
 }

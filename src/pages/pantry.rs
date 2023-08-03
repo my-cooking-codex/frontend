@@ -13,7 +13,10 @@ use crate::{
         prelude::{use_api, use_modal_controller, use_toasts, CurrentApi},
     },
     helpers::{api_error_to_toast, logout_on_401},
-    modals::edit_pantry::{EditItemModal, LocationsModal, NewItemModal},
+    modals::{
+        edit_pantry::{EditItemModal, LocationsModal, NewItemModal},
+        CreationMode,
+    },
 };
 
 #[component]
@@ -205,12 +208,22 @@ pub fn Pantry(cx: Scope) -> impl IntoView {
         modal_controller.close();
     };
 
-    let on_new_item_action = move |new_item| {
-        if let Some(_new_item) = new_item {
+    let on_new_item_action = move |creation| {
+        if let Some((mode, new_item)) = creation {
             // TODO is there a better way
             current_page.refetch();
+            match mode {
+                CreationMode::CreateAndEdit => modal_controller.open(view! {cx,
+                    <EditItemModal
+                        item=new_item
+                        on_action=on_edit_item_action
+                    />
+                }),
+                CreationMode::Create => modal_controller.close(),
+            };
+        } else {
+            modal_controller.close();
         }
-        modal_controller.close();
     };
 
     let on_locations_action = move || {
