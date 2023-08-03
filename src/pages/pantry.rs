@@ -148,6 +148,57 @@ where
 }
 
 #[component]
+fn PantryItemRow<E, D>(cx: Scope, item: Item, edit_action: E, delete_action: D) -> impl IntoView
+where
+    E: Fn() + 'static,
+    D: Fn() + 'static,
+{
+    view! {cx,
+        <tr>
+            <td class="flex justify-center">
+                {
+                    let chip_color;
+                    if item.is_expired() {
+                        chip_color = "bg-error";
+                    } else if item.is_expired_with_offset(7) {
+                        chip_color = "bg-warning";
+                    } else {
+                        chip_color = "bg-success";
+                    }
+                    view!{cx, <div class=format!("h-2 w-7 rounded-full {chip_color}")></div>}
+                }
+            </td>
+            <td>{&item.name}</td>
+            <td>
+                <time datetime=item.expiry.map(|v| v.to_rfc3339()).unwrap_or_default()>
+                {
+                    // TODO get human date format from their settings
+                    match item.expiry_to_human(&HumanDateFormats::DayMonthYear) {
+                        Some(v) => v,
+                        None => "-".to_owned(),
+                    }
+                }
+                </time>
+            </td>
+            <td class="flex justify-end">
+                <div class="join shadow-lg">
+                    <button
+                        on:click=move |_| edit_action()
+                        class="btn join-item"
+                        aria-label=format!("Show More For '{}'", &item.name)
+                    >"More"</button>
+                    <button
+                        on:click=move |_| delete_action()
+                        class="btn btn-outline btn-error join-item"
+                        aria-label=format!("Delete '{}'", &item.name)
+                    >"X"</button>
+                </div>
+            </td>
+        </tr>
+    }
+}
+
+#[component]
 pub fn Pantry(cx: Scope) -> impl IntoView {
     let toasts = use_toasts(cx);
     let modal_controller = use_modal_controller(cx);
@@ -304,47 +355,14 @@ pub fn Pantry(cx: Scope) -> impl IntoView {
                     key=move |v| v.id.to_owned()
                     view=move |cx, item: Item| {
                         view!{cx,
-                            <tr>
-                                <td class="flex justify-center">
-                                    {
-                                        let chip_color;
-                                        if item.is_expired() {
-                                            chip_color = "bg-error";
-                                        } else if item.is_expired_with_offset(7) {
-                                            chip_color = "bg-warning";
-                                        } else {
-                                            chip_color = "bg-success";
-                                        }
-                                        view!{cx, <div class=format!("h-2 w-7 rounded-full {chip_color}")></div>}
-                                    }
-                                </td>
-                                <td>{&item.name}</td>
-                                <td>
-                                    <time datetime=item.expiry.map(|v| v.to_rfc3339()).unwrap_or_default()>
-                                    {
-                                        // TODO get human date format from their settings
-                                        match item.expiry_to_human(&HumanDateFormats::DayMonthYear) {
-                                            Some(v) => v,
-                                            None => "-".to_owned(),
-                                        }
-                                    }
-                                    </time>
-                                </td>
-                                <td class="flex justify-end">
-                                    <div class="join shadow-lg">
-                                        <button
-                                            on:click={ let item = item.clone(); move |_| on_edit_item_click(item.clone()) }
-                                            class="btn join-item"
-                                            aria-label=format!("Show More For '{}'", &item.name)
-                                        >"More"</button>
-                                        <button
-                                            on:click=move |_| delete_item.dispatch(item.id.clone())
-                                            class="btn btn-outline btn-error join-item"
-                                            aria-label=format!("Delete '{}'", &item.name)
-                                        >"X"</button>
-                                    </div>
-                                </td>
-                            </tr>
+                            <PantryItemRow
+                                item=item.clone()
+                                edit_action={
+                                    let item = item.clone();
+                                    move || on_edit_item_click(item.clone())
+                                }
+                                delete_action=move || delete_item.dispatch(item.id.clone())
+                            />
                         }
                     }
                 />
