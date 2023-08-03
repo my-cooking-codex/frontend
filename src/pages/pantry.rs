@@ -7,6 +7,7 @@ use crate::{
     components::{
         collapse::CollapsableBox,
         input::{LabelSelector, ThreeStateSelect},
+        loading::{BufferedPageLoader, LoadingItemsState},
     },
     contexts::{
         login::{use_login, CurrentLogin},
@@ -239,6 +240,17 @@ pub fn Pantry(cx: Scope) -> impl IntoView {
         }
     });
 
+    let loading_items_state = Signal::derive(cx, move || {
+        match (
+            current_page.loading().get(),
+            current_page.read(cx).flatten(),
+        ) {
+            (true, _) => LoadingItemsState::Loading,
+            (false, Some(items)) => LoadingItemsState::Loaded(items.len()),
+            (false, None) => LoadingItemsState::Failed,
+        }
+    });
+
     let delete_item = create_action(cx, move |id: &String| {
         let api = api.get_untracked().expect("api expected to exist");
         let id = id.clone();
@@ -319,13 +331,13 @@ pub fn Pantry(cx: Scope) -> impl IntoView {
         });
     };
 
-    let on_load_more_click = move |_| {
+    let on_load_more = move || {
         filters.update(|v| {
             v.page += 1;
         });
     };
 
-    let on_retry_click = move |_| {
+    let on_retry = move || {
         current_page.refetch();
     };
 
@@ -368,55 +380,12 @@ pub fn Pantry(cx: Scope) -> impl IntoView {
                 />
                 </tbody>
             </table>
-            {move || {
-                match (current_page.loading().get(), current_page.read(cx)) {
-                    // it's loading
-                    (true, _) => view! {cx,
-                        <button
-                            type="button"
-                            class="btn btn-block loading">
-                            "Loading..."
-                        </button>
-                    }.into_any(),
-                    (false, Some(items)) => items.map(|items| {
-                        // if we got the max number of items,
-                        // we can assume there are more
-                        if items.len() == filters.get().per_page {
-                            view! {cx,
-                                <button
-                                    type="button"
-                                    class="btn btn-block"
-                                    on:click=on_load_more_click>
-                                    "More"
-                                </button>
-                            }.into_any()
-                        } else {
-                            // we got less than the max number of items,
-                            // so we're at the bottom
-                            view! {cx, <div class="text-center">"Reached Bottom"</div>}.into_any()
-                        }
-                    }).unwrap_or_else(|| {
-                        // some error was handled
-                        view! {cx,
-                            <button
-                                type="button"
-                                class="btn btn-block"
-                                on:click=on_retry_click>
-                                "More, (Retry)"
-                            </button>
-                        }.into_any()
-                    }),
-                    // some error was handled
-                    (false, None) => view! {cx,
-                        <button
-                            type="button"
-                            class="btn btn-block"
-                            on:click=on_retry_click>
-                            "More, (Retry)"
-                        </button>
-                    }.into_any(),
-                }
-            }}
+            <BufferedPageLoader
+                items_state=loading_items_state
+                items_per_page=Signal::derive(cx, move || filters.get().per_page)
+                load_more_action=on_load_more
+                retry_action=on_retry
+            />
         </div>
     }
 }

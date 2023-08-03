@@ -5,6 +5,7 @@ use crate::{
         collapse::*,
         image_links::*,
         input::{LabelSelector, ThreeStateSelect},
+        loading::{LoadingItemsState, BufferedPageLoader},
     },
     contexts::prelude::{
         use_api, use_login, use_modal_controller, use_toasts, CurrentApi, CurrentLogin,
@@ -169,6 +170,17 @@ pub fn Recipes(cx: Scope) -> impl IntoView {
         }
     });
 
+    let loading_items_state = Signal::derive(cx, move || {
+        match (
+            fetch_recipes.loading().get(),
+            fetch_recipes.read(cx).flatten(),
+        ) {
+            (true, _) => LoadingItemsState::Loading,
+            (false, Some(items)) => LoadingItemsState::Loaded(items.len()),
+            (false, None) => LoadingItemsState::Failed,
+        }
+    });
+
     let on_new_recipe_action = move |recipe_id: Option<String>| {
         if let Some(recipe_id) = recipe_id {
             let navigator = use_navigate(cx);
@@ -195,13 +207,13 @@ pub fn Recipes(cx: Scope) -> impl IntoView {
         )
     };
 
-    let on_load_more_click = move |_| {
+    let on_load_more = move || {
         filters.update(|v| {
             v.page += 1;
         });
     };
 
-    let on_retry_click = move |_| {
+    let on_retry = move || {
         fetch_recipes.refetch();
     };
 
@@ -214,55 +226,12 @@ pub fn Recipes(cx: Scope) -> impl IntoView {
             <RecipesFilterPanel filters=filters.read_only() update_filters=on_new_filters />
             <div class="divider" />
             <ImageLinksBox items={items} />
-            {move || {
-                match (fetch_recipes.loading().get(), fetch_recipes.read(cx)) {
-                    // it's loading
-                    (true, _) => view! {cx,
-                        <button
-                            type="button"
-                            class="btn btn-block loading">
-                            "Loading..."
-                        </button>
-                    }.into_any(),
-                    (false, Some(recipes)) => recipes.map(|recipes| {
-                        // if we got the max number of recipes,
-                        // we can assume there are more
-                        if recipes.len() == filters.get().per_page {
-                            view! {cx,
-                                <button
-                                    type="button"
-                                    class="btn btn-block"
-                                    on:click=on_load_more_click>
-                                    "More"
-                                </button>
-                            }.into_any()
-                        } else {
-                            // we got less than the max number of recipes,
-                            // so we're at the bottom
-                            view! {cx, <div class="text-center">"Reached Bottom"</div>}.into_any()
-                        }
-                    }).unwrap_or_else(|| {
-                        // some error was handled
-                        view! {cx,
-                            <button
-                                type="button"
-                                class="btn btn-block"
-                                on:click=on_retry_click>
-                                "More, (Retry)"
-                            </button>
-                        }.into_any()
-                    }),
-                    // some error was handled
-                    (false, None) => view! {cx,
-                        <button
-                            type="button"
-                            class="btn btn-block"
-                            on:click=on_retry_click>
-                            "More, (Retry)"
-                        </button>
-                    }.into_any(),
-                }
-            }}
+            <BufferedPageLoader
+                items_state=loading_items_state
+                items_per_page=Signal::derive(cx, move || filters.get().per_page)
+                load_more_action=on_load_more
+                retry_action=on_retry
+            />
         </div>
     }
 }
