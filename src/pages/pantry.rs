@@ -321,7 +321,7 @@ pub fn Pantry(cx: Scope) -> impl IntoView {
                 CreationMode::CreateAndEdit => modal_controller.open(view! {cx,
                     <EditItemModal
                         item=new_item
-                        on_action=on_edit_item_action
+                        on_action=on_edit_new_item_action
                     />
                 }),
                 CreationMode::Create => modal_controller.close(),
