@@ -207,6 +207,7 @@ pub fn Pantry(cx: Scope) -> impl IntoView {
     let CurrentLogin { set_login, .. } = use_login(cx);
     let filters = create_rw_signal(cx, PantryFilter::default());
     let items = create_rw_signal::<Vec<Item>>(cx, Vec::default());
+    let new_items = create_rw_signal::<Vec<Item>>(cx, Vec::default());
 
     let current_page = create_resource(
         cx,
@@ -232,6 +233,7 @@ pub fn Pantry(cx: Scope) -> impl IntoView {
     create_effect(cx, move |_| {
         // XXX this is not great, but it works (just ensure any reads everything is x.get_untracked()
         if let Some(current_page) = current_page.read(cx).flatten() {
+            new_items.set(Vec::default());
             items.update(|v| {
                 if filters.get_untracked().page == 1 {
                     v.clear()
@@ -267,6 +269,21 @@ pub fn Pantry(cx: Scope) -> impl IntoView {
         }
     });
 
+    let delete_new_item = create_action(cx, move |id: &String| {
+        let api = api.get_untracked().expect("api expected to exist");
+        let id = id.clone();
+        async move {
+            match api.delete_pantry_item_by_id(&id).await {
+                Ok(_) => new_items.update(|items| {
+                    if let Some(i) = items.iter().position(|v| v.id == id) {
+                        items.remove(i);
+                    }
+                }),
+                Err(err) => toasts.push(api_error_to_toast(&err, "deleting pantry item")),
+            }
+        }
+    });
+
     let on_edit_item_action = move |item: Option<Item>| {
         if let Some(updated_item) = item {
             items.update(|items| {
@@ -281,8 +298,25 @@ pub fn Pantry(cx: Scope) -> impl IntoView {
         modal_controller.close();
     };
 
+    let on_edit_new_item_action = move |item: Option<Item>| {
+        if let Some(updated_item) = item {
+            new_items.update(|items| {
+                for item in items.into_iter() {
+                    if item.id == updated_item.id {
+                        let _ = std::mem::replace(item, updated_item);
+                        break;
+                    }
+                }
+            });
+        }
+        modal_controller.close();
+    };
+
     let on_new_item_action = move |creation: Option<(CreationMode, Item)>| {
         if let Some((mode, new_item)) = creation {
+            new_items.update(|v| {
+                v.push(new_item.clone());
+            });
             match mode {
                 CreationMode::CreateAndEdit => modal_controller.open(view! {cx,
                     <EditItemModal
@@ -332,6 +366,15 @@ pub fn Pantry(cx: Scope) -> impl IntoView {
         });
     };
 
+    let on_edit_new_item_click = move |item: Item| {
+        modal_controller.open(view! {cx,
+            <EditItemModal
+                item=item
+                on_action=on_edit_new_item_action
+            />
+        });
+    };
+
     let on_new_filters = move |new_filters| {
         filters.update(|v| {
             *v = new_filters;
@@ -357,42 +400,78 @@ pub fn Pantry(cx: Scope) -> impl IntoView {
                 <button on:click=on_locations_click class="btn join-item btn-neutral">"Locations"</button>
             </div>
         </div>
+        <Show when=move || !new_items.get().is_empty() fallback=move |_| view!{cx, <></>}>
+            <div class="rounded bg-base-200 p-4 mb-2">
+                <h2 class="text-2xl font-bold mb-4">"New Items"</h2>
+                <div class="rounded bg-base-100 p-4">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th></th>
+                                <th>"Name"</th>
+                                <th>"Expiry"</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        {move || {
+                            // NOTE "For" component not used as it will not re-render on item edit
+                            new_items.get().into_iter().map(|item|{
+                                view!{cx,
+                                    <PantryItemRow
+                                        item=item.clone()
+                                        edit_action={
+                                            let item = item.clone();
+                                            move || on_edit_new_item_click(item.clone())
+                                        }
+                                        delete_action=move || delete_new_item.dispatch(item.id.clone())
+                                    />
+                                }
+                            }).collect_view(cx)
+                        }}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </Show>
         <div class="rounded bg-base-200 p-4">
             <PantryFilterPanel filters=filters on_change=on_new_filters />
             <div class="divider" />
-            <table class="table bg-base-100 mb-4">
-                <thead>
-                    <tr>
-                        <th></th>
-                        <th>"Name"</th>
-                        <th>"Expiry"</th>
-                        <th></th>
-                    </tr>
-                </thead>
-                <tbody>
-                {move || {
-                    // NOTE "For" component not used as it will not re-render on item edit
-                    items.get().into_iter().map(|item|{
-                        view!{cx,
-                            <PantryItemRow
-                                item=item.clone()
-                                edit_action={
-                                    let item = item.clone();
-                                    move || on_edit_item_click(item.clone())
-                                }
-                                delete_action=move || delete_item.dispatch(item.id.clone())
-                            />
-                        }
-                    }).collect_view(cx)
-                }}
-                </tbody>
-            </table>
-            <BufferedPageLoader
-                items_state=loading_items_state
-                items_per_page=Signal::derive(cx, move || filters.get().per_page)
-                load_more_action=on_load_more
-                retry_action=on_retry
-            />
+            <div class="rounded bg-base-100 p-4 mb-4">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th></th>
+                            <th>"Name"</th>
+                            <th>"Expiry"</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    {move || {
+                        // NOTE "For" component not used as it will not re-render on item edit
+                        items.get().into_iter().map(|item|{
+                            view!{cx,
+                                <PantryItemRow
+                                    item=item.clone()
+                                    edit_action={
+                                        let item = item.clone();
+                                        move || on_edit_item_click(item.clone())
+                                    }
+                                    delete_action=move || delete_item.dispatch(item.id.clone())
+                                />
+                            }
+                        }).collect_view(cx)
+                    }}
+                    </tbody>
+                </table>
+                <BufferedPageLoader
+                    items_state=loading_items_state
+                    items_per_page=Signal::derive(cx, move || filters.get().per_page)
+                    load_more_action=on_load_more
+                    retry_action=on_retry
+                />
+            </div>
         </div>
     }
 }
