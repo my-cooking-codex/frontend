@@ -108,7 +108,7 @@ where
             </CollapsableBox>
             <button
                 type="submit"
-                class="btn btn-sm btn-wide shadow-lg mx-auto"
+                class="btn btn-sm btn-wide btn-neutral shadow-lg mx-auto"
             >
                 "Search"
             </button>
@@ -222,9 +222,14 @@ pub fn Recipes(cx: Scope) -> impl IntoView {
     };
 
     view! {cx,
-        <div class="rounded bg-base-200 p-4 mb-2 flex flex-col">
+        <div class="rounded bg-base-200 p-4 mb-2">
             <h1 class="text-3xl font-bold mb-4">"Recipes"</h1>
-            <button class="btn btn-wide shadow-lg mx-auto" on:click=on_new_recipe_click>"New Recipe"</button>
+            <div class="join shadow-lg">
+                <button
+                    on:click=on_new_recipe_click
+                    class="btn btn-neutral shadow-lg join-item"
+                >"New Recipe"</button>
+            </div>
         </div>
         <div class="p-4 rounded bg-base-200">
             <RecipesFilterPanel filters=filters.read_only() update_filters=on_new_filters />

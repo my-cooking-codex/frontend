@@ -140,7 +140,7 @@ where
             </CollapsableBox>
             <button
                 type="submit"
-                class="btn btn-sm btn-wide shadow-lg mx-auto"
+                class="btn btn-sm btn-wide btn-neutral shadow-lg mx-auto"
             >
                 "Search"
             </button>
