@@ -11,16 +11,16 @@ members = [
 [dependencies]
 mcc-frontend-core = { path = "./crates/core" }
 mcc-frontend-types = { path = "./crates/types" }
-leptos = { version = "0.4.6", features = ["csr"] }
-leptos_router = { version = "0.4.6", features = ["csr"] }
+leptos = { version = "0.4.10", features = ["csr"] }
+leptos_router = { version = "0.4.10", features = ["csr"] }
 log = "0.4"
 console_log = { version = "1", features = ["color"], optional = true }
-console_error_panic_hook = "0.1.7"
+console_error_panic_hook = "0.1"
 url = "2.3"
 web-sys = { version = "0.3", features = ["File", "HtmlInputElement"] }
 wasm-bindgen = "0.2"
 regex = "1.7"
-chrono = "0.4.26"
+chrono = "0.4"
 
 [features]
 default = ["console_log"]
