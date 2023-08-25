@@ -58,12 +58,14 @@ where
                         <input
                             prop:value=move || info.get().yields.unwrap_or_default().value
                             on:input=move |ev| {
-                                info.update(|info| {
-                                    info.yields = Some(InfoYields {
-                                        value: event_target_value(&ev).parse().unwrap_or(0),
-                                        unit_type: info.yields.clone().unwrap_or_default().unit_type,
-                                    });
-                                })
+                                if let Ok(value) = event_target_value(&ev).parse() {
+                                    info.update(|info| {
+                                        info.yields = Some(InfoYields {
+                                            value,
+                                            unit_type: info.yields.clone().unwrap_or_default().unit_type,
+                                        });
+                                    })
+                                }
                             }
                             type="number"
                             class="input input-bordered w-24 join-item"

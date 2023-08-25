@@ -131,10 +131,13 @@ where
                     <span class="label">"Quantity"</span>
                     <input
                         prop:value=move || item.get().quantity
-                        on:input=move |ev| item.update(|v| v.quantity = event_target_value(&ev).parse().unwrap())
+                        on:input=move |ev| {
+                            if let Ok(value) = event_target_value(&ev).parse() {
+                                item.update(|v| v.quantity = value)
+                            }
+                        }
                         type="number"
                         class="input input-bordered w-full"
-                        placeholder="e.g. Pizza"
                         required=true
                         min=1
                     />
