@@ -287,7 +287,7 @@ pub fn Pantry(cx: Scope) -> impl IntoView {
     let on_edit_item_action = move |item: Option<Item>| {
         if let Some(updated_item) = item {
             items.update(|items| {
-                for item in items.into_iter() {
+                for item in items.iter_mut() {
                     if item.id == updated_item.id {
                         let _ = std::mem::replace(item, updated_item);
                         break;
@@ -301,7 +301,7 @@ pub fn Pantry(cx: Scope) -> impl IntoView {
     let on_edit_new_item_action = move |item: Option<Item>| {
         if let Some(updated_item) = item {
             new_items.update(|items| {
-                for item in items.into_iter() {
+                for item in items.iter_mut() {
                     if item.id == updated_item.id {
                         let _ = std::mem::replace(item, updated_item);
                         break;

@@ -113,7 +113,7 @@ impl FromStr for Fraction {
             };
 
         if let Some(whole) = whole {
-            numerator = whole * denominator + numerator;
+            numerator += whole * denominator;
         }
 
         Ok(Self {

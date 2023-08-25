@@ -34,7 +34,7 @@ where
     );
 
     let new_item = create_action(cx, move |mode: &CreationMode| {
-        let mode = mode.clone();
+        let mode = *mode;
         let api = api.get_untracked().expect("api expected to be set");
         let name = name.get_untracked();
         let location_id = location_id.get_untracked();

@@ -65,20 +65,16 @@ where
                             {positive_text}
                         </button>
                         {
-                            if let Some(positive_secondary_text) = positive_secondary_text {
-                                Some(view!{cx,
-                                    <button
-                                        on:click=move |_| on_positive_secondary()
-                                        type="button"
-                                        class="btn btn-secondary join-item"
-                                        class:loading=move || loading.get()
-                                    >
-                                        {positive_secondary_text}
-                                    </button>
-                                })
-                            } else {
-                                None
-                            }
+                            positive_secondary_text.map(|positive_secondary_text| view!{cx,
+                                <button
+                                    on:click=move |_| on_positive_secondary()
+                                    type="button"
+                                    class="btn btn-secondary join-item"
+                                    class:loading=move || loading.get()
+                                >
+                                    {positive_secondary_text}
+                                </button>
+                            })
                         }
                         <button
                             on:click=move |_| on_negative()
