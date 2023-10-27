@@ -2,7 +2,6 @@ use leptos::*;
 
 #[component]
 pub fn ModalNeutral<F>(
-    cx: Scope,
     #[prop(into)] title: String,
     #[prop(into)] close_text: String,
     #[prop(into)] loading: Signal<bool>,
@@ -12,11 +11,11 @@ pub fn ModalNeutral<F>(
 where
     F: Fn() + 'static,
 {
-    view! {cx,
+    view! {
         <div class="modal modal-open">
             <div class="modal-box">
                 <span class="font-bold text-lg mb-3">{title}</span>
-                {children(cx)}
+                {children()}
                 <div class="modal-action">
                     <button
                         on:click=move |_| on_close()
@@ -34,7 +33,6 @@ where
 
 #[component]
 pub fn ModalFormBase<P, S, N>(
-    cx: Scope,
     #[prop(into)] title: String,
     #[prop(into)] positive_text: String,
     #[prop(into, optional)] positive_secondary_text: Option<String>,
@@ -50,11 +48,11 @@ where
     S: Fn() + 'static,
     N: Fn() + 'static,
 {
-    view! {cx,
+    view! {
         <div class="modal modal-open">
             <form class="modal-box" on:submit=move |event| { event.prevent_default(); on_positive(); }>
                 <span class="font-bold text-lg mb-3">{title}</span>
-                {children(cx)}
+                {children()}
                 <div class="modal-action">
                     <div class="join">
                         <button
@@ -65,7 +63,7 @@ where
                             {positive_text}
                         </button>
                         {
-                            positive_secondary_text.map(|positive_secondary_text| view!{cx,
+                            positive_secondary_text.map(|positive_secondary_text| view!{
                                 <button
                                     on:click=move |_| on_positive_secondary()
                                     type="button"
@@ -93,7 +91,6 @@ where
 
 #[component]
 pub fn ModalSaveCancel<S, C>(
-    cx: Scope,
     #[prop(into)] title: String,
     #[prop(into)] loading: Signal<bool>,
     on_save: S,
@@ -104,7 +101,7 @@ where
     S: Fn() + 'static,
     C: Fn() + 'static,
 {
-    view! {cx,
+    view! {
         <ModalFormBase
             title={title}
             positive_text="Save"
@@ -114,14 +111,13 @@ where
             on_positive_secondary=||{}
             on_negative={on_cancel}
         >
-            {children(cx)}
+            {children()}
         </ModalFormBase>
     }
 }
 
 #[component]
 pub fn ModalCreateCancel<S, C>(
-    cx: Scope,
     #[prop(into)] title: String,
     #[prop(into)] loading: Signal<bool>,
     on_creation: S,
@@ -132,7 +128,7 @@ where
     S: Fn() + 'static,
     C: Fn() + 'static,
 {
-    view! {cx,
+    view! {
         <ModalFormBase
             title={title}
             positive_text="Create"
@@ -142,7 +138,7 @@ where
             on_positive_secondary=||{}
             on_negative={on_cancel}
         >
-            {children(cx)}
+            {children()}
         </ModalFormBase>
     }
 }
@@ -155,7 +151,6 @@ pub enum CreationMode {
 
 #[component]
 pub fn ModalCreateWithModeCancel<S, C>(
-    cx: Scope,
     #[prop(into)] title: String,
     #[prop(into)] loading: Signal<bool>,
     on_creation: S,
@@ -166,7 +161,7 @@ where
     S: Fn(CreationMode) + 'static + Copy,
     C: Fn() + 'static,
 {
-    view! {cx,
+    view! {
         <ModalFormBase
             title={title}
             positive_text="Create"
@@ -177,7 +172,7 @@ where
             on_positive_secondary=move || on_creation(CreationMode::CreateAndEdit)
             on_negative={on_cancel}
         >
-            {children(cx)}
+            {children()}
         </ModalFormBase>
     }
 }

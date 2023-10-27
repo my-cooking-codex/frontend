@@ -17,16 +17,16 @@ impl Stat {
 }
 
 #[component]
-pub fn Stats(cx: Scope, stats: Vec<Stat>) -> impl IntoView {
-    view! {cx,
+pub fn Stats(stats: Vec<Stat>) -> impl IntoView {
+    view! {
         <div class="stats stats-vertical sm:stats-horizontal shadow">
                 {stats.into_iter().map(|stat| {
-                    view! {cx,
+                    view! {
                         <div class="stat place-items-center">
                             <div class="stat-title">{stat.title}</div>
                             <div class="stat-value">{stat.value}</div>
                             {
-                                stat.description.as_ref().map(|description| view! {cx, <div class="stat-desc">{description}</div>})
+                                stat.description.as_ref().map(|description| view! { <div class="stat-desc">{description}</div>})
                             }
                         </div>
                     }

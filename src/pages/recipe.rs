@@ -14,21 +14,21 @@ use crate::{
 use mcc_frontend_types::{recipe::Recipe, Fraction, HourMinuteSecond};
 
 #[component]
-fn RecipeContent(cx: Scope, recipe: Recipe) -> impl IntoView {
-    let toasts = use_toasts(cx);
-    let modal_controller = use_modal_controller(cx);
-    let CurrentApi { api, .. } = use_api(cx);
-    let CurrentLogin { login, set_login } = use_login(cx);
+fn RecipeContent(recipe: Recipe) -> impl IntoView {
+    let toasts = use_toasts();
+    let modal_controller = use_modal_controller();
+    let CurrentApi { api, .. } = use_api();
+    let CurrentLogin { login, set_login } = use_login();
     let media_url = move || login.get().expect("expected login to exist").media_url;
-    let recipe = create_rw_signal(cx, recipe);
-    let edit_mode = create_rw_signal(cx, false);
+    let recipe = create_rw_signal(recipe);
+    let edit_mode = create_rw_signal(false);
 
-    let delete_action = create_action(cx, move |_: &()| async move {
-        let navigator = use_navigate(cx);
+    let delete_action = create_action(move |_: &()| async move {
+        let navigator = use_navigate();
         let api = api.get().expect("expected api to exist");
         match api.delete_recipe(&recipe.get().id).await {
             Ok(_) => {
-                navigator("/recipes", Default::default()).unwrap();
+                navigator("/recipes", Default::default());
                 true
             }
             Err(err) => {
@@ -107,121 +107,121 @@ fn RecipeContent(cx: Scope, recipe: Recipe) -> impl IntoView {
 
     let on_edit_labels_click = move |_| {
         modal_controller.open(
-            view! {cx,
+            view! {
                     <EditLabelsModal
                         id=recipe.get().id
                         labels=recipe.get().labels
                         on_action=on_labels_edit_action
                     />
             }
-            .into_view(cx),
+            .into_view(),
         );
     };
 
     let on_edit_title_click = move |_| {
         modal_controller.open(
-            view! {cx,
+            view! {
                     <EditTitleModal
                         id=recipe.get().id
                         title=recipe.get().title
                         on_action=on_title_edit_action
                     />
             }
-            .into_view(cx),
+            .into_view(),
         );
     };
 
     let on_edit_image_click = move |_| {
         modal_controller.open(
-            view! {cx,
+            view! {
                     <EditImageModal
                         id=recipe.get().id
                         image_id=recipe.get().image_id
                         on_action=on_image_edit_action
                     />
             }
-            .into_view(cx),
+            .into_view(),
         );
     };
 
     let on_edit_info_click = move |_| {
         modal_controller.open(
-            view! {cx,
+            view! {
                     <EditInfoModal
                         id=recipe.get().id
                         info=recipe.get().info
                         on_action=on_info_edit_action
                     />
             }
-            .into_view(cx),
+            .into_view(),
         );
     };
 
     let on_edit_description_click = move |_| {
         modal_controller.open(
-            view! {cx,
+            view! {
                     <EditDescriptionModal
                         id=recipe.get().id
                         description=recipe.get().short_description.unwrap_or_default()
                         on_action=on_description_edit_action
                     />
             }
-            .into_view(cx),
+            .into_view(),
         );
     };
 
     let on_edit_long_description_click = move |_| {
         modal_controller.open(
-            view! {cx,
+            view! {
                     <EditLongDescriptionModal
                         id=recipe.get().id
                         description=recipe.get().long_description.unwrap_or_default()
                         on_action=on_long_description_edit_action
                     />
             }
-            .into_view(cx),
+            .into_view(),
         );
     };
 
     let on_edit_ingredients_click = move |_| {
         modal_controller.open(
-            view! {cx,
+            view! {
                     <EditIngredientsModal
                         id=recipe.get().id
                         ingredients=recipe.get().ingredients
                         on_action=on_ingredients_edit_action
                     />
             }
-            .into_view(cx),
+            .into_view(),
         );
     };
 
     let on_edit_steps_click = move |_| {
         modal_controller.open(
-            view! {cx,
+            view! {
                     <EditStepsModal
                         id=recipe.get().id
                         steps=recipe.get().steps
                         on_action=on_steps_edit_action
                     />
             }
-            .into_view(cx),
+            .into_view(),
         );
     };
 
-    view! {cx,
+    view! {
         // image
         <div class="mb-4 relative h-64">
             {move || {
                 if let Some(image_id) = recipe.get().image_id.as_ref() {
-                    view!{cx,
+                    view!{
                         <img
                             class="object-cover w-full h-full rounded-md"
                             src={format!("{}/recipe-image/{}", media_url(), image_id)}
                         />
                     }.into_any()
                 } else {
-                    view!{cx, <div class="w-full h-full bg-neutral rounded"></div>}.into_any()
+                    view!{ <div class="w-full h-full bg-neutral rounded"></div>}.into_any()
                 }
             }}
             <div class="flex items-center absolute bottom-0 left-0 p-2 w-full bg-base-300/[.8] backdrop-blur-sm rounded-b-md">
@@ -230,7 +230,7 @@ fn RecipeContent(cx: Scope, recipe: Recipe) -> impl IntoView {
                         whitespace-nowrap overflow-hidden text-ellipsis py-2">
                     {move || recipe.get().title}
                 </h1>
-                <Show when=move || edit_mode.get() fallback=|_| ()>
+                <Show when=move || edit_mode.get()>
                     <div class="join">
                         <button on:click=on_edit_title_click class="btn join-item">"Edit"</button>
                         <button on:click=on_edit_image_click class="btn join-item">"Edit Image"</button>
@@ -272,7 +272,7 @@ fn RecipeContent(cx: Scope, recipe: Recipe) -> impl IntoView {
         <div class="mb-4 p-4 rounded bg-base-200">
             <div class="flex mb-2">
                 <h2 class="text-xl font-bold mr-auto">"Info"</h2>
-                <Show when=move || edit_mode.get() fallback=|_| ()>
+                <Show when=move || edit_mode.get()>
                     <button on:click=on_edit_info_click class="btn shadow-lg">"Edit"</button>
                 </Show>
             </div>
@@ -280,9 +280,9 @@ fn RecipeContent(cx: Scope, recipe: Recipe) -> impl IntoView {
                 <tbody>
                     {move || {
                         let info = &recipe.get().info;
-                        view!{cx,
+                        view!{
                             {if let Some(v) = &info.yields {
-                                view!{cx,
+                                view!{
                                     <tr class="text-center">
                                         <th>{&v.unit_type}</th>
                                         <th>"Freezable"</th>
@@ -290,7 +290,7 @@ fn RecipeContent(cx: Scope, recipe: Recipe) -> impl IntoView {
                                     </tr>
                                 }
                             } else {
-                                view!{cx,
+                                view!{
                                     <tr class="text-center">
                                         <th>"Servings"</th>
                                         <th>"Freezable"</th>
@@ -320,7 +320,7 @@ fn RecipeContent(cx: Scope, recipe: Recipe) -> impl IntoView {
             {move || {
                 if let Some(source) = recipe.get().info.source {
                     if !source.is_empty() {
-                        return Some(view!{cx, <p class="text-sm my-2">"Source: " {source}</p>});
+                        return Some(view!{ <p class="text-sm my-2">"Source: " {source}</p>});
                     }
                 }
                 None
@@ -330,7 +330,7 @@ fn RecipeContent(cx: Scope, recipe: Recipe) -> impl IntoView {
         <div class="mb-4 p-4 rounded bg-base-200">
             <div class="flex mb-2">
                 <h2 class="text-xl font-bold mr-auto">"Description"</h2>
-                <Show when=move || edit_mode.get() fallback=|_| ()>
+                <Show when=move || edit_mode.get()>
                     <button on:click=on_edit_description_click class="btn shadow-lg">"Edit"</button>
                 </Show>
             </div>
@@ -340,7 +340,7 @@ fn RecipeContent(cx: Scope, recipe: Recipe) -> impl IntoView {
         <div class="mb-4 p-4 rounded bg-base-200">
             <div class="flex mb-2">
                 <h2 class="text-xl font-bold mr-auto">"Notes"</h2>
-                <Show when=move || edit_mode.get() fallback=|_| ()>
+                <Show when=move || edit_mode.get()>
                     <button on:click=on_edit_long_description_click class="btn shadow-lg">"Edit"</button>
                 </Show>
             </div>
@@ -352,7 +352,7 @@ fn RecipeContent(cx: Scope, recipe: Recipe) -> impl IntoView {
             <div class="basis-full md:basis-3/4 lg:basis-11/12 p-4 rounded bg-base-200">
                 <div class="flex mb-2">
                     <h2 class="text-xl font-bold mr-auto">"Ingredients"</h2>
-                    <Show when=move || edit_mode.get() fallback=|_| ()>
+                    <Show when=move || edit_mode.get()>
                         <button on:click=on_edit_ingredients_click class="btn shadow-lg">"Edit"</button>
                     </Show>
                 </div>
@@ -367,7 +367,7 @@ fn RecipeContent(cx: Scope, recipe: Recipe) -> impl IntoView {
                     <tbody>
                         {move || {
                             recipe.get().ingredients.iter().map(|ingredient| {
-                                view!{cx,
+                                view!{
                                     <tr>
                                         <td class="whitespace-normal">
                                             {format!("{} {}", Fraction::from(ingredient.amount), {&ingredient.unit_type})}
@@ -385,14 +385,14 @@ fn RecipeContent(cx: Scope, recipe: Recipe) -> impl IntoView {
             <div class="w-full p-4 rounded bg-base-200">
                 <div class="flex mb-2">
                     <h2 class="text-xl font-bold mr-auto">"Steps"</h2>
-                    <Show when=move || edit_mode.get() fallback=|_| ()>
+                    <Show when=move || edit_mode.get()>
                         <button on:click=on_edit_steps_click class="btn shadow-lg">"Edit"</button>
                     </Show>
                 </div>
                 <div class="flex flex-col gap-2">
                     {move || {
                         recipe.get().steps.into_iter().enumerate().map(|(i, step)| {
-                            view!{cx,
+                            view!{
                                 <CollapsableBox
                                     title={step.title.unwrap_or_else(|| format!("Step {}", i+1))}
                                     open=true
@@ -410,16 +410,15 @@ fn RecipeContent(cx: Scope, recipe: Recipe) -> impl IntoView {
 }
 
 #[component]
-pub fn RecipePage(cx: Scope) -> impl IntoView {
-    let params = use_params_map(cx);
-    let id = Signal::derive(cx, move || params.get().get("id").cloned());
+pub fn RecipePage() -> impl IntoView {
+    let params = use_params_map();
+    let id = Signal::derive(move || params.get().get("id").cloned());
 
-    let toasts = use_toasts(cx);
-    let CurrentApi { api, .. } = use_api(cx);
-    let CurrentLogin { set_login, .. } = use_login(cx);
+    let toasts = use_toasts();
+    let CurrentApi { api, .. } = use_api();
+    let CurrentLogin { set_login, .. } = use_login();
 
     let recipe = create_resource(
-        cx,
         || {},
         move |_| async move {
             let api = api.get_untracked().expect("api expected to exist");
@@ -435,16 +434,16 @@ pub fn RecipePage(cx: Scope) -> impl IntoView {
         },
     );
 
-    view! { cx,
+    view! {
         {move || {
-            if let Some(recipe) = recipe.read(cx) {
+            if let Some(recipe) = recipe.get() {
                 if let Some(recipe) = recipe {
-                    view! {cx, <><RecipeContent recipe={recipe} /></>}
+                    view! { <><RecipeContent recipe={recipe} /></>}
                 } else {
-                    view! {cx, <><div>"Failed To Load :("</div></>}
+                    view! { <><div>"Failed To Load :("</div></>}
                 }
             } else {
-                view! {cx, <><div>"Loading..."</div></>}
+                view! { <><div>"Loading..."</div></>}
             }
         }}
     }

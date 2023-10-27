@@ -9,17 +9,16 @@ use crate::{
 };
 
 #[component]
-pub fn NewItemModal<F>(cx: Scope, on_action: F) -> impl IntoView
+pub fn NewItemModal<F>(on_action: F) -> impl IntoView
 where
     F: Fn(Option<(CreationMode, Item)>) + 'static + Copy,
 {
-    let toasts = use_toasts(cx);
-    let CurrentApi { api, .. } = use_api(cx);
-    let name = create_rw_signal(cx, String::default());
-    let location_id = create_rw_signal(cx, String::default());
+    let toasts = use_toasts();
+    let CurrentApi { api, .. } = use_api();
+    let name = create_rw_signal(String::default());
+    let location_id = create_rw_signal(String::default());
 
     let locations = create_resource(
-        cx,
         || {},
         move |_| async move {
             let api = api.get_untracked().expect("api expected to be set");
@@ -33,7 +32,7 @@ where
         },
     );
 
-    let new_item = create_action(cx, move |mode: &CreationMode| {
+    let new_item = create_action(move |mode: &CreationMode| {
         let mode = *mode;
         let api = api.get_untracked().expect("api expected to be set");
         let name = name.get_untracked();
@@ -57,11 +56,10 @@ where
         }
     });
 
-    let global_loading = Signal::derive(cx, move || {
-        new_item.pending().get() || locations.loading().get()
-    });
+    let global_loading =
+        Signal::derive(move || new_item.pending().get() || locations.loading().get());
 
-    view! {cx,
+    view! {
         <ModalCreateWithModeCancel
             title="New Item"
             loading=global_loading
@@ -92,9 +90,9 @@ where
                     >
                         <option value="">"__Pick A Location__"</option>
                         {move || {
-                            locations.read(cx).unwrap_or_default().into_iter().map(|location| {
-                                view!{cx, <option value=location.id>{location.name}</option>}
-                            }).collect_view(cx)
+                            locations.get().unwrap_or_default().into_iter().map(|location| {
+                                view!{ <option value=location.id>{location.name}</option>}
+                            }).collect_view()
                         }}
                     </select>
                 </label>

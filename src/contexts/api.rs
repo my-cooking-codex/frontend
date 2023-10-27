@@ -9,8 +9,8 @@ pub struct CurrentApi {
 }
 
 impl CurrentApi {
-    pub fn new(cx: Scope) -> Self {
-        let CurrentLogin { login, .. } = use_login(cx);
+    pub fn new() -> Self {
+        let CurrentLogin { login, .. } = use_login();
 
         let api = move || {
             let login = login.get();
@@ -18,11 +18,11 @@ impl CurrentApi {
         };
 
         Self {
-            api: Signal::derive(cx, api),
+            api: Signal::derive(api),
         }
     }
 }
 
-pub fn use_api(cx: Scope) -> CurrentApi {
-    use_context::<CurrentApi>(cx).expect("unable to get current api context")
+pub fn use_api() -> CurrentApi {
+    use_context::<CurrentApi>().expect("unable to get current api context")
 }

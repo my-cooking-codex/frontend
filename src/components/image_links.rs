@@ -10,20 +10,20 @@ pub struct ImageLinkItem {
 }
 
 #[component]
-fn ImageLinkGridItem(cx: Scope, item: ImageLinkItem) -> impl IntoView {
-    view! {cx,
+fn ImageLinkGridItem(item: ImageLinkItem) -> impl IntoView {
+    view! {
         <A
             href={item.href}
             class="bg-base-100 shadow-xl aspect-square w-full relative rounded-md">
             {move || {
                 if let Some(image_src) = &item.image_src {
-                    view! {cx,
+                    view! {
                         <img class="object-cover w-full h-full rounded-lg hover:brightness-50 hover:duration-200"
                             src={image_src}
                         />
                     }.into_any()
                 } else {
-                    view! {cx, <div
+                    view! { <div
                         class="w-full h-full rounded-md hover:bg-neutral-focus hover:duration-200">
                         </div>
                     }.into_any()
@@ -39,13 +39,13 @@ fn ImageLinkGridItem(cx: Scope, item: ImageLinkItem) -> impl IntoView {
 }
 
 #[component]
-pub fn ImageLinksBox(cx: Scope, items: ReadSignal<Vec<ImageLinkItem>>) -> impl IntoView {
-    view! {cx,
+pub fn ImageLinksBox(items: ReadSignal<Vec<ImageLinkItem>>) -> impl IntoView {
+    view! {
         <div class="grid gap-4 grid-cols-1 md:grid-cols-3 lg:grid-cols-5 rounded p-3 bg-base-200">
             <For
                 each=move || items.get()
                 key=move |item| item.key.to_owned()
-                view=move |cx, item: ImageLinkItem| view!{cx,
+                children=move |item: ImageLinkItem| view!{
                     <ImageLinkGridItem item={item}/>
                 }
             />

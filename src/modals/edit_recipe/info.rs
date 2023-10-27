@@ -11,15 +11,15 @@ use mcc_frontend_types::{
 };
 
 #[component]
-pub fn EditInfoModal<F>(cx: Scope, id: String, info: Info, on_action: F) -> impl IntoView
+pub fn EditInfoModal<F>(id: String, info: Info, on_action: F) -> impl IntoView
 where
     F: Fn(Option<Info>) + 'static + Copy,
 {
-    let toasts = use_toasts(cx);
-    let CurrentApi { api, .. } = use_api(cx);
-    let info = create_rw_signal(cx, info);
+    let toasts = use_toasts();
+    let CurrentApi { api, .. } = use_api();
+    let info = create_rw_signal(info);
 
-    let update_recipe = create_action(cx, move |_: &()| {
+    let update_recipe = create_action(move |_: &()| {
         let id = id.clone();
         let info = info.get_untracked();
         let api = api.get_untracked().expect("api expected to be set");
@@ -42,7 +42,7 @@ where
         }
     });
 
-    view! {cx,
+    view! {
         <ModalSaveCancel
             title="Edit Info"
             loading=update_recipe.pending()
@@ -114,13 +114,13 @@ where
                 <div class="form-control">
                     <span class="mb-2">"Prep Time"</span>
                     <HmsInput
-                        value=Signal::derive(cx, move || HourMinuteSecond::from_secs(info.get().prep_time))
+                        value=Signal::derive( move || HourMinuteSecond::from_secs(info.get().prep_time))
                         on_input=move |value| info.update(|info| info.prep_time = value.as_secs())
                         required=true
                     />
                     <span class="my-2">"Cook Time"</span>
                     <HmsInput
-                        value=Signal::derive(cx, move || HourMinuteSecond::from_secs(info.get().cook_time))
+                        value=Signal::derive( move || HourMinuteSecond::from_secs(info.get().cook_time))
                         on_input=move |value| info.update(|info| info.cook_time = value.as_secs())
                         required=true
                     />

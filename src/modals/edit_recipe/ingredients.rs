@@ -13,17 +13,17 @@ enum EditIngredientEvent {
 }
 
 #[component]
-fn EditIngredient<F>(cx: Scope, index: usize, ingredient: Ingredient, on_event: F) -> impl IntoView
+fn EditIngredient<F>(index: usize, ingredient: Ingredient, on_event: F) -> impl IntoView
 where
     F: Fn(usize, EditIngredientEvent) + 'static + Copy,
 {
-    let ingredient = create_rw_signal(cx, ingredient);
+    let ingredient = create_rw_signal(ingredient);
 
-    create_effect(cx, move |_| {
+    create_effect(move |_| {
         on_event(index, EditIngredientEvent::Update(ingredient.get()));
     });
 
-    view! {cx,
+    view! {
         <div class="mb-4 p-4 rounded bg-base-200">
             <div class="grid grid-cols-[auto_3rem] gap-2 mb-2">
                 <input
@@ -93,7 +93,6 @@ where
 
 #[component]
 pub fn EditIngredientsModal<F>(
-    cx: Scope,
     id: String,
     ingredients: Vec<Ingredient>,
     on_action: F,
@@ -101,11 +100,11 @@ pub fn EditIngredientsModal<F>(
 where
     F: Fn(Option<Vec<Ingredient>>) + 'static + Copy,
 {
-    let toasts = use_toasts(cx);
-    let CurrentApi { api, .. } = use_api(cx);
-    let ingredients = create_rw_signal(cx, ingredients);
+    let toasts = use_toasts();
+    let CurrentApi { api, .. } = use_api();
+    let ingredients = create_rw_signal(ingredients);
 
-    let update_recipe = create_action(cx, move |_: &()| {
+    let update_recipe = create_action(move |_: &()| {
         let id = id.clone();
         let api = api.get_untracked().expect("api expected to be set");
         let ingredients = ingredients.get_untracked();
@@ -140,7 +139,7 @@ where
         }
     };
 
-    view! {cx,
+    view! {
         <ModalSaveCancel
             title="Edit Ingredients"
             loading=update_recipe.pending()
@@ -153,7 +152,7 @@ where
                 {move || {
                     let ingredients = ingredients.get();
                     ingredients.iter().enumerate().map(|(i, ingredient)| {
-                    view! {cx,
+                    view! {
                         <EditIngredient
                             index=i
                             ingredient=ingredient.clone()

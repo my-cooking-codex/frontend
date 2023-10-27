@@ -15,16 +15,15 @@ use crate::{
 };
 
 #[component]
-pub fn EditItemModal<F>(cx: Scope, item: Item, on_action: F) -> impl IntoView
+pub fn EditItemModal<F>(item: Item, on_action: F) -> impl IntoView
 where
     F: Fn(Option<Item>) + 'static + Copy,
 {
-    let toasts = use_toasts(cx);
-    let CurrentApi { api, .. } = use_api(cx);
-    let item = create_rw_signal(cx, item);
+    let toasts = use_toasts();
+    let CurrentApi { api, .. } = use_api();
+    let item = create_rw_signal(item);
 
     let locations = create_resource(
-        cx,
         || {},
         move |_| async move {
             let api = api.get_untracked().expect("api expected to be set");
@@ -39,7 +38,6 @@ where
     );
 
     let labels = create_resource(
-        cx,
         || {},
         move |_| async move {
             let api = api.get_untracked().expect("api expected to be set");
@@ -53,7 +51,7 @@ where
         },
     );
 
-    let save = create_action(cx, move |_: &()| {
+    let save = create_action(move |_: &()| {
         let api = api.get_untracked().expect("api expected to be set");
         let id = item.get_untracked().id.clone();
         let item = item.get_untracked();
@@ -83,11 +81,11 @@ where
         }
     });
 
-    let global_loading = Signal::derive(cx, move || {
+    let global_loading = Signal::derive(move || {
         locations.loading().get() || labels.loading().get() || save.pending().get()
     });
 
-    view! {cx,
+    view! {
         <ModalSaveCancel
             title="Edit Item"
             loading=global_loading
@@ -116,12 +114,12 @@ where
                         class="select select-bordered w-full"
                     >
                         {move || {
-                            locations.read(cx).unwrap_or_default().into_iter().map(|location| {
-                                view!{cx, <option
+                            locations.get().unwrap_or_default().into_iter().map(|location| {
+                                view!{ <option
                                     value=&location.id
                                     selected=move || item.get().location_id == location.id
                                 >{location.name}</option>}
-                            }).collect_view(cx)
+                            }).collect_view()
                         }}
                     </select>
                 </label>
@@ -183,9 +181,9 @@ where
                 <label>
                     <span class="label">"Labels"</span>
                     <LabelSelector
-                        labels=Signal::derive(cx, move || labels.read(cx).unwrap_or_default())
+                        labels=Signal::derive( move || labels.get().unwrap_or_default())
                         allow_new=true
-                        selected=Signal::derive(cx, move || HashSet::from_iter(item.get().labels.into_iter()) )
+                        selected=Signal::derive( move || HashSet::from_iter(item.get().labels.into_iter()) )
                         on_change=move |new_labels| item.update(|v| v.labels = new_labels.into_iter().collect())
                     />
                 </label>

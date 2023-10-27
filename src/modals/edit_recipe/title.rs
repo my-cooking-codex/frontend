@@ -7,15 +7,15 @@ use leptos::*;
 use mcc_frontend_types::recipe::UpdateRecipe;
 
 #[component]
-pub fn EditTitleModal<F>(cx: Scope, id: String, title: String, on_action: F) -> impl IntoView
+pub fn EditTitleModal<F>(id: String, title: String, on_action: F) -> impl IntoView
 where
     F: Fn(Option<String>) + 'static + Copy,
 {
-    let toasts = use_toasts(cx);
-    let CurrentApi { api, .. } = use_api(cx);
-    let title = create_rw_signal(cx, title);
+    let toasts = use_toasts();
+    let CurrentApi { api, .. } = use_api();
+    let title = create_rw_signal(title);
 
-    let update_title = create_action(cx, move |_: &()| {
+    let update_title = create_action(move |_: &()| {
         let id = id.clone();
         let title = title.get_untracked();
         let api = api.get_untracked().expect("api expected to be set");
@@ -38,7 +38,7 @@ where
         }
     });
 
-    view! {cx,
+    view! {
         <ModalSaveCancel
             title="Edit Title"
             loading=update_title.pending()

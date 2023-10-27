@@ -15,8 +15,8 @@ pub struct Toasts {
 }
 
 impl Toasts {
-    pub fn new(cx: Scope) -> Self {
-        let (toasts, set_toasts) = create_signal(cx, VecDeque::<Toast>::default());
+    pub fn new() -> Self {
+        let (toasts, set_toasts) = create_signal(VecDeque::<Toast>::default());
         Self { toasts, set_toasts }
     }
 
@@ -36,34 +36,34 @@ impl Toasts {
     }
 }
 
-pub fn use_toasts(cx: Scope) -> Toasts {
-    use_context::<Toasts>(cx).expect("unable to get current login context")
+pub fn use_toasts() -> Toasts {
+    use_context::<Toasts>().expect("unable to get current login context")
 }
 
 #[component]
-fn ToastRow(cx: Scope, #[prop(into)] toast: Toast) -> impl IntoView {
+fn ToastRow(#[prop(into)] toast: Toast) -> impl IntoView {
     {
         let toast = toast.clone();
         set_timeout(
             move || {
-                use_toasts(cx).remove(toast);
+                use_toasts().remove(toast);
             },
             Duration::from_secs(6),
         );
     }
-    view! {cx, <div class="alert alert-info"><span>{toast.message}</span></div>}
+    view! { <div class="alert alert-info"><span>{toast.message}</span></div>}
 }
 
 #[component]
-pub fn ToastsViewer(cx: Scope) -> impl IntoView {
-    let Toasts { toasts, .. } = use_toasts(cx);
+pub fn ToastsViewer() -> impl IntoView {
+    let Toasts { toasts, .. } = use_toasts();
 
-    view! {cx,
+    view! {
         <div class="toast toast-top toast-start z-[999]">
             // XXX should use a 'For' component here instead as it's more efficient,
             // but it requires a key, which toasts don't have
             {move || toasts.get().iter().map(|toast| {
-                view! {cx, <ToastRow toast={toast.clone()}/>}
+                view! { <ToastRow toast={toast.clone()}/>}
             }).collect::<Vec<_>>()}
         </div>
     }

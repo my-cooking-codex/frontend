@@ -5,10 +5,10 @@ use mcc_frontend_core::APP_TITLE;
 use crate::contexts::prelude::{use_login, CurrentLogin};
 
 #[component]
-fn DrawerHeader(cx: Scope) -> impl IntoView {
-    let CurrentLogin { login, .. } = use_login(cx);
+fn DrawerHeader() -> impl IntoView {
+    let CurrentLogin { login, .. } = use_login();
 
-    view! {cx,
+    view! {
         <div class="navbar bg-base-300/[.5] backdrop-blur-md shadow-[0_10px_15px_-3px_rgba(0,0,0,0.4)] sticky top-0 z-40">
             <div class="flex-none">
                 <label class="btn btn-square btn-ghost drawer-button lg:hidden" for="main-drawer">
@@ -21,9 +21,9 @@ fn DrawerHeader(cx: Scope) -> impl IntoView {
             <div class="flex-none">
                 {move || {
                     if login.get().is_none() {
-                        view!(cx, <A href="/login" class="btn btn-ghost">"Login"</A>)
+                        view!( <A href="/login" class="btn btn-ghost">"Login"</A>)
                     } else {
-                        view!(cx, <A href="/logout" class="btn btn-ghost">"Logout"</A>)
+                        view!( <A href="/logout" class="btn btn-ghost">"Logout"</A>)
                     }
                 }}
             </div>
@@ -46,25 +46,21 @@ impl DrawerLink {
 }
 
 #[component]
-pub fn Drawer(
-    cx: Scope,
-    #[prop(into)] links: Vec<DrawerLink>,
-    children: Children,
-) -> impl IntoView {
-    view! {cx,
+pub fn Drawer(#[prop(into)] links: Vec<DrawerLink>, children: Children) -> impl IntoView {
+    view! {
         <div class="drawer lg:drawer-open">
             <input id="main-drawer" type="checkbox" class="drawer-toggle" />
             <div class="drawer-content pb-8">
                 <DrawerHeader/>
                 <div class="pt-3 px-3">
-                    {children(cx)}
+                    {children()}
                 </div>
             </div>
             <div class="drawer-side z-50">
                 <label for="main-drawer" class="drawer-overlay"></label>
                 <ul class="menu gap-2 p-4 w-80 bg-base-300 h-full">
                     {links.into_iter().map(|link|{
-                        view!{cx, <li><A href={link.href} active_class="active" exact=true class="bg-base-200 dark:bg-base-100">{link.text}</A></li>}
+                        view!{ <li><A href={link.href} active_class="active" exact=true class="bg-base-200 dark:bg-base-100">{link.text}</A></li>}
                     }).collect::<Vec<_>>()}
                     <li class="mt-auto">
                         <a href="https://github.com/my-cooking-codex" target="_blank" rel="noopener noreferrer" class="text-sm block leading-relaxed">

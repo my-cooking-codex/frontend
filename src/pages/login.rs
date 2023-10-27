@@ -12,15 +12,15 @@ use mcc_frontend_core::{api::Api, APP_TITLE};
 use mcc_frontend_types::{Login, StoredLogin};
 
 #[component]
-pub fn Login(cx: Scope) -> impl IntoView {
-    let CurrentLogin { set_login, .. } = use_login(cx);
-    let toasts = use_toasts(cx);
+pub fn Login() -> impl IntoView {
+    let CurrentLogin { set_login, .. } = use_login();
+    let toasts = use_toasts();
 
-    let base_url = create_rw_signal::<Option<String>>(cx, location().origin().ok());
-    let (username, set_username) = create_signal(cx, String::default());
-    let (password, set_password) = create_signal(cx, String::default());
+    let base_url = create_rw_signal::<Option<String>>(location().origin().ok());
+    let (username, set_username) = create_signal(String::default());
+    let (password, set_password) = create_signal(String::default());
 
-    let is_loading = create_rw_signal(cx, false);
+    let is_loading = create_rw_signal(false);
 
     let fetch_token = move |base_url: String, details: Login| {
         async move {
@@ -32,7 +32,7 @@ pub fn Login(cx: Scope) -> impl IntoView {
             match api.post_login(&details).await {
                 Ok(token) => {
                     log::debug!("login successful, token will expire at: {:?}", token.expiry);
-                    cx.batch(move || {
+                    batch(move || {
                         set_login.set(Some(StoredLogin {
                             api_url,
                             media_url,
@@ -62,7 +62,7 @@ pub fn Login(cx: Scope) -> impl IntoView {
         }
     };
 
-    view! {cx,
+    view! {
         <div class="hero min-h-screen bg-base-200">
             <div class="hero-content text-center">
                 <div class="card flex-shrink-0 w-full max-w-md shadow-2xl bg-base-100">

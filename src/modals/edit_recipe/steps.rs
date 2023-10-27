@@ -14,17 +14,17 @@ enum EditStepEvent {
 }
 
 #[component]
-fn EditStep<F>(cx: Scope, index: usize, len: usize, step: Step, on_event: F) -> impl IntoView
+fn EditStep<F>(index: usize, len: usize, step: Step, on_event: F) -> impl IntoView
 where
     F: Fn(usize, EditStepEvent) + 'static + Copy,
 {
-    let step = create_rw_signal(cx, step);
+    let step = create_rw_signal(step);
 
-    create_effect(cx, move |_| {
+    create_effect(move |_| {
         on_event(index, EditStepEvent::Update(step.get()));
     });
 
-    view! {cx,
+    view! {
         <li class="mb-4 p-4 rounded bg-base-200">
             <div class="flex mb-2">
                 <input
@@ -44,9 +44,9 @@ where
                 <div class="join shadow-lg">
                     {
                         if index == 0 {
-                            view!{cx, <button type="button" class="btn btn-disabled join-item">"Up"</button>}
+                            view!{ <button type="button" class="btn btn-disabled join-item">"Up"</button>}
                         } else {
-                            view!{cx,
+                            view!{
                                 <button
                                     on:click=move |_| on_event(index, EditStepEvent::MoveUp)
                                     type="button"
@@ -58,9 +58,9 @@ where
                     }
                     {
                         if len == index+1 {
-                            view!{cx, <button type="button" class="btn btn-disabled join-item">"Down"</button>}
+                            view!{ <button type="button" class="btn btn-disabled join-item">"Down"</button>}
                         } else {
-                            view!{cx,
+                            view!{
                                 <button
                                     on:click=move |_| on_event(index, EditStepEvent::MoveDown)
                                     type="button"
@@ -90,15 +90,15 @@ where
 }
 
 #[component]
-pub fn EditStepsModal<F>(cx: Scope, id: String, steps: Vec<Step>, on_action: F) -> impl IntoView
+pub fn EditStepsModal<F>(id: String, steps: Vec<Step>, on_action: F) -> impl IntoView
 where
     F: Fn(Option<Vec<Step>>) + 'static + Copy,
 {
-    let toasts = use_toasts(cx);
-    let CurrentApi { api, .. } = use_api(cx);
-    let steps = create_rw_signal(cx, steps);
+    let toasts = use_toasts();
+    let CurrentApi { api, .. } = use_api();
+    let steps = create_rw_signal(steps);
 
-    let update_recipe = create_action(cx, move |_: &()| {
+    let update_recipe = create_action(move |_: &()| {
         let id = id.clone();
         let api = api.get_untracked().expect("api expected to be set");
         let steps = steps.get_untracked();
@@ -141,7 +141,7 @@ where
         }
     };
 
-    view! {cx,
+    view! {
         <ModalSaveCancel
             title="Edit Steps"
             loading=update_recipe.pending()
@@ -155,7 +155,7 @@ where
                     {move || {
                         let steps = steps.get();
                         steps.iter().enumerate().map(|(i, step)| {
-                            view!{cx, <EditStep
+                            view!{ <EditStep
                                 len=steps.len()
                                 index=i
                                 step=step.clone()

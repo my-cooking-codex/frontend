@@ -9,10 +9,10 @@ pub struct CurrentLogin {
 }
 
 impl CurrentLogin {
-    pub fn new(cx: Scope) -> Self {
-        let (login, set_login) = create_signal(cx, storage::read_login_token());
+    pub fn new() -> Self {
+        let (login, set_login) = create_signal(storage::read_login_token());
 
-        create_effect(cx, move |_| {
+        create_effect(move |_| {
             let new_login = login.get();
             match new_login {
                 Some(v) => storage::set_login_token(v),
@@ -24,6 +24,6 @@ impl CurrentLogin {
     }
 }
 
-pub fn use_login(cx: Scope) -> CurrentLogin {
-    use_context::<CurrentLogin>(cx).expect("unable to get current login context")
+pub fn use_login() -> CurrentLogin {
+    use_context::<CurrentLogin>().expect("unable to get current login context")
 }

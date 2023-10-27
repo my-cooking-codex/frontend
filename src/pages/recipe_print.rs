@@ -4,13 +4,13 @@ use leptos_router::use_params_map;
 use mcc_frontend_types::{recipe::Recipe, Fraction, HourMinuteSecond};
 
 #[component]
-fn RecipePrintContent(cx: Scope, recipe: Recipe) -> impl IntoView {
-    let CurrentLogin { login, .. } = use_login(cx);
+fn RecipePrintContent(recipe: Recipe) -> impl IntoView {
+    let CurrentLogin { login, .. } = use_login();
     let media_url = move || login.get().expect("expected login to exist").media_url;
 
-    view! {cx,
+    view! {
         {move || {
-                recipe.image_id.as_ref().map(|image_id| view!{cx,
+                recipe.image_id.as_ref().map(|image_id| view!{
                             <figure class="h-64 w-full mb-4">
                                 <img
                                     class="object-cover w-full h-full rounded"
@@ -26,9 +26,9 @@ fn RecipePrintContent(cx: Scope, recipe: Recipe) -> impl IntoView {
                 <tbody>
                     {
                         let info = &recipe.info;
-                        view!{cx,
+                        view!{
                             {if let Some(v) = &info.yields {
-                                view!{cx,
+                                view!{
                                     <tr class="text-center">
                                         <th>{&v.unit_type}</th>
                                         <th>"Freezable"</th>
@@ -36,7 +36,7 @@ fn RecipePrintContent(cx: Scope, recipe: Recipe) -> impl IntoView {
                                     </tr>
                                 }
                             } else {
-                                view!{cx,
+                                view!{
                                     <tr class="text-center">
                                         <th>"Servings"</th>
                                         <th>"Freezable"</th>
@@ -66,7 +66,7 @@ fn RecipePrintContent(cx: Scope, recipe: Recipe) -> impl IntoView {
             {
                 if let Some(source) = recipe.info.source {
                     if !source.is_empty() {
-                        Some(view!{cx, <p class="text-sm my-2">"Source: " {source}</p>})
+                        Some(view!{ <p class="text-sm my-2">"Source: " {source}</p>})
                     } else { None }
                 } else { None }
             }
@@ -92,7 +92,7 @@ fn RecipePrintContent(cx: Scope, recipe: Recipe) -> impl IntoView {
                 <tbody>
                     {
                         recipe.ingredients.iter().map(|ingredient| {
-                            view!{cx,
+                            view!{
                                 <tr>
                                     <td class="whitespace-normal">{format!("{} {}", Fraction::from(ingredient.amount), {&ingredient.unit_type})}</td>
                                     <td class="whitespace-normal">{&ingredient.name}</td>
@@ -109,7 +109,7 @@ fn RecipePrintContent(cx: Scope, recipe: Recipe) -> impl IntoView {
             <ul>
             {
                 recipe.steps.iter().enumerate().map(|(i, step)| {
-                    view!{cx,
+                    view!{
                         <li class="mb-2">
                             <h2 class="text-l font-bold mb-2">{&step.title.clone().unwrap_or_else(|| format!("Step {}", i+1))}</h2>
                             <pre class="whitespace-pre-line text-base font-sans">{&step.description}</pre>
@@ -123,13 +123,12 @@ fn RecipePrintContent(cx: Scope, recipe: Recipe) -> impl IntoView {
 }
 
 #[component]
-pub fn RecipePrint(cx: Scope) -> impl IntoView {
-    let params = use_params_map(cx);
-    let id = Signal::derive(cx, move || params.get().get("id").cloned());
-    let CurrentApi { api, .. } = use_api(cx);
+pub fn RecipePrint() -> impl IntoView {
+    let params = use_params_map();
+    let id = Signal::derive(move || params.get().get("id").cloned());
+    let CurrentApi { api, .. } = use_api();
 
     let recipe = create_resource(
-        cx,
         || {},
         move |_| async move {
             let api = api.get_untracked().expect("api expected to exist");
@@ -141,7 +140,7 @@ pub fn RecipePrint(cx: Scope) -> impl IntoView {
         },
     );
 
-    view! {cx,
+    view! {
         <div class="p-2" data-theme="light">
             <button
                 on:click=move |_| window().print().unwrap()
@@ -153,14 +152,14 @@ pub fn RecipePrint(cx: Scope) -> impl IntoView {
                 <kbd data-theme="light" class="kbd">"p"</kbd>
             </button>
             {move || {
-                if let Some(recipe) = recipe.read(cx) {
+                if let Some(recipe) = recipe.get() {
                     if let Some(recipe) = recipe {
-                        view!{cx, <><RecipePrintContent recipe=recipe/></>}
+                        view!{ <><RecipePrintContent recipe=recipe/></>}
                     } else {
-                        view!{cx, <><div>"Failed To Load :("</div></>}
+                        view!{ <><div>"Failed To Load :("</div></>}
                     }
                 } else {
-                    view!{cx, <><div>"Loading..."</div></>}
+                    view!{ <><div>"Loading..."</div></>}
                 }
             }}
         </div>

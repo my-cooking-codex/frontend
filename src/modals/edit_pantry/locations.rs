@@ -15,7 +15,6 @@ use crate::{
 
 #[component]
 fn LocationRow<D, E>(
-    cx: Scope,
     location: Location,
     loading: Signal<bool>,
     delete_callback: D,
@@ -25,12 +24,12 @@ where
     D: Fn(String) + 'static + Copy,
     E: Fn(Location) + 'static + Copy,
 {
-    let toasts = use_toasts(cx);
-    let CurrentApi { api, .. } = use_api(cx);
-    let editing = create_rw_signal(cx, false);
-    let location = create_rw_signal(cx, location);
+    let toasts = use_toasts();
+    let CurrentApi { api, .. } = use_api();
+    let editing = create_rw_signal(false);
+    let location = create_rw_signal(location);
 
-    let delete = create_action(cx, move |_: &()| {
+    let delete = create_action(move |_: &()| {
         let api = api.get_untracked().expect("api expected to exist");
         let id = location.get_untracked().id.clone();
         async move {
@@ -41,23 +40,20 @@ where
         }
     });
 
-    let save_edit = create_action(
-        cx,
-        move |update: &(String, SelectedUpdate<UpdateLocation>)| {
-            let api = api.get_untracked().expect("api expected to exist");
-            let update = update.clone();
-            async move {
-                match api.patch_pantry_location(&update.0, &update.1).await {
-                    Ok(_) => edit_callback(location.get_untracked()),
-                    Err(err) => {
-                        toasts.push(api_error_to_toast(&err, "updating pantry location"));
-                        // restore editing state (we want to indicate it did not save)
-                        editing.set(true);
-                    }
+    let save_edit = create_action(move |update: &(String, SelectedUpdate<UpdateLocation>)| {
+        let api = api.get_untracked().expect("api expected to exist");
+        let update = update.clone();
+        async move {
+            match api.patch_pantry_location(&update.0, &update.1).await {
+                Ok(_) => edit_callback(location.get_untracked()),
+                Err(err) => {
+                    toasts.push(api_error_to_toast(&err, "updating pantry location"));
+                    // restore editing state (we want to indicate it did not save)
+                    editing.set(true);
                 }
             }
-        },
-    );
+        }
+    });
 
     let toggle_editing = move |want_edit: bool| {
         if !want_edit && location.get_untracked().name.is_empty() {
@@ -79,16 +75,16 @@ where
         editing.set(want_edit);
     };
 
-    let global_loading = Signal::derive(cx, move || {
+    let global_loading = Signal::derive(move || {
         loading.get() || save_edit.pending().get() || delete.pending().get()
     });
 
-    view! {cx,
+    view! {
         <tr>
             <td>
                 <Show
                     when=move || editing.get()
-                    fallback=move |cx| view! {cx, <span>{&location.get().name}</span>}
+                    fallback=move || view! { <span>{&location.get().name}</span>}
                 >
                     <input
                         on:input=move |ev| location.update(|v| v.name = event_target_value(&ev))
@@ -136,16 +132,15 @@ where
 }
 
 #[component]
-pub fn LocationsModal<F>(cx: Scope, on_action: F) -> impl IntoView
+pub fn LocationsModal<F>(on_action: F) -> impl IntoView
 where
     F: Fn() + 'static,
 {
-    let toasts = use_toasts(cx);
-    let CurrentApi { api, .. } = use_api(cx);
-    let new_location = create_rw_signal(cx, CreateLocation::default());
+    let toasts = use_toasts();
+    let CurrentApi { api, .. } = use_api();
+    let new_location = create_rw_signal(CreateLocation::default());
 
     let locations = create_resource(
-        cx,
         || {},
         move |()| async move {
             let api = api.get_untracked().expect("api expected to exist");
@@ -156,7 +151,7 @@ where
         },
     );
 
-    let create = create_action(cx, move |new_location: &CreateLocation| {
+    let create = create_action(move |new_location: &CreateLocation| {
         let api = api.get_untracked().expect("api expected to exist");
         let new_location = new_location.clone();
         async move {
@@ -183,9 +178,8 @@ where
         })
     };
 
-    let global_loading = Signal::derive(cx, move || {
-        locations.loading().get() || create.pending().get()
-    });
+    let global_loading =
+        Signal::derive(move || locations.loading().get() || create.pending().get());
 
     let on_new_submit = move |ev: SubmitEvent| {
         ev.prevent_default();
@@ -195,7 +189,7 @@ where
         }
     };
 
-    view! {cx,
+    view! {
         <ModalNeutral
             title="Item Locations"
             close_text="Close"
@@ -234,10 +228,10 @@ where
                         </thead>
                         <tbody>
                         <For
-                            each=move || locations.read(cx).unwrap_or_default().into_values()
+                            each=move || locations.get().unwrap_or_default().into_values()
                             key=move |v| v.id.to_owned()
-                            view=move |cx, location: Location| {
-                                view!{cx, <LocationRow
+                            children=move |location: Location| {
+                                view!{ <LocationRow
                                     location=location.clone()
                                     loading=global_loading
                                     delete_callback=delete_callback

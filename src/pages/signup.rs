@@ -9,16 +9,16 @@ use mcc_frontend_core::{api::Api, APP_TITLE};
 use mcc_frontend_types::user::CreateUser;
 
 #[component]
-pub fn Signup(cx: Scope) -> impl IntoView {
-    let toasts = use_toasts(cx);
+pub fn Signup() -> impl IntoView {
+    let toasts = use_toasts();
 
-    let base_url = create_rw_signal::<Option<String>>(cx, location().origin().ok());
-    let (username, set_username) = create_signal(cx, String::default());
-    let (password, set_password) = create_signal(cx, String::default());
-    let (password_confirm, set_password_confirm) = create_signal(cx, String::default());
+    let base_url = create_rw_signal::<Option<String>>(location().origin().ok());
+    let (username, set_username) = create_signal(String::default());
+    let (password, set_password) = create_signal(String::default());
+    let (password_confirm, set_password_confirm) = create_signal(String::default());
 
-    let create_account = create_action(cx, move |args: &(String, CreateUser)| {
-        let navigator = use_navigate(cx);
+    let create_account = create_action(move |args: &(String, CreateUser)| {
+        let navigator = use_navigate();
         let (base_url, details) = args.to_owned();
         async move {
             let api_url = format!("{}/api", base_url);
@@ -28,7 +28,7 @@ pub fn Signup(cx: Scope) -> impl IntoView {
                     toasts.push(Toast {
                         message: "Account Created".to_owned(),
                     });
-                    navigator("/login", Default::default()).unwrap();
+                    navigator("/login", Default::default());
                 }
                 Err(err) => {
                     toasts.push(api_error_to_toast(&err, "creating account"));
@@ -52,7 +52,7 @@ pub fn Signup(cx: Scope) -> impl IntoView {
         }
     };
 
-    view! {cx,
+    view! {
         <div class="hero min-h-screen bg-base-200">
             <div class="hero-content text-center">
                 <div class="card flex-shrink-0 w-full max-w-md shadow-2xl bg-base-100">

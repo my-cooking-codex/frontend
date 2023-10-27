@@ -8,15 +8,15 @@ use crate::{
 };
 
 #[component]
-pub fn NewRecipeModal<F>(cx: Scope, on_action: F) -> impl IntoView
+pub fn NewRecipeModal<F>(on_action: F) -> impl IntoView
 where
     F: Fn(Option<String>) + 'static + Copy,
 {
-    let toasts = use_toasts(cx);
-    let CurrentApi { api, .. } = use_api(cx);
-    let title = create_rw_signal(cx, String::default());
+    let toasts = use_toasts();
+    let CurrentApi { api, .. } = use_api();
+    let title = create_rw_signal(String::default());
 
-    let new_recipe = create_action(cx, move |_: &()| {
+    let new_recipe = create_action(move |_: &()| {
         let api = api.get_untracked().expect("api expected to be set");
         let title = title.get_untracked();
         async move {
@@ -35,7 +35,7 @@ where
         }
     });
 
-    view! {cx,
+    view! {
         <ModalCreateCancel
             title="New Recipe"
             loading=new_recipe.pending()

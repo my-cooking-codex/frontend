@@ -22,16 +22,14 @@ use crate::{
 
 #[component]
 pub fn PantryFilterPanel<F>(
-    cx: Scope,
     #[prop(into)] filters: MaybeSignal<PantryFilter>,
     on_change: F,
 ) -> impl IntoView
 where
     F: Fn(PantryFilter) + 'static,
 {
-    let CurrentApi { api, .. } = use_api(cx);
+    let CurrentApi { api, .. } = use_api();
     let labels = create_resource(
-        cx,
         || {},
         move |()| async move {
             let api = api.get_untracked().expect("api expected to exist");
@@ -44,7 +42,6 @@ where
         },
     );
     let locations = create_resource(
-        cx,
         || {},
         move |()| async move {
             let api = api.get_untracked().expect("api expected to exist");
@@ -56,13 +53,13 @@ where
             }
         },
     );
-    let filters = create_rw_signal(cx, filters.get_untracked());
+    let filters = create_rw_signal(filters.get_untracked());
 
     let on_search_submission = move |ev: SubmitEvent| {
         ev.prevent_default();
         on_change(filters.get());
     };
-    view! {cx,
+    view! {
         <form on:submit=on_search_submission class="flex flex-col gap-2">
              <div class="flex gap-2">
                 <input
@@ -89,7 +86,7 @@ where
                     <label class="label">
                         <span class="label-text">"Expired"</span>
                         <ThreeStateSelect
-                            value=Signal::derive(cx, move || filters.get().expired)
+                            value=Signal::derive( move || filters.get().expired)
                             on_change=move |v| filters.update(|filters| filters.expired = v)
                             class="select select-bordered select-sm"
                         />
@@ -100,10 +97,10 @@ where
                         <span class="label-text">"Labels"</span>
                         <div class="w-80 max-h-28">
                             <LabelSelector
-                                labels=Signal::derive(cx, move || HashSet::from_iter(labels.read(cx).unwrap_or_default().into_iter()))
+                                labels=Signal::derive( move || HashSet::from_iter(labels.get().unwrap_or_default().into_iter()))
                                 allow_new=false
                                 compact=true
-                                selected=Signal::derive(cx, move || filters.get().labels.unwrap_or_default())
+                                selected=Signal::derive( move || filters.get().labels.unwrap_or_default())
                                 on_change=move |l| filters.update(|f| f.labels = Some(l))
                             />
                         </div>
@@ -122,11 +119,11 @@ where
                         >
                             <option selected=move || filters.get().location_id.is_none() value="">"__Any__"</option>
                             <For
-                                each=move || locations.read(cx).unwrap_or_default()
+                                each=move || locations.get().unwrap_or_default()
                                 key=move |location| location.id.to_owned()
-                                view=move |cx, location| {
+                                children=move |location| {
                                     let id = location.id.to_owned();
-                                    view!{cx,
+                                    view!{
                                         <option
                                             selected=move || filters.get().location_id.unwrap_or_default() == id
                                             value={&location.id}>{&location.name}
@@ -149,12 +146,12 @@ where
 }
 
 #[component]
-fn PantryItemRow<E, D>(cx: Scope, item: Item, edit_action: E, delete_action: D) -> impl IntoView
+fn PantryItemRow<E, D>(item: Item, edit_action: E, delete_action: D) -> impl IntoView
 where
     E: Fn() + 'static,
     D: Fn() + 'static,
 {
-    view! {cx,
+    view! {
         <tr>
             <td class="flex justify-center">
                 {
@@ -166,7 +163,7 @@ where
                     } else {
                         chip_color = "bg-success";
                     }
-                    view!{cx, <div class=format!("h-2 w-7 rounded-full {chip_color}")></div>}
+                    view!{ <div class=format!("h-2 w-7 rounded-full {chip_color}")></div>}
                 }
             </td>
             <td>{&item.name}</td>
@@ -200,17 +197,16 @@ where
 }
 
 #[component]
-pub fn Pantry(cx: Scope) -> impl IntoView {
-    let toasts = use_toasts(cx);
-    let modal_controller = use_modal_controller(cx);
-    let CurrentApi { api, .. } = use_api(cx);
-    let CurrentLogin { set_login, .. } = use_login(cx);
-    let filters = create_rw_signal(cx, PantryFilter::default());
-    let items = create_rw_signal::<Vec<Item>>(cx, Vec::default());
-    let new_items = create_rw_signal::<Vec<Item>>(cx, Vec::default());
+pub fn Pantry() -> impl IntoView {
+    let toasts = use_toasts();
+    let modal_controller = use_modal_controller();
+    let CurrentApi { api, .. } = use_api();
+    let CurrentLogin { set_login, .. } = use_login();
+    let filters = create_rw_signal(PantryFilter::default());
+    let items = create_rw_signal::<Vec<Item>>(Vec::default());
+    let new_items = create_rw_signal::<Vec<Item>>(Vec::default());
 
     let current_page = create_resource(
-        cx,
         move || filters.get(),
         move |filters| {
             let api = api.get_untracked().expect("api expected to exist");
@@ -230,9 +226,9 @@ pub fn Pantry(cx: Scope) -> impl IntoView {
         },
     );
 
-    create_effect(cx, move |_| {
+    create_effect(move |_| {
         // XXX this is not great, but it works (just ensure any reads everything is x.get_untracked()
-        if let Some(current_page) = current_page.read(cx).flatten() {
+        if let Some(current_page) = current_page.get().flatten() {
             new_items.set(Vec::default());
             items.update(|v| {
                 if filters.get_untracked().page == 1 {
@@ -243,18 +239,15 @@ pub fn Pantry(cx: Scope) -> impl IntoView {
         }
     });
 
-    let loading_items_state = Signal::derive(cx, move || {
-        match (
-            current_page.loading().get(),
-            current_page.read(cx).flatten(),
-        ) {
+    let loading_items_state = Signal::derive(move || {
+        match (current_page.loading().get(), current_page.get().flatten()) {
             (true, _) => LoadingItemsState::Loading,
             (false, Some(items)) => LoadingItemsState::Loaded(items.len()),
             (false, None) => LoadingItemsState::Failed,
         }
     });
 
-    let delete_item = create_action(cx, move |id: &String| {
+    let delete_item = create_action(move |id: &String| {
         let api = api.get_untracked().expect("api expected to exist");
         let id = id.clone();
         async move {
@@ -269,7 +262,7 @@ pub fn Pantry(cx: Scope) -> impl IntoView {
         }
     });
 
-    let delete_new_item = create_action(cx, move |id: &String| {
+    let delete_new_item = create_action(move |id: &String| {
         let api = api.get_untracked().expect("api expected to exist");
         let id = id.clone();
         async move {
@@ -318,7 +311,7 @@ pub fn Pantry(cx: Scope) -> impl IntoView {
                 v.push(new_item.clone());
             });
             match mode {
-                CreationMode::CreateAndEdit => modal_controller.open(view! {cx,
+                CreationMode::CreateAndEdit => modal_controller.open(view! {
                     <EditItemModal
                         item=new_item
                         on_action=on_edit_new_item_action
@@ -337,28 +330,28 @@ pub fn Pantry(cx: Scope) -> impl IntoView {
 
     let on_new_item_click = move |_| {
         modal_controller.open(
-            view! {cx,
+            view! {
                 <NewItemModal
                     on_action=on_new_item_action
                 />
             }
-            .into_view(cx),
+            .into_view(),
         );
     };
 
     let on_locations_click = move |_| {
         modal_controller.open(
-            view! {cx,
+            view! {
                 <LocationsModal
                     on_action=on_locations_action
                 />
             }
-            .into_view(cx),
+            .into_view(),
         );
     };
 
     let on_edit_item_click = move |item: Item| {
-        modal_controller.open(view! {cx,
+        modal_controller.open(view! {
             <EditItemModal
                 item=item
                 on_action=on_edit_item_action
@@ -367,7 +360,7 @@ pub fn Pantry(cx: Scope) -> impl IntoView {
     };
 
     let on_edit_new_item_click = move |item: Item| {
-        modal_controller.open(view! {cx,
+        modal_controller.open(view! {
             <EditItemModal
                 item=item
                 on_action=on_edit_new_item_action
@@ -392,7 +385,7 @@ pub fn Pantry(cx: Scope) -> impl IntoView {
         current_page.refetch();
     };
 
-    view! {cx,
+    view! {
         <div class="rounded bg-base-200 p-4 mb-2">
             <h1 class="text-3xl font-bold mb-4">"Pantry"</h1>
             <div class="join shadow-lg">
@@ -400,7 +393,7 @@ pub fn Pantry(cx: Scope) -> impl IntoView {
                 <button on:click=on_locations_click class="btn join-item btn-neutral">"Locations"</button>
             </div>
         </div>
-        <Show when=move || !new_items.get().is_empty() fallback=move |_| view!{cx, <></>}>
+        <Show when=move || !new_items.get().is_empty()>
             <div class="rounded bg-base-200 p-4 mb-2">
                 <h2 class="text-2xl font-bold mb-4">"New Items"</h2>
                 <div class="rounded bg-base-100 p-4">
@@ -417,7 +410,7 @@ pub fn Pantry(cx: Scope) -> impl IntoView {
                         {move || {
                             // NOTE "For" component not used as it will not re-render on item edit
                             new_items.get().into_iter().map(|item|{
-                                view!{cx,
+                                view!{
                                     <PantryItemRow
                                         item=item.clone()
                                         edit_action={
@@ -427,7 +420,7 @@ pub fn Pantry(cx: Scope) -> impl IntoView {
                                         delete_action=move || delete_new_item.dispatch(item.id.clone())
                                     />
                                 }
-                            }).collect_view(cx)
+                            }).collect_view()
                         }}
                         </tbody>
                     </table>
@@ -451,7 +444,7 @@ pub fn Pantry(cx: Scope) -> impl IntoView {
                     {move || {
                         // NOTE "For" component not used as it will not re-render on item edit
                         items.get().into_iter().map(|item|{
-                            view!{cx,
+                            view!{
                                 <PantryItemRow
                                     item=item.clone()
                                     edit_action={
@@ -461,13 +454,13 @@ pub fn Pantry(cx: Scope) -> impl IntoView {
                                     delete_action=move || delete_item.dispatch(item.id.clone())
                                 />
                             }
-                        }).collect_view(cx)
+                        }).collect_view()
                     }}
                     </tbody>
                 </table>
                 <BufferedPageLoader
                     items_state=loading_items_state
-                    items_per_page=Signal::derive(cx, move || filters.get().per_page)
+                    items_per_page=Signal::derive( move || filters.get().per_page)
                     load_more_action=on_load_more
                     retry_action=on_retry
                 />

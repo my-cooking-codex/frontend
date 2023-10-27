@@ -9,7 +9,6 @@ pub enum LoadingItemsState {
 
 #[component]
 pub fn BufferedPageLoader<F, R>(
-    cx: Scope,
     items_state: Signal<LoadingItemsState>,
     items_per_page: Signal<usize>,
     load_more_action: F,
@@ -19,13 +18,13 @@ where
     F: Fn() + 'static + Copy,
     R: Fn() + 'static + Copy,
 {
-    view! {cx,
+    view! {
         <div class="flex justify-center">
             {move || {
                 match items_state.get() {
                     LoadingItemsState::Loaded(items) => {
                         if items == items_per_page.get() {
-                            view!{cx,
+                            view!{
                                 <button
                                     on:click=move |_| load_more_action()
                                     class="btn btn-block"
@@ -33,16 +32,16 @@ where
                                 >"More"</button>
                             }.into_any()
                         } else {
-                            view! {cx,
+                            view! {
                                 <div class="text-center"
                                 >"Reached Bottom"</div>
                             }.into_any()
                         }
                     },
-                    LoadingItemsState::Loading => view!{cx,
+                    LoadingItemsState::Loading => view!{
                         <div class="loading loading-ring loading-lg"></div>
                     }.into_any(),
-                    LoadingItemsState::Failed => view!{cx,
+                    LoadingItemsState::Failed => view!{
                         <button
                             on:click=move |_| retry_action()
                             class="btn btn-block"

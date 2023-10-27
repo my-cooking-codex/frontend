@@ -10,21 +10,16 @@ use wasm_bindgen::JsCast;
 use web_sys::{File, HtmlInputElement};
 
 #[component]
-pub fn EditImageModal<F>(
-    cx: Scope,
-    id: String,
-    image_id: Option<String>,
-    on_action: F,
-) -> impl IntoView
+pub fn EditImageModal<F>(id: String, image_id: Option<String>, on_action: F) -> impl IntoView
 where
     F: Fn(Option<Option<String>>) + 'static + Copy,
 {
-    let toasts = use_toasts(cx);
-    let CurrentApi { api, .. } = use_api(cx);
-    let image_id = create_rw_signal(cx, image_id);
-    let image_file = create_rw_signal::<Option<File>>(cx, Option::default());
+    let toasts = use_toasts();
+    let CurrentApi { api, .. } = use_api();
+    let image_id = create_rw_signal(image_id);
+    let image_file = create_rw_signal::<Option<File>>(Option::default());
 
-    let save_action = create_action(cx, move |_: &()| {
+    let save_action = create_action(move |_: &()| {
         let id = id.clone();
         let api = api.get_untracked().expect("api expected to be set");
         async move {
@@ -51,7 +46,7 @@ where
         image_file.set(Some(file));
     };
 
-    view! {cx,
+    view! {
         <ModalSaveCancel
             title="Edit Image"
             loading=save_action.pending()
@@ -73,7 +68,7 @@ where
             </div>
             {move || {
                 if image_id.get().is_some() {
-                    return Some(view!{cx,
+                    return Some(view!{
                         <div class="form-control mb-2">
                             <span class="label">"Remove Existing"</span>
                             <button

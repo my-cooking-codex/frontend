@@ -21,17 +21,17 @@ fn make_preview_url(base_url: &str) -> Option<String> {
 }
 
 #[component]
-pub fn BaseUrlInput<F>(cx: Scope, value: Option<String>, on_change: F) -> impl IntoView
+pub fn BaseUrlInput<F>(value: Option<String>, on_change: F) -> impl IntoView
 where
     F: Fn(Option<String>) + 'static + Copy,
 {
-    let (base_url, set_base_url) = create_signal(cx, value);
-    let preview_base_url = Signal::derive(cx, move || {
+    let (base_url, set_base_url) = create_signal(value);
+    let preview_base_url = Signal::derive(move || {
         let base_url = base_url.get().unwrap_or_default();
         make_preview_url(&base_url).unwrap_or_else(|| "(unset)".to_owned())
     });
 
-    let is_edit_mode = create_rw_signal(cx, bool::default());
+    let is_edit_mode = create_rw_signal(bool::default());
 
     let view_mode = move || {
         if let Some(url) = base_url.get() {
@@ -62,10 +62,10 @@ where
         };
     };
 
-    view! {cx,
+    view! {
         <div class="join">
             {move || {
-                view!(cx,
+                view!(
                     <input
                         prop:value={move || {
                             if is_edit_mode.get() {
@@ -107,7 +107,6 @@ where
 
 #[component]
 pub fn FractionalInput<F>(
-    cx: Scope,
     class: String,
     value: f32,
     on_input: F,
@@ -117,8 +116,8 @@ pub fn FractionalInput<F>(
 where
     F: Fn(f32) + 'static + Copy,
 {
-    let invalid = create_rw_signal(cx, false);
-    let input_value = create_rw_signal(cx, value.to_string());
+    let invalid = create_rw_signal(false);
+    let input_value = create_rw_signal(value.to_string());
 
     let on_value_input = move |ev| {
         let input = event_target_value(&ev);
@@ -150,7 +149,7 @@ where
         }
     };
 
-    view! {cx,
+    view! {
         <input
             prop:value=move || input_value.get()
             on:input=on_value_input
@@ -167,7 +166,6 @@ where
 
 #[component]
 pub fn HmsInput<F>(
-    cx: Scope,
     #[prop(into)] value: Signal<HourMinuteSecond>,
     on_input: F,
     required: bool,
@@ -175,7 +173,7 @@ pub fn HmsInput<F>(
 where
     F: Fn(HourMinuteSecond) + 'static + Copy,
 {
-    view! {cx,
+    view! {
         <div class="flex gap-1">
             <label class="join">
                 <input
@@ -237,7 +235,6 @@ where
 
 #[component]
 pub fn DropdownConfirm<F>(
-    cx: Scope,
     #[prop(into)] title: String,
     #[prop(into)] confirm_aria: String,
     on_confirm: F,
@@ -246,7 +243,7 @@ pub fn DropdownConfirm<F>(
 where
     F: Fn() + 'static + Copy,
 {
-    view! {cx,
+    view! {
         <div class="dropdown dropdown-bottom dropdown-end".to_owned() + &class.map_or("".to_owned(),|v| format!(" {v}"))>
             <label tabindex="0" class="btn">{title}</label>
             <div class="dropdown-content menu bg-base-200 rounded">
@@ -264,7 +261,6 @@ where
 
 #[component]
 pub fn ThreeStateSelect<F>(
-    cx: Scope,
     #[prop(into)] value: Signal<Option<bool>>,
     on_change: F,
     #[prop(into, optional)] class: Option<String>,
@@ -272,7 +268,7 @@ pub fn ThreeStateSelect<F>(
 where
     F: Fn(Option<bool>) + 'static + Copy,
 {
-    view! {cx,
+    view! {
         <select
             on:change=move |ev| {
                 match event_target_value(&ev).as_str() {
@@ -301,7 +297,6 @@ where
 
 #[component]
 pub fn LabelSelector<F>(
-    cx: Scope,
     #[prop(into)] labels: Signal<HashSet<String>>,
     allow_new: bool,
     #[prop(optional)] compact: bool,
@@ -311,8 +306,8 @@ pub fn LabelSelector<F>(
 where
     F: Fn(HashSet<String>) + 'static + Copy,
 {
-    let label_input = create_rw_signal(cx, String::default());
-    let label_input_invalid = Signal::derive(cx, move || {
+    let label_input = create_rw_signal(String::default());
+    let label_input_invalid = Signal::derive(move || {
         if !label_input.get().is_empty() && !allow_new && !labels.get().contains(&label_input.get())
         {
             return true;
@@ -335,14 +330,14 @@ where
         on_change(new_selected);
     };
 
-    view! {cx,
+    view! {
         <div class="flex flex-col gap-2">
             <div class="flex flex-wrap gap-2 overflow-y-auto">
                 <For
                     each=move || selected.get().into_iter()
                     key=|name| name.to_owned()
-                    view=move |cx, label_name| {
-                        view!{cx,
+                    children=move |label_name| {
+                        view!{
                         <div class="inline-flex items-center bg-primary p-1 gap-2 rounded-lg shadow-md">
                             <span class="text-primary-content">{&label_name}</span>
                             <button
@@ -381,8 +376,8 @@ where
                         {move || {
                             let selected = selected.get();
                             labels.get().difference(&selected).map(|label|
-                                view! {cx,<option value=label />}
-                            ).collect_view(cx)
+                                view! {<option value=label />}
+                            ).collect_view()
                         }}
                     </datalist>
                     <button

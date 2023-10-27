@@ -10,15 +10,14 @@ use crate::{
 };
 
 #[component]
-pub fn EditLabelsModal<F>(cx: Scope, id: String, labels: Vec<String>, on_action: F) -> impl IntoView
+pub fn EditLabelsModal<F>(id: String, labels: Vec<String>, on_action: F) -> impl IntoView
 where
     F: Fn(Option<Vec<String>>) + 'static + Copy,
 {
-    let toasts = use_toasts(cx);
-    let CurrentApi { api, .. } = use_api(cx);
+    let toasts = use_toasts();
+    let CurrentApi { api, .. } = use_api();
 
     let existing_labels = create_resource(
-        cx,
         || {},
         move |_| async move {
             let api = api.get_untracked().expect("api expected to be set");
@@ -32,9 +31,9 @@ where
         },
     );
     let labels: leptos::RwSignal<HashSet<std::string::String>> =
-        create_rw_signal(cx, HashSet::from_iter(labels.into_iter()));
+        create_rw_signal(HashSet::from_iter(labels.into_iter()));
 
-    let update_labels = create_action(cx, move |_: &()| {
+    let update_labels = create_action(move |_: &()| {
         let id = id.clone();
         let api = api.get_untracked().expect("api expected to be set");
         let labels = labels.get_untracked().into_iter().collect::<Vec<String>>();
@@ -61,7 +60,7 @@ where
         labels.set(selected);
     };
 
-    view! {cx,
+    view! {
         <ModalSaveCancel
             title="Edit Labels"
             loading=update_labels.pending()
@@ -69,7 +68,7 @@ where
             on_cancel=move || on_action(None)
         >
             <LabelSelector
-                labels=Signal::derive(cx, move || existing_labels.read(cx).unwrap_or_default())
+                labels=Signal::derive( move || existing_labels.get().unwrap_or_default())
                 allow_new=true
                 selected=labels
                 on_change=on_change
