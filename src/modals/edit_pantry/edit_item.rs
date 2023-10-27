@@ -1,4 +1,4 @@
-use chrono::{DateTime, NaiveDate, Utc};
+use chrono::{DateTime, Months, NaiveDate, Utc};
 use leptos::*;
 use std::collections::HashSet;
 
@@ -158,6 +158,41 @@ where
                         class="input input-bordered w-full"
                     />
                 </label>
+                <div class="join">
+                    <button
+                        on:click=move |_| {
+                            item.update(|item| {
+                                item.expiry = item.expiry
+                                    .unwrap_or_else(Utc::now)
+                                    .checked_add_months(Months::new(1))
+                            })
+                        }
+                        type="button"
+                        class="btn btn-sm join-item"
+                    >+1</button>
+                    <button
+                        on:click=move |_| {
+                            item.update(|item| {
+                                item.expiry = item.expiry
+                                    .unwrap_or_else(Utc::now)
+                                    .checked_add_months(Months::new(3))
+                            })
+                        }
+                        type="button"
+                        class="btn btn-sm join-item"
+                    >+3</button>
+                    <button
+                        on:click=move |_| {
+                            item.update(|item| {
+                                item.expiry = item.expiry
+                                    .unwrap_or_else(Utc::now)
+                                    .checked_add_months(Months::new(12))
+                            })
+                        }
+                        type="button"
+                        class="btn btn-sm join-item"
+                    >+12</button>
+                </div>
             </div>
             <div class="form-control">
                 <label>
