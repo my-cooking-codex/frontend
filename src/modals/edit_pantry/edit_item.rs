@@ -151,7 +151,7 @@ where
                                 v.expiry = None
                             } else {
                                 let new_time = NaiveDate::parse_from_str(&event_target_value(&ev), "%Y-%m-%d").unwrap();
-                                v.expiry = Some(DateTime::<Utc>::from_utc(new_time.and_hms_milli_opt(0,0,0,0).unwrap(), Utc));
+                                v.expiry = Some(DateTime::<Utc>::from_naive_utc_and_offset(new_time.and_hms_milli_opt(0,0,0,0).unwrap(), Utc));
                             }
                         })
                         type="date"
