@@ -5,13 +5,13 @@
 - Web server capable of serving static content
 - Rust Stable (2021 edition)
 - Trunk
-- PNPM
+- npm
 
 ### Build
 Run these commands:
 
 ```
-pnpm install
+npm ci
 
 trunk build --release
 ```
