@@ -178,16 +178,17 @@ where
                 }
                 </time>
             </td>
+            <td>{item.quantity.to_string()}</td>
             <td class="flex justify-end">
                 <div class="join shadow-lg">
                     <button
                         on:click=move |_| edit_action()
-                        class="btn join-item"
+                        class="btn btn-sm join-item"
                         aria-label=format!("Show More For '{}'", &item.name)
                     >"More"</button>
                     <button
                         on:click=move |_| delete_action()
-                        class="btn btn-outline btn-error join-item"
+                        class="btn btn-sm btn-outline btn-error join-item"
                         aria-label=format!("Delete '{}'", &item.name)
                     >"X"</button>
                 </div>
@@ -403,6 +404,7 @@ pub fn Pantry() -> impl IntoView {
                                 <th></th>
                                 <th>"Name"</th>
                                 <th>"Expiry"</th>
+                                <th>"Quantity"</th>
                                 <th></th>
                             </tr>
                         </thead>
@@ -437,6 +439,7 @@ pub fn Pantry() -> impl IntoView {
                             <th></th>
                             <th>"Name"</th>
                             <th>"Expiry"</th>
+                            <th>"Quantity"</th>
                             <th></th>
                         </tr>
                     </thead>
