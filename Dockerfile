@@ -1,27 +1,31 @@
 # syntax=docker/dockerfile:1.4
-FROM rust:1-buster as builder
+
+FROM node:20-bullseye as builder
 
     WORKDIR /app
 
-    ENV PNPM_HOME="/root/.local/share/pnpm"
-    ENV PATH="$PNPM_HOME:$PATH"
-
+    # Install rust
+    RUN \
+        curl --proto '=https' --tlsv1.2 -sSf --output /tmp/rustup https://sh.rustup.rs && \
+        chmod +x /tmp/rustup && \
+        bash /tmp/rustup -y
+    ENV PATH="$PATH:/root/.cargo/bin"
     RUN rustup target add wasm32-unknown-unknown
 
-    RUN wget -qO- https://get.pnpm.io/install.sh | SHELL=bash sh - \
-        && pnpm add -g node-linux-x64
+    # Install Cargo B(inary)Install
+    RUN curl -L --proto '=https' --tlsv1.2 -sSf https://raw.githubusercontent.com/cargo-bins/cargo-binstall/main/install-from-binstall-release.sh | bash
 
-    RUN cargo install trunk
+    RUN cargo binstall --no-confirm trunk
 
-    COPY package.json pnpm-lock.yaml ./
+    COPY package.json package-lock.yaml ./
 
-    RUN pnpm install
+    RUN npm ci
 
     COPY . .
 
     RUN trunk build --release
 
-FROM nginxinc/nginx-unprivileged:stable-alpine
+FROM nginxinc/nginx-unprivileged:1.25-alpine
 
     EXPOSE 8000
 
