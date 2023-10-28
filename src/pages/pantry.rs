@@ -163,7 +163,7 @@ where
                     } else {
                         chip_color = "bg-success";
                     }
-                    view!{ <div class=format!("h-2 w-7 rounded-full {chip_color}")></div>}
+                    view!{ <div class=format!("h-2 w-2 duration-300 sm:w-7 rounded-full {chip_color}")></div>}
                 }
             </td>
             <td>{&item.name}</td>
@@ -178,7 +178,7 @@ where
                 }
                 </time>
             </td>
-            <td>{item.quantity.to_string()}</td>
+            <td class="hidden sm:table-cell">{item.quantity.to_string()}</td>
             <td class="flex justify-end">
                 <div class="join shadow-lg">
                     <button
@@ -404,7 +404,7 @@ pub fn Pantry() -> impl IntoView {
                                 <th></th>
                                 <th>"Name"</th>
                                 <th>"Expiry"</th>
-                                <th>"Quantity"</th>
+                                <th class="hidden sm:table-cell">"Quantity"</th>
                                 <th></th>
                             </tr>
                         </thead>
@@ -439,7 +439,7 @@ pub fn Pantry() -> impl IntoView {
                             <th></th>
                             <th>"Name"</th>
                             <th>"Expiry"</th>
-                            <th>"Quantity"</th>
+                            <th class="hidden sm:table-cell">"Quantity"</th>
                             <th></th>
                         </tr>
                     </thead>
