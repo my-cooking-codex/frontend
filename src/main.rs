@@ -38,15 +38,11 @@ pub fn App() -> impl IntoView {
     provide_context(Toasts::new());
     provide_context(ModalController::new());
 
-    let has_auth = move || {
-        let CurrentLogin { login, .. } = use_login();
-        login.get().is_some()
-    };
+    let CurrentLogin { login, .. } = use_login();
 
-    let has_no_auth = move || {
-        let CurrentLogin { login, .. } = use_login();
-        login.get().is_none()
-    };
+    let has_auth = move || login.get().is_some();
+
+    let has_no_auth = move || login.get().is_none();
 
     view! {
         <ToastsViewer/>

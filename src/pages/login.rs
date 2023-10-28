@@ -7,7 +7,7 @@ use crate::{
     helpers::api_error_to_toast,
 };
 use leptos::{ev::SubmitEvent, leptos_dom::helpers::location, *};
-use leptos_router::A;
+use leptos_router::{use_navigate, A};
 use mcc_frontend_core::{api::Api, APP_TITLE};
 use mcc_frontend_types::{Login, StoredLogin};
 
@@ -15,44 +15,38 @@ use mcc_frontend_types::{Login, StoredLogin};
 pub fn Login() -> impl IntoView {
     let CurrentLogin { set_login, .. } = use_login();
     let toasts = use_toasts();
-
+    let navigator = use_navigate();
     let base_url = create_rw_signal::<Option<String>>(location().origin().ok());
     let (username, set_username) = create_signal(String::default());
     let (password, set_password) = create_signal(String::default());
 
-    let is_loading = create_rw_signal(false);
-
-    let fetch_token = move |base_url: String, details: Login| {
+    let do_login = create_action(move |args: &(String, Login)| {
+        let (base_url, details) = args.to_owned();
         async move {
-            is_loading.set(true);
             let api_url = format!("{}/api", base_url);
             let media_url = format!("{}/media", base_url);
             let api = Api::new(api_url.clone(), None);
-            // request oauth token, with given details
             match api.post_login(&details).await {
                 Ok(token) => {
                     log::debug!("login successful, token will expire at: {:?}", token.expiry);
-                    batch(move || {
-                        set_login.set(Some(StoredLogin {
-                            api_url,
-                            media_url,
-                            token,
-                        }));
-                        is_loading.set(false);
-                    });
+                    Some(StoredLogin {
+                        api_url,
+                        media_url,
+                        token,
+                    })
                 }
                 Err(err) => {
-                    toasts.push(api_error_to_toast(&err, "authenticating login"));
-                    is_loading.set(false);
+                    toasts.push(api_error_to_toast(&err, "authenticating token"));
+                    None
                 }
-            };
+            }
         }
-    };
+    });
 
     let on_submit = move |event: SubmitEvent| {
         event.prevent_default();
         if let Some(base_url) = base_url.get() {
-            spawn_local(fetch_token(
+            do_login.dispatch((
                 base_url,
                 Login {
                     username: username.get(),
@@ -61,6 +55,14 @@ pub fn Login() -> impl IntoView {
             ));
         }
     };
+
+    create_effect(move |_| {
+        if let Some(login) = do_login.value().get().flatten() {
+            set_login.set(Some(login));
+            // XXX ProtectedRoute should handle this, but it appears to be broken?
+            navigator("/", Default::default());
+        }
+    });
 
     view! {
         <div class="hero min-h-screen bg-base-200">
@@ -76,7 +78,7 @@ pub fn Login() -> impl IntoView {
                             <div class="form-control mb-2">
                                 <label class="label"><span class="label-text">"API Server"</span></label>
                                 <BaseUrlInput
-                                    value=base_url.get()
+                                    value=base_url.get_untracked()
                                     on_change=move |v| base_url.set(v)
                                 />
                             </div>
@@ -109,7 +111,7 @@ pub fn Login() -> impl IntoView {
                                 <button
                                     class="btn btn-primary join-item"
                                     // class="loading"
-                                    class:loading=move || is_loading.get()
+                                    class:loading=move || do_login.pending().get()
                                     type="submit"
                                     prop:disabled=move || base_url.get().is_none()
                                 >
