@@ -21,7 +21,7 @@ jobs:
           toolchain: stable
       - run: rustup target add wasm32-unknown-unknown
       - name: Install Node
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
           node-version: 20
       - uses: cargo-bins/cargo-binstall@main
