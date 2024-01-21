@@ -39,12 +39,17 @@ pub enum ApiError {
 }
 
 impl ApiError {
-    /// Handle response errors
+    /// Handle response errors, including http status codes
     pub fn from_response_result(
         response: Result<gloo::net::http::Response, gloo::net::Error>,
     ) -> Result<gloo::net::http::Response, Self> {
         match response {
-            Ok(v) => Ok(v),
+            Ok(r) => match r.ok() {
+                false => Err(ApiError::Response(ApiResponseError {
+                    status_code: r.status(),
+                })),
+                true => Ok(r),
+            },
             Err(err) => match err {
                 gloo::net::Error::JsError(_) => {
                     Err(ApiError::Internal(ApiInternalError::Connection))
@@ -60,19 +65,14 @@ impl ApiError {
     where
         T: DeserializeOwned,
     {
-        match response.ok() {
-            false => Err(ApiError::Response(ApiResponseError {
-                status_code: response.status(),
-            })),
-            true => match response.json::<T>().await {
-                Err(err) => match err {
-                    gloo::net::Error::SerdeError(_) => {
-                        Err(ApiError::Internal(ApiInternalError::Deserialization))
-                    }
-                    _ => Err(ApiError::Internal(ApiInternalError::Generic)),
-                },
-                Ok(v) => Ok(v),
+        match response.json::<T>().await {
+            Err(err) => match err {
+                gloo::net::Error::SerdeError(_) => {
+                    Err(ApiError::Internal(ApiInternalError::Deserialization))
+                }
+                _ => Err(ApiError::Internal(ApiInternalError::Generic)),
             },
+            Ok(v) => Ok(v),
         }
     }
 }
